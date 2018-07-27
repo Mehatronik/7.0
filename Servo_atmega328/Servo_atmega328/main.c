@@ -12,16 +12,18 @@
 #include "uart.h"
 #include "external_interrupt.h"
 
+
+
 char bafer[30];
 
 int main(void)
 {
-	//int i = 0;
+	uint8_t dozvola = 1, prethodno;
   
 	timer_1ms_init();
 	pwm_init();
 	uart_init();
-	ext_int_init();
+	//ext_int_init();
 	
 	sei();		//NEMOJ ZABORAVITI, global interrupt enable
 	
@@ -29,19 +31,34 @@ int main(void)
 	
     while (1) 
     {
-		/*
-		for(i=0; i<=180; i+=10)
-		{
-			OCR1A = set_servo_angle(i, 50, 100);
-			_delay_ms(100);
-		}
 		
-		for(i=180; i>=0; i-=10)
+		
+		if (pritisnut && dozvola && !prethodno)
 		{
-			OCR1A = set_servo_angle(i, 50, 100);
-			_delay_ms(20);
+			dozvola = 0;
+			sys_time=0;   //startuj brojac
+		}	
+			
+			
+		if (sys_time == 0)
+		{
+			OCR1A = set_servo_angle(90, 0, 180);
 		}
-		*/
+		else if (sys_time == 800)
+		{
+			OCR1A = set_servo_angle(0, 0, 180);
+		}
+		else if (sys_time == 1600)
+		{
+			OCR1A = TOP_PWM;
+			
+			
+			   dozvola = 1;
+		}
+		prethodno=pritisnut;	
+			
+		
+				
 		
 		
 		if(flag_100ms)
@@ -65,7 +82,14 @@ int main(void)
 			
 			*/
 			
-		
+			send_str("  pritisnut:");
+			utoa(pritisnut, bafer, 10);
+			send_str(bafer);
+			
+	
+			
+			
+			send_str("\n");
 		}
 		
 		

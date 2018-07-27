@@ -17,6 +17,8 @@
 #include <util/delay.h>
 
 
+#define ReadPin(PINx, n)  ( PINx & (1<<n) )
+
 
 
 #endif /* COMMON_H_ */

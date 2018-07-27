@@ -14,9 +14,11 @@ extern volatile uint_fast8_t flag_100ms;
 extern volatile uint_fast32_t sys_time;
 extern volatile uint_fast8_t flag_pritisnut;
 extern const uint_least16_t interval;
+extern volatile uint_fast8_t PIND2_old;
 
 
 extern void timer_1ms_init();	//deklaracija a ne definicija. Znaci da postoji ovo. Prototip.
+extern volatile uint_fast8_t pritisnut;
 
 
 

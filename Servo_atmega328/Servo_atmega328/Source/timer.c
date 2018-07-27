@@ -15,6 +15,10 @@ volatile uint_fast8_t flag_100ms = 0;
 volatile uint_fast32_t sys_time = 0;  //64 bita nikada nece otici u overflow. teoretski to ce se desiti za oko 600 miliona godina
 volatile uint_fast8_t flag_pritisnut = 0;
 
+volatile uint_fast8_t PIND2_old = 1;
+volatile uint_fast8_t pritisnut = 0;
+
+
 void timer_1ms_init()	//sistemski tajmer, timer/counter0
 {
 	DDRD |= 1<<DDD6;	//PD6 izlaz = timer debug check on o-scope
@@ -22,6 +26,8 @@ void timer_1ms_init()	//sistemski tajmer, timer/counter0
 	DDRB |= 1<DDB5;     //led
 	PORTB &= ~(1<<PORTB5); //led OFF
 	
+	DDRD &= ~(1<<DDD2);  //PD2 ulaz za taster
+	PORTD |= 1<<PORTD2;  //PD2 pull up
 	
 	TCCR0A |= 1<<WGM01;				//CTC mode
 	TCCR0B |= (1<<CS01)|(1<<CS00);	//prescaler = 64
@@ -33,6 +39,8 @@ void timer_1ms_init()	//sistemski tajmer, timer/counter0
 
 ISR(TIMER0_COMPA_vect)	//1ms prekid
 {
+	
+	/*
 	
 	if ((opadajuca==1) && (sys_time==1) && (!(PIND&0b100)) )
 	{
@@ -57,6 +65,27 @@ ISR(TIMER0_COMPA_vect)	//1ms prekid
 		
 		PORTB &= ~(1<<PORTB5); //led OFF
 	}
+	*/
+	
+	if( ReadPin(PIND, 2)==0  &&  PIND2_old == ReadPin(PIND, 2) )
+	{
+		//taster pritisnut i debounce-ovan, jer je prosla 1ms od citanja sa PIND2_old
+		//takoreci, stanje je stabilno posle 1ms
+		pritisnut = 1;
+		
+		
+	}
+	else if ( ReadPin(PIND, 2)!=0  &&  PIND2_old == ReadPin(PIND, 2) )
+	{
+		//taster otpusten i debounce-ovan
+		pritisnut = 0;
+		
+		
+	}
+	
+	
+	
+	PIND2_old = ReadPin(PIND, 2);	//citanje sa maskom sa PD2,  PIND & 0b100;
 	
 	
 	
