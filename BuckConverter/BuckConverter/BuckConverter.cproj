@@ -120,7 +120,40 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Header\ad_konverzija.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Header\common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Header\eksterni_interapt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Header\pwm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Header\tajmer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Header\uart.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ad_konverzija.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\eksterni_interapt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\pwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\tajmer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\uart.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

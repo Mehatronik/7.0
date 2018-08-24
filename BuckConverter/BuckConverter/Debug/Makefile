@@ -39,7 +39,12 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../main.c
+../main.c \
+../Source/ad_konverzija.c \
+../Source/eksterni_interapt.c \
+../Source/pwm.c \
+../Source/tajmer.c \
+../Source/uart.c
 
 
 PREPROCESSING_SRCS += 
@@ -49,16 +54,36 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-main.o
+main.o \
+Source/ad_konverzija.o \
+Source/eksterni_interapt.o \
+Source/pwm.o \
+Source/tajmer.o \
+Source/uart.o
 
 OBJS_AS_ARGS +=  \
-main.o
+main.o \
+Source/ad_konverzija.o \
+Source/eksterni_interapt.o \
+Source/pwm.o \
+Source/tajmer.o \
+Source/uart.o
 
 C_DEPS +=  \
-main.d
+main.d \
+Source/ad_konverzija.d \
+Source/eksterni_interapt.d \
+Source/pwm.d \
+Source/tajmer.d \
+Source/uart.d
 
 C_DEPS_AS_ARGS +=  \
-main.d
+main.d \
+Source/ad_konverzija.d \
+Source/eksterni_interapt.d \
+Source/pwm.d \
+Source/tajmer.d \
+Source/uart.d
 
 OUTPUT_FILE_PATH +=BuckConverter.elf
 
@@ -77,7 +102,24 @@ LINKER_SCRIPT_DEP+=
 
 
 
+
+
+
+
+
+
+
+
+
+
 ./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.132\include" -I"../Header" -I"../Source"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+Source/%.o: ../Source/%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.132\include" -I"../Header" -I"../Source"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

@@ -43,7 +43,7 @@ int main(void)
 			flag_prekid_10ms = 0;
 			
 			
-			
+			/*
 			itoa((int)(ugaona_brzina), bafer, 10);
 			send_str(bafer);
 			send_str(" o/min       ");
@@ -52,7 +52,7 @@ int main(void)
 			
 			itoa((ref_brzina_sa_pot), bafer, 10);
 			send_str(bafer);
-			send_str(" \n ");
+			send_str(" \n ");*/
 			//negde postoji greska pri merenju brzine, prikazuje se oko duplo veca brzina
 			
 			/*
@@ -84,6 +84,23 @@ int main(void)
 			send_str("\n");
 			*/
 			
+			
+			
+			send_str("ad[0]:");
+			itoa( adc_res[0] , bafer, 10);
+			send_str(bafer);
+			
+			
+			send_str("  ad[1]:");
+			itoa( adc_res[1] , bafer, 10);
+			send_str(bafer);
+			
+			send_str("  ad[2]:");
+			itoa( adc_res[2] , bafer, 10);
+			send_str(bafer);
+			
+			
+			send_str("\n");
 			
 		}
 		
