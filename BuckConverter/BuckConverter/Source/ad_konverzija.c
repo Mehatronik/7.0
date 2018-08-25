@@ -16,13 +16,13 @@ volatile int ad_kanal = 0;
 
 void ADC_init()
 {
-	
+	DDRD |= 1<<DDB7;
 	
 	PRR = 0;					//power reduction off
 	
 	ADMUX = (1<<REFS0);				//5V referentni napon, ulazni pin A0
-	ADCSRA = 0b11101111;			//ADC enable, auto trigger enable, ADC conv. complete interrupt enable, 128 prescaler
-	ADCSRB = 0;					//0b11
+	ADCSRA = 0b11101111;			//ADC enable, start conversion, auto trigger enable, ADC conv. complete interrupt enable, 128 prescaler
+	ADCSRB = 0b0;					//0b11
 	
 	ad_kanal = 0; //prvo citam A0
 	
@@ -54,10 +54,10 @@ ISR(ADC_vect)
 	
 	ref_napon_sa_pot = (adc_res[0] / 51.15); //  1023 = 20V  zadati napon sa potenciometra
 	
-	OCR1A = ref_napon_sa_pot * 20.0;  //top = 500
+	OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
 	
 	merena_struja = (adc_res[2] / 930.0) * 4.5454;         // 1/0.22=4.545				//1023 = 5A (1.1V ref, preko 0.22Ohm otpornika)
-	mereni_napon = (adc_res[1] / 5.0);// - (merena_struja / 930.0);				//1023 = 20V  (1.1V referenca) preko razdelnika
+	mereni_napon = (adc_res[1] / 51.15) - (merena_struja / 4.5454);				//1023 = 20V  (1.1V referenca) preko razdelnika
 	
 	ADCSRA &= ~(1<<ADEN);	//iskljucim adc da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
 	
@@ -71,7 +71,7 @@ ISR(ADC_vect)
 	switch(ad_kanal)
 	{
 		case 0:
-				ADMUX = 0b01000000;		//ref VCC 5V, kanal A0
+				ADMUX = 0b11000000;		//ref internal 1.1V, kanal A0
 		break;
 		
 		case 1:
@@ -83,15 +83,15 @@ ISR(ADC_vect)
 		break;
 		
 		case 3:
-				ADMUX = 0b01000011;		//ref VCC 5V, kanal A3
+				ADMUX = 0b11000011;		//ref internal 1.1V, kanal A3
 		break;
 	}
 	
 	
 	//napomena: promena ulaza se vrsi ovde, a kad naredni put uleti u ISR vrsi se konverzija tog kanala. 
 	
-	ADCSRA |= (1<<ADEN);	//ponovo dozvolim adc posle promene u ADMUX
+	ADCSRA |= (1<<ADEN)|(1<<ADSC);	//ponovo dozvolim adc posle promene u ADMUX i pokrenem opet prvu konverziju da bi htelo da radi u Free running
 	
-
+	PIND |= 1<<7;
 
 }

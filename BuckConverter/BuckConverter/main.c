@@ -35,21 +35,22 @@ int main(void)
 			flag_prekid_10ms = 0;
 		
 		
-		send_str("pot:");
+		//send_str("");
+		/*
 		itoa( ref_napon_sa_pot*100 , bafer, 10);
 		send_str(bafer);
 		
 		
-		send_str("V  napon:");
+		send_str("  ");
 		itoa( mereni_napon*100 , bafer, 10);
 		send_str(bafer);
-		
-		send_str("V  struja:");
+		*/
+		send_str("  ");
 		itoa( merena_struja*100 , bafer, 10);
 		send_str(bafer);
 		
 		
-		send_str("A\n");
+		send_str("\n");
 		
 		}
     }

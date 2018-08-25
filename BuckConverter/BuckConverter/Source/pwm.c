@@ -35,7 +35,7 @@ void pwm_init()
 
 ISR(TIMER1_COMPA_vect)
 {
-	ADCSRA |= 1<<ADSC; //start ad conversion
+	//ADCSRA |= 1<<ADSC; //start ad conversion
 	
 	PINB |= 0b1;
 }
