@@ -54,7 +54,8 @@ ISR(ADC_vect)
 	
 	ref_napon_sa_pot = (adc_res[0] / 51.15); //  1023 = 20V  zadati napon sa potenciometra
 	
-	OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
+	OCR1A = ref_napon_sa_pot * 10.0;  //top = 200
+	
 	
 	merena_struja = (adc_res[2] / 930.0) * 4.5454;         // 1/0.22=4.545				//1023 = 5A (1.1V ref, preko 0.22Ohm otpornika)
 	mereni_napon = (adc_res[1] / 51.15) - (merena_struja / 4.5454);				//1023 = 20V  (1.1V referenca) preko razdelnika

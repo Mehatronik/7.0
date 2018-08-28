@@ -15,7 +15,7 @@ void pwm_init()
 	DDRB |= (1 << DDB1)|(1 << DDB2); //izlazni pinovi za PWM - D9 i D10 na Arduino Uno ploci
 	
 
-	ICR1 = 400;			//frekvencija ~ 20 kHz
+	ICR1 = 200;			//frekvencija ~ 20 kHz
 	OCR1A = 0;		    //faktor ispune 0% 
 	OCR1B = OCR1A;
 	
