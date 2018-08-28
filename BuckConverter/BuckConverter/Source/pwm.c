@@ -15,15 +15,15 @@ void pwm_init()
 	DDRB |= (1 << DDB1)|(1 << DDB2); //izlazni pinovi za PWM - D9 i D10 na Arduino Uno ploci
 	
 
-	ICR1 = 200;			//frekvencija ~ 20 kHz
+	ICR1 = 400;			//frekvencija ~ 40 kHz
 	OCR1A = 0;		    //faktor ispune 0% 
 	OCR1B = OCR1A;
 	
 
-	TCCR1A = 0b10110000;		//inverting rezim tj. pwm signali su komplementarni
+	TCCR1A = 0b10000010;		//jedan izlaz, fast pwm
 
 	
-	TCCR1B |= (1 << WGM13);		// set Fast PWM mode using ICR1 as TOP
+	TCCR1B |= (1 << WGM13)|(1 << WGM12);		// set Fast PWM mode using ICR1 as TOP
 	
 	TCCR1B |= (1 << CS10);		// START the timer with no prescaler
 	
