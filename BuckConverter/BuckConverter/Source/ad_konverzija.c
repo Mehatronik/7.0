@@ -20,8 +20,8 @@ void ADC_init()
 	
 	PRR = 0;					//power reduction off
 	
-	ADMUX = (1<<REFS0);				//5V referentni napon, ulazni pin A0
-	ADCSRA = 0b11101111;			//ADC enable, start conversion, auto trigger enable, ADC conv. complete interrupt enable, 128 prescaler
+	ADMUX = 0b11000000;		        //ref internal 1.1V, kanal A0
+	ADCSRA = 0b11101110;			//ADC enable, start conversion, auto trigger enable, ADC conv. complete interrupt enable, 64 prescaler = 250kHz, a preporuka je do 200kHz
 	ADCSRB = 0b0;					//0b11
 	
 	ad_kanal = 0; //prvo citam A0
@@ -54,10 +54,11 @@ ISR(ADC_vect)
 	
 	ref_napon_sa_pot = (adc_res[0] / 51.15); //  1023 = 20V  zadati napon sa potenciometra
 	
-	OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
+	//OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
+	OCR1A = 150;
 	
-	
-	merena_struja = (adc_res[2] / 930.0) * 4.5454;         // 1/0.22=4.545				//1023 = 5A (1.1V ref, preko 0.22Ohm otpornika)
+	/***** Vref 1.1V je zapravo 1.093 V ******/
+	merena_struja = (adc_res[2] / 935.96) * 4.545;         // 1/0.22=4.545				//1023 = 5A (1.1V ref, preko 0.22Ohm otpornika)
 	mereni_napon = (adc_res[1] / 51.15) - (merena_struja / 4.5454);				//1023 = 20V  (1.1V referenca) preko razdelnika
 	
 	ADCSRA &= ~(1<<ADEN);	//iskljucim adc da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
@@ -72,19 +73,21 @@ ISR(ADC_vect)
 	switch(ad_kanal)
 	{
 		case 0:
-				ADMUX = 0b11000000;		//ref internal 1.1V, kanal A0
+				ADMUX &= ~(0b11);		//00;ref internal 1.1V, kanal A0
 		break;
 		
 		case 1:
-				ADMUX = 0b11000001;		//ref internal 1.1V, kanal A1
+				ADMUX &= ~(0b10);		//01;ref internal 1.1V, kanal A1
+				ADMUX |= (0b1);
 		break;
 		
 		case 2:
-				ADMUX = 0b11000010;		//ref internal 1.1V, kanal A2
+				ADMUX &= ~(0b1);		//10;ref internal 1.1V, kanal A2
+				ADMUX |= (0b10);
 		break;
 		
 		case 3:
-				ADMUX = 0b11000011;		//ref internal 1.1V, kanal A3
+				ADMUX |= (0b11);		//11;ref internal 1.1V, kanal A3
 		break;
 	}
 	
