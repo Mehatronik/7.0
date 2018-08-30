@@ -11,24 +11,22 @@
 
 
 
-volatile unsigned adc_res[4][BR_SEMPLOVA]= { 0 };   // [ ad kanal ][ sempl tog kanala ]
-		
+volatile unsigned adc_res[4][BR_SEMPLOVA]= { 0 };   // [ ad kanal ][ sempl tog kanala ] = [red][kolona]
+													//u ad_konv.h se menja BR_Semplova		
 volatile uint8_t brojac_sempla = 0;
-volatile static uint8_t i=0, j=0;
-
 
 volatile unsigned ref_napon_sa_pot = 0, mereni_napon = 0, merena_struja = 0;	//ovde ce biti upisane prosecne vrednosti par semplova
 volatile uint8_t adc_low=0, adc_high=0;
 volatile uint8_t ad_kanal = 0;
-volatile const uint8_t del = 102.966;
-volatile const uint8_t del2 = 51.15;
-volatile const uint8_t del3 = 4.5454;
+
+
+volatile void sumator();
 
 void ADC_init()
 {
 	DDRD |= 1<<DDB7;
 	
-	PRR = 0;					//power reduction off
+	PRR = 0;						//power reduction off
 	
 	ADMUX = 0b11000000;		        //ref internal 1.1V, kanal A0
 	ADCSRA = 0b11101110;			//ADC enable, start conversion, auto trigger enable, ADC conv. complete interrupt enable, 64 prescaler = 250kHz, a preporuka je do 200kHz
@@ -45,13 +43,6 @@ ISR(ADC_vect)
 	ISR okine kada je gotova konverzija
 	*/
 	
-	
-	
-	
-	
-	
-	
-	{
 		
 
 	//ADCL mora biti prvi procitan
@@ -70,49 +61,37 @@ ISR(ADC_vect)
 		else if(adc_high==3)
 			adc_res[ad_kanal][brojac_sempla] = 768 + adc_low;	//256*3
 			
-	}
-	
-	//suma za dati kanal i izvucen prosek
-	if (ad_kanal==0)
-	{
-			ref_napon_sa_pot = 0;
-			
-			for (i=0; i<BR_SEMPLOVA; i++)
-			{
-				ref_napon_sa_pot += adc_res[0][i];
-			}
-			ref_napon_sa_pot = (ref_napon_sa_pot/BR_SEMPLOVA) * 19.55;
-	}
 
 	
-	//ref_naponi[brojac_sempla] = adc_res[0];
+	if (ad_kanal==0)
+			sumator();      //suma za dati kanal i izvucen prosek i upisan u odg promenljivu
+	else if (ad_kanal==1)		
+			sumator();
+	else if (ad_kanal==2)
+			sumator();
 	
 	
-	//ref_napon_sa_pot = (adc_res[0] * 19.55);      //  1023 = 20000mV  zadati napon sa potenciometra, skalirano na milivolte i miliampere da se izbegne deljenje
+	
 	
 	//OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
 	OCR1A = 150;
+
 	
-	/***** Vref 1.1V je zapravo 1.093 V ******/
-	//merena_struja = adc_res[2] * 4.856;                   // / 935.96) * 4.545;         // 1/0.22=4.545				//1023 = 5A (1.1V ref, preko 0.22Ohm otpornika)
-	//mereni_napon = (adc_res[1] * 19.55) - (merena_struja * 1.068);				//1023 = 20V  (1.1V referenca) preko razdelnika
-	
-	{
 	
 	ADCSRA &= ~(1<<ADEN);	//iskljucim adc da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
 	
 	
 	ad_kanal++;			//inkrementiraj kanal
-	if(ad_kanal >= 3)	//kreni opet od nule kad dodjes do poslednjeg; 2, da citam samo prva tri
+	if(ad_kanal > 2)	//kreni opet od nule kad dodjes do poslednjeg; 2, da citam samo prva tri
 	{
 		ad_kanal = 0;
 		
-		brojac_sempla++;
-		if(brojac_sempla >= BR_SEMPLOVA) //5 sempla
+		brojac_sempla++; //kad dodjes do kraja kanala predji na sledeci red semplova
+		if(brojac_sempla >= BR_SEMPLOVA) //kad dodjes do kraja kreni opet od nule
 			brojac_sempla = 0;
 	}
-	//multipleksiranje ad ulaza; tj. promena ad kanala
 	
+	//multipleksiranje ad ulaza; tj. promena ad kanala
 	switch(ad_kanal)
 	{
 		case 0:
@@ -139,8 +118,54 @@ ISR(ADC_vect)
 	
 	ADCSRA |= (1<<ADEN)|(1<<ADSC);	//ponovo dozvolim adc posle promene u ADMUX i pokrenem opet prvu konverziju da bi htelo da radi u Free running
 	
-	}
+	
 	
 	PIND |= 1<<7;       //togle za osciloskop
+
+}
+
+
+
+volatile void sumator()
+{
+	//radi sumu po kolonama matrice, tj po kanalu, izvlaci prosek i upisuje u odgovarajucu promenljivu
+	volatile static uint8_t i=0;
+
+
+	
+	if (ad_kanal == 0) //ref_napon_sa_pot
+	{
+		ref_napon_sa_pot = 0; //nuliram da ne bi uticalo na sumiranje i prosek i stvarne vrednosti
+		
+		for (i=0; i<BR_SEMPLOVA; i++)
+		{
+			ref_napon_sa_pot += adc_res[ad_kanal][i];		//suma po nultoj koloni (nultom kanalu)
+		}
+		ref_napon_sa_pot = (ref_napon_sa_pot/BR_SEMPLOVA) * 19.55;  //1023 = 20000 mV
+		
+		
+	}
+	else if (ad_kanal == 1)	//merena struja
+	{
+		merena_struja = 0;
+		
+		for (i=0; i<BR_SEMPLOVA; i++)
+		{
+			merena_struja += adc_res[ad_kanal][i];
+		}
+		merena_struja = (merena_struja/BR_SEMPLOVA) * 4.856;  // 1023 = 1093 mV, R=220 mOhm, I=V/R = 4968 mA (MAX); izracunato i skalirano da se za max input dobija 5A
+															 /***** Vref 1.1V je zapravo 1.093 V ******/
+	}
+	else if (ad_kanal == 2)	//mereni napon
+	{
+		mereni_napon = 0;
+		
+		for (i=0; i<BR_SEMPLOVA; i++)
+		{
+			mereni_napon += adc_res[ad_kanal][i];
+		}
+		mereni_napon = ((mereni_napon/BR_SEMPLOVA) * 19.55) - (merena_struja * 0.22);  //1023 = 20000 mV - naposnki pad preko sant otpornika (220 mOhm)
+	}
+
 
 }
