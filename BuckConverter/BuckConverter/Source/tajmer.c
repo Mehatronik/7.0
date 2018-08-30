@@ -26,6 +26,8 @@ void tajmer0_init()
 	TCCR0B = 0b11;		//prescaler = 64
 	OCR0A = 249;		//da bi se dobila frekvencija 1kHz odnosno prekid na svaki 1ms
 	TIMSK0 = 0b10;		//compare match A interrupt enable
+	
+	DDRB |= 1<<PINB5;
 }
 
 ISR(TIMER0_COMPA_vect)
@@ -39,10 +41,17 @@ ISR(TIMER0_COMPA_vect)
 	{
 		brojac_prekida_tajmera0 = 0;
 		flag_prekid_10ms = 1;
+		PINB |= 1<<PINB5;					//toogle pin 5 - DIG13, test da vidim da li je korektna frekvencija
+		
+		
+		
+		
+		
+		{
 		//***********************merenje brzine treba obaviti unutar ISR jer je vremenski kriticno*****************************************
 	
-		relativni_ugao = brojac_ext_interaptova / 57.5;	//skaliranje, 58800 impulsa po krugu odgovara 360 stepeni
-		
+		//relativni_ugao = brojac_ext_interaptova / 57.5;	//skaliranje, 58800 impulsa po krugu odgovara 360 stepeni
+		/*
 		if(smer_obrtanja == 2)		//ODREDJUJEM NA KOJU STRANU SE VRTI
 		{
 			ugaona_brzina = stepeniPOms_to_rpm * relativni_ugao;				//posto se zna da merenje relativnog ugla traje 1ms, to je zapravo ugaona
@@ -52,11 +61,11 @@ ISR(TIMER0_COMPA_vect)
 		{
 			ugaona_brzina = -(stepeniPOms_to_rpm * relativni_ugao);	//ako je na drugu brzina je negativna
 		}
-															
+				*/											
 	
-		PINB |= 1<<PINB5;					//toogle pin 5 - DIG13, test da vidim da li je korektna frekvencija
 		
 		
+		/*
 		greska = ref_napon_sa_pot - ugaona_brzina;
 		
 		Upravljanje = 250 + Kp * greska;		//Proporcionalni regulator; ofset 250 zbog h-mosta. Top je 500
@@ -77,21 +86,25 @@ ISR(TIMER0_COMPA_vect)
 			Upravljanje = 0;
 			suma_greske -= greska;		//drugi smer, obratna situacija
 		}
-		
+		*/
 		
 		
 		//OCR1A = Upravljanje;	//mogao sam i direktno da upisujem u OCR1A, ali sam dodao promenljivu 'Upravljanje' da bi bilo baferovano
 		//OCR1B = OCR1A + 50;		//+50 za mrtvo vreme
 		
 		
-		if(OCR1A==0)
-			OCR1B = 0;
+		//if(OCR1A==0)
+			//OCR1B = 0;
 		
 
-		brojac_ext_interaptova =0;			//nuliram da bi brojanje bilo relativno
-		
+		//brojac_ext_interaptova =0;			//nuliram da bi brojanje bilo relativno
+		}
 	
 	}
 	
+	
+	
+	
+
 
 }

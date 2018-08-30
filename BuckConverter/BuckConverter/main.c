@@ -28,7 +28,7 @@ int main(void)
 	char bafer[30];
 	unsigned niz_napona_shunt[100];
 	unsigned niz_struja_shunt[100];
-	unsigned br_semplova = 50;
+	unsigned char br_semplova = 50;
 	int i = 0;
 	unsigned long napon_shunt_AVG = 0;
 	unsigned long struja_shunt_AVG = 0;
@@ -40,8 +40,8 @@ int main(void)
 		
 		for(i=0; i<br_semplova; i++)
 		{
-			niz_napona_shunt[i] = merena_struja * 219.78;
-			niz_struja_shunt[i] = merena_struja * 1000;
+			niz_napona_shunt[i] = merena_struja * 1.068;
+			niz_struja_shunt[i] = merena_struja;
 		}
 		
 		for(i=0; i<br_semplova; i++)
@@ -54,7 +54,7 @@ int main(void)
 		struja_shunt_AVG = struja_shunt_AVG/br_semplova;
 		
 		
-		if(flag_prekid_10ms == 1)		//slanje putem UART Tx na svakih 20ms. Podesava se u tajmer.c fajlu
+		if(flag_prekid_10ms == 1)		//slanje putem UART Tx na svakih 10ms. Podesava se u tajmer.c fajlu
 		{
 			flag_prekid_10ms = 0;
 		
@@ -70,31 +70,21 @@ int main(void)
 		send_str(bafer);
 		*/
 		send_str("  ");
-		itoa( napon_shunt_AVG , bafer, 10);
+		itoa( ref_napon_sa_pot , bafer, 10);
 		send_str(bafer);
 		
 		
 		send_str("  ");
-		itoa( 215 , bafer, 10);
+		itoa( mereni_napon , bafer, 10);
 		send_str(bafer);
 		
+		send_str("  ");
+		itoa( merena_struja , bafer, 10);
+		send_str(bafer);
 		
 		send_str("\n");
 		
-		/*for(i=0; i<br_semplova; i++)
-		{
-			
-			itoa( (niz_napona_shunt[i]), bafer, 10);
-			send_str(bafer);
-			
-			send_str("\n");
-		}
-			itoa( napon_shunt_AVG, bafer, 10);
-			send_str(bafer);
-			
-			send_str("\n");
-			
-			exit(1);*/
+	
 		
 		}
     }

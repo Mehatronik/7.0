@@ -11,10 +11,14 @@
 
 #include <inttypes.h>
 
-extern volatile int adc_res[4];
-extern volatile float ref_napon_sa_pot, mereni_napon, merena_struja;
-extern volatile int adc_low, adc_high;
-extern volatile int ad_kanal;
+#define  BR_SEMPLOVA  10
+
+
+extern volatile unsigned adc_res[4][BR_SEMPLOVA];
+
+extern volatile unsigned ref_napon_sa_pot, mereni_napon, merena_struja;
+extern volatile uint8_t adc_low, adc_high;
+extern volatile uint8_t ad_kanal;
 
 void ADC_init();		//prototip funkcije
 
