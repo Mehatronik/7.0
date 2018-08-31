@@ -14,10 +14,10 @@
 
 volatile unsigned char flag_tajmer0_prekid = 0, flag_prekid_10ms = 0;
 volatile unsigned int brojac_prekida_tajmera0;
-volatile int16_t Upravljanje = 250;
-volatile float Kp = 0.01, Ki = 0.007;
-volatile int32_t greska = 0, suma_greske = 0;
-const volatile int32_t limit_sume = 20000; 
+volatile int16_t Upravljanje = 0;
+volatile float Kp = 0.002, Ki = 0.003, Kd=0.085;  //default Kp=0.005, Ki=0.003
+volatile int32_t greska = 0, suma_greske = 0, greska_prethodna = 0;
+const volatile int32_t limit_sume = 500000;  //cisto da se ogradim od overflow-a
 //const volatile double stepeniPOms_to_rpm = 16.67;		//faktor konverzije izmedju izmerenog broja stepeni u prozoru od 10ms u obrtaje po minutu
 //volatile double relativni_ugao = 0;
 
@@ -44,85 +44,35 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 		flag_prekid_10ms = 1;
 		PINB |= 1<<PINB5;					//toogle pin 5 - DIG13, test da vidim da li je korektna frekvencija
 		
-		
-		
-	
-		
-		
-		
-		{
-		//***********************merenje brzine treba obaviti unutar ISR jer je vremenski kriticno*****************************************
-	
-		//relativni_ugao = brojac_ext_interaptova / 57.5;	//skaliranje, 58800 impulsa po krugu odgovara 360 stepeni
-		/*
-		if(smer_obrtanja == 2)		//ODREDJUJEM NA KOJU STRANU SE VRTI
-		{
-			ugaona_brzina = stepeniPOms_to_rpm * relativni_ugao;				//posto se zna da merenje relativnog ugla traje 1ms, to je zapravo ugaona
-															//brzina u stepen/1ms, a 166.67 je faktor konverzije izmedju stepeni/1ms i obrtaja/min
-		}
-		else
-		{
-			ugaona_brzina = -(stepeniPOms_to_rpm * relativni_ugao);	//ako je na drugu brzina je negativna
-		}
-				*/											
-	
-		
-		
-		/*
-		greska = ref_napon_sa_pot - ugaona_brzina;
-		
-		Upravljanje = 250 + Kp * greska;		//Proporcionalni regulator; ofset 250 zbog h-mosta. Top je 500
-		
-		suma_greske += greska;			//suma greske
-		
-		
-		Upravljanje += Ki * suma_greske;			//Integralno dejstvo sabiram sa prethodnim upravljanjem
-		
-		if(Upravljanje >= 500 )		//ogranicenje jer 500 u OCR1A registru daje maksimalan faktor ispune
-									
-		{
-			Upravljanje = 500;
-			suma_greske -= greska;		//ako vec imas max upravljanje nemoj vise povecavati sumu greske; zastita od wind up-a
-		}
-		else if(Upravljanje <= 0)	//ogranicenje, 0 daje max upravljanje u drugom smeru
-		{
-			Upravljanje = 0;
-			suma_greske -= greska;		//drugi smer, obratna situacija
-		}
-		*/
-		
-		
-		//OCR1A = Upravljanje;	//mogao sam i direktno da upisujem u OCR1A, ali sam dodao promenljivu 'Upravljanje' da bi bilo baferovano
-		//OCR1B = OCR1A + 50;		//+50 za mrtvo vreme
-		
-		
-		//if(OCR1A==0)
-			//OCR1B = 0;
+	}
 		
 
-		//brojac_ext_interaptova =0;			//nuliram da bi brojanje bilo relativno
-		}
-	
-	}
 	
 	/*Podsetnik: postoje inkrementalni i neki drugi PID zakon, pa ih malo prouci*/
 	
 
-			greska = ref_napon_sa_pot - mereni_napon;    //greska napona (u mV)
-			
-			Upravljanje = Kp*greska;	  //PID,      400 = max (~20V), 0 = min (0V)
+
+			greska_prethodna = greska; //zapamtim proslu gresku pre racunanja nove
+
+			greska = (int16_t)ref_napon_sa_pot - mereni_napon;    //greska napona (u mV)
+																 //desavao se overflow zato sto je ref_napon unsigned, posle kastovanja sve u redu
+				
+			Upravljanje = Kp*greska;	  //Proporcionalno dejstvo,      400 = max (~20V), 0 = min (0V)
 			
 			
 			suma_greske += greska;
 			
 			if(suma_greske >= limit_sume)
 				suma_greske = limit_sume;
-			else if (suma_greske <= -limit_sume)
-			{
-				suma_greske = -limit_sume;
-			}
+			else if (suma_greske <= 0)
+				suma_greske = 0;
 			
-			//Upravljanje += Ki * suma_greske;			//Integralno dejstvo sabiram sa prethodnim upravljanjem
+			
+			Upravljanje += Ki * suma_greske;		//Integralno dejstvo sabiram sa P dejstvom
+			
+			
+			Upravljanje += Kd * (greska - greska_prethodna);
+			
 			
 			if(Upravljanje>=400)
 			{
@@ -130,14 +80,14 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 				suma_greske -= greska;		//ako vec imas max upravljanje nemoj vise povecavati sumu greske; zastita od wind up-a
 			}
 			
-			if(Upravljanje<=0)
+			else if(Upravljanje<=0)
 			{
 				Upravljanje = 0;
 				suma_greske -= greska;		//ako vec imas min upravljanje nemoj vise povecavati sumu greske; zastita od wind up-a
 			}
 			
 			
-			OCR1A = Upravljanje;
+			OCR1A = (uint16_t)Upravljanje;
 	
 	
 }

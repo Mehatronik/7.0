@@ -11,16 +11,18 @@
 
 
 
-volatile unsigned adc_res[4][BR_SEMPLOVA]= { 0 };   // [ ad kanal ][ sempl tog kanala ] = [red][kolona]
+volatile uint16_t adc_res[4][BR_SEMPLOVA]= { 0 };   // [ ad kanal ][ sempl tog kanala ] = [red][kolona]
 													//u ad_konv.h se menja BR_Semplova		
 volatile uint8_t brojac_sempla = 0;
 
-volatile unsigned ref_napon_sa_pot = 0, mereni_napon = 0, merena_struja = 0;	//ovde ce biti upisane prosecne vrednosti par semplova
+volatile uint16_t ref_napon_sa_pot = 0, merena_struja = 0;	//ovde ce biti upisane prosecne vrednosti par semplova
+volatile int16_t mereni_napon = 0;                          //signed, zbog mogucnosti da mozda ode negativno, dole kod racunanja
 volatile uint8_t adc_low=0, adc_high=0;
 volatile uint8_t ad_kanal = 0;
 
 
 volatile void sumator();
+volatile void _2x8bit_reg_2_1x16bit_reg();
 
 void ADC_init()
 {
@@ -43,24 +45,10 @@ ISR(ADC_vect)
 	ISR okine kada je gotova konverzija
 	*/
 	
-		
-
-	//ADCL mora biti prvi procitan
-	adc_low = (uint8_t)ADCL;    //koriste se dva 8-bit registra jer je rezultat AD konverzije 10-bitan
-	adc_high = (uint8_t)ADCH;
 	
-		/**stapam rezultate iz dva registra u jednu promenljivu na ovaj nacin**/
-		/**rezultat ad konverzije je 10-bit-an, tj. od 0 do 1023**/
-		
-		if(adc_high==0)
-			adc_res[ad_kanal][brojac_sempla] = adc_low;
-		else if(adc_high==1)
-			adc_res[ad_kanal][brojac_sempla] = 256 + adc_low;
-		else if(adc_high==2)
-			adc_res[ad_kanal][brojac_sempla] = 512 + adc_low;	//256*2
-		else if(adc_high==3)
-			adc_res[ad_kanal][brojac_sempla] = 768 + adc_low;	//256*3
-			
+	_2x8bit_reg_2_1x16bit_reg();   //upis adc rezultata u matricu
+
+
 
 	
 	if (ad_kanal==0)
@@ -91,6 +79,9 @@ ISR(ADC_vect)
 			brojac_sempla = 0;
 	}
 	
+	
+	
+	
 	//multipleksiranje ad ulaza; tj. promena ad kanala
 	switch(ad_kanal)
 	{
@@ -111,6 +102,10 @@ ISR(ADC_vect)
 		case 3:
 				ADMUX |= (0b11);		//11;ref internal 1.1V, kanal A3
 		break;
+		
+		default: {}
+		//postojao je problem ako hocu da menjam i referencu kada prebacujem kanal, da mi daje bezveze rezultate.
+		//mislim da u datasheetu pise da prvo citanje posle menjanja reference moze biti lose	
 	}
 	
 	
@@ -167,7 +162,39 @@ volatile void sumator()
 		}
 		mereni_napon = ((mereni_napon/BR_SEMPLOVA) * 19.613) - (merena_struja * 0.22);  //1023 = 20000 mV - naposnki pad preko sant otpornika (220 mOhm)
 																						//mnozenje napona isto malo komenzovano-kalibrisano
+																				//mozda postoji sansa da mereni napon ode negativno ako se nekako desi da napon na
+																				//santu bude veci od merenog napona - npr u slucaju obrnutog povezivanja baterija
+																				//na buck, ili pak zbog ne bas real time podataka sa ad ulaza jer im uzimam prosek
+																				//Svakako trebam ovo jos malo razmotriti
 	}
 
 
+}
+
+
+
+volatile void _2x8bit_reg_2_1x16bit_reg()
+{
+	
+	//upis adc rezultata u matricu
+	
+	
+	//ADCL mora biti prvi procitan
+	adc_low = (uint8_t)ADCL;    //koriste se dva 8-bit registra jer je rezultat AD konverzije 10-bitan
+	adc_high = (uint8_t)ADCH;
+	
+	/**stapam rezultate iz dva registra u jednu promenljivu na ovaj nacin**/
+	/**rezultat ad konverzije je 10-bit-an, tj. od 0 do 1023**/
+	
+	if(adc_high==0)
+		adc_res[ad_kanal][brojac_sempla] = adc_low;
+	else if(adc_high==1)
+		adc_res[ad_kanal][brojac_sempla] = 256 + adc_low;
+	else if(adc_high==2)
+		adc_res[ad_kanal][brojac_sempla] = 512 + adc_low;	//256*2
+	else if(adc_high==3)
+		adc_res[ad_kanal][brojac_sempla] = 768 + adc_low;	//256*3
+	
+	
+	
 }

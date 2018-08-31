@@ -79,13 +79,18 @@ int main(void)
 		send_str(bafer);
 		
 		send_str("  ");
-		itoa( suma_greske/100 , bafer, 10);
+		itoa( merena_struja , bafer, 10);
 		send_str(bafer);
 		
+		/*
+		send_str("  ");
+		itoa( suma_greske/100 , bafer, 10);
+		send_str(bafer);
+		*/
 		
 		
 		send_str("  ");
-		itoa( Upravljanje*100 , bafer, 10);
+		itoa( Upravljanje*10 , bafer, 10);
 		send_str(bafer);
 		
 		send_str("  ");
@@ -95,9 +100,11 @@ int main(void)
 		send_str("  ");
 		itoa( 9000 , bafer, 10);
 		send_str(bafer);
+		
+		
 		/*
 		send_str("  ");
-		itoa( 10000 , bafer, 10);
+		itoa( greska , bafer, 10);
 		send_str(bafer);
 		
 		send_str("  ");
