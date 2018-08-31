@@ -74,7 +74,7 @@ ISR(ADC_vect)
 	
 	
 	//OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
-	OCR1A = 150;
+	//OCR1A = 200;
 
 	
 	
@@ -141,7 +141,7 @@ volatile void sumator()
 		{
 			ref_napon_sa_pot += adc_res[ad_kanal][i];		//suma po nultoj koloni (nultom kanalu)
 		}
-		ref_napon_sa_pot = (ref_napon_sa_pot/BR_SEMPLOVA) * 19.55;  //1023 = 20000 mV
+		ref_napon_sa_pot = (ref_napon_sa_pot/BR_SEMPLOVA) * 19.613;  //1023 = 20000 mV
 		
 		
 	}
@@ -153,7 +153,8 @@ volatile void sumator()
 		{
 			merena_struja += adc_res[ad_kanal][i];
 		}
-		merena_struja = (merena_struja/BR_SEMPLOVA) * 4.856;  // 1023 = 1093 mV, R=220 mOhm, I=V/R = 4968 mA (MAX); izracunato i skalirano da se za max input dobija 5A
+		merena_struja = (merena_struja/BR_SEMPLOVA) * 4.895;  // 1023 = 1093 mV, R=220 mOhm, I=V/R = 4968 mA (MAX); izracunato i skalirano da se za max input dobija ~5A
+															  //malo je kompenzovan mnozitelj merenjem pomocu voltmetra
 															 /***** Vref 1.1V je zapravo 1.093 V ******/
 	}
 	else if (ad_kanal == 2)	//mereni napon
@@ -164,7 +165,8 @@ volatile void sumator()
 		{
 			mereni_napon += adc_res[ad_kanal][i];
 		}
-		mereni_napon = ((mereni_napon/BR_SEMPLOVA) * 19.55) - (merena_struja * 0.22);  //1023 = 20000 mV - naposnki pad preko sant otpornika (220 mOhm)
+		mereni_napon = ((mereni_napon/BR_SEMPLOVA) * 19.613) - (merena_struja * 0.22);  //1023 = 20000 mV - naposnki pad preko sant otpornika (220 mOhm)
+																						//mnozenje napona isto malo komenzovano-kalibrisano
 	}
 
 

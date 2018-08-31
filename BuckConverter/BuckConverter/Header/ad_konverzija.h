@@ -11,7 +11,7 @@
 
 #include <inttypes.h>
 
-#define  BR_SEMPLOVA  10
+#define  BR_SEMPLOVA  20
 
 
 extern volatile unsigned adc_res[4][BR_SEMPLOVA];

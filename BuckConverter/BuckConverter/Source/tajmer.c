@@ -9,16 +9,17 @@
 
 #include "tajmer.h"
 #include "common.h"
-#include "eksterni_interapt.h"
+//#include "eksterni_interapt.h"
 #include "ad_konverzija.h"
 
 volatile unsigned char flag_tajmer0_prekid = 0, flag_prekid_10ms = 0;
 volatile unsigned int brojac_prekida_tajmera0;
-volatile long int Upravljanje = 250;
-volatile double ugaona_brzina = 0, Kp = 0.04, Ki = 0.008;
-volatile double greska = 0, suma_greske = 0;
-const volatile double stepeniPOms_to_rpm = 16.67;		//faktor konverzije izmedju izmerenog broja stepeni u prozoru od 10ms u obrtaje po minutu
-volatile double relativni_ugao = 0;
+volatile int16_t Upravljanje = 250;
+volatile float Kp = 0.01, Ki = 0.007;
+volatile int32_t greska = 0, suma_greske = 0;
+const volatile int32_t limit_sume = 20000; 
+//const volatile double stepeniPOms_to_rpm = 16.67;		//faktor konverzije izmedju izmerenog broja stepeni u prozoru od 10ms u obrtaje po minutu
+//volatile double relativni_ugao = 0;
 
 void tajmer0_init()
 {
@@ -30,7 +31,7 @@ void tajmer0_init()
 	DDRB |= 1<<PINB5;
 }
 
-ISR(TIMER0_COMPA_vect)
+ISR(TIMER0_COMPA_vect)   //1ms prekid
 {
 	flag_tajmer0_prekid = 1;
 	
@@ -44,6 +45,8 @@ ISR(TIMER0_COMPA_vect)
 		PINB |= 1<<PINB5;					//toogle pin 5 - DIG13, test da vidim da li je korektna frekvencija
 		
 		
+		
+	
 		
 		
 		
@@ -102,9 +105,39 @@ ISR(TIMER0_COMPA_vect)
 	
 	}
 	
-	
-	
+	/*Podsetnik: postoje inkrementalni i neki drugi PID zakon, pa ih malo prouci*/
 	
 
-
+			greska = ref_napon_sa_pot - mereni_napon;    //greska napona (u mV)
+			
+			Upravljanje = Kp*greska;	  //PID,      400 = max (~20V), 0 = min (0V)
+			
+			
+			suma_greske += greska;
+			
+			if(suma_greske >= limit_sume)
+				suma_greske = limit_sume;
+			else if (suma_greske <= -limit_sume)
+			{
+				suma_greske = -limit_sume;
+			}
+			
+			//Upravljanje += Ki * suma_greske;			//Integralno dejstvo sabiram sa prethodnim upravljanjem
+			
+			if(Upravljanje>=400)
+			{
+				Upravljanje = 400; //saturacija, tj ogranicenje
+				suma_greske -= greska;		//ako vec imas max upravljanje nemoj vise povecavati sumu greske; zastita od wind up-a
+			}
+			
+			if(Upravljanje<=0)
+			{
+				Upravljanje = 0;
+				suma_greske -= greska;		//ako vec imas min upravljanje nemoj vise povecavati sumu greske; zastita od wind up-a
+			}
+			
+			
+			OCR1A = Upravljanje;
+	
+	
 }
