@@ -26,32 +26,32 @@ int main(void)
 	sei();
 	
 	char bafer[30];
-	unsigned niz_napona_shunt[100];
-	unsigned niz_struja_shunt[100];
-	unsigned char br_semplova = 50;
+	
+	unsigned niz_mereni_napon[120];
+	unsigned char br_uzoraka = 100;
 	int i = 0;
-	unsigned long napon_shunt_AVG = 0;
-	unsigned long struja_shunt_AVG = 0;
+	
+	unsigned long AVG_mereni_napon = 0;
 	
     while (1) 
     {
-		napon_shunt_AVG =0;
-		struja_shunt_AVG =0;
+		/*napomena: ovakaj dole pokusaj uzimanja srednje vrednosti ne pije vodu jer su petlje prebrze za ad rezultate, tako da se 
+		zapravo mali broj ad rezultata obradi, mozda nekoliko. Potrebno je ovo provuci kroz tajmer*/
+		AVG_mereni_napon =0;
 		
-		for(i=0; i<br_semplova; i++)
+		for(i=0; i<br_uzoraka; i++)
 		{
-			niz_napona_shunt[i] = merena_struja * 1.068;
-			niz_struja_shunt[i] = merena_struja;
+			
+			niz_mereni_napon[i] = mereni_napon;
 		}
 		
-		for(i=0; i<br_semplova; i++)
+		for(i=0; i<br_uzoraka; i++)
 		{
-			napon_shunt_AVG += niz_napona_shunt[i];
-			struja_shunt_AVG += niz_struja_shunt[i];
+			
+			AVG_mereni_napon += niz_mereni_napon[i];
 		}
-		
-		napon_shunt_AVG = napon_shunt_AVG/br_semplova;
-		struja_shunt_AVG = struja_shunt_AVG/br_semplova;
+	
+		AVG_mereni_napon = AVG_mereni_napon/br_uzoraka;
 		
 		
 		if(flag_prekid_10ms == 1)		//slanje putem UART Tx na svakih 10ms. Podesava se u tajmer.c fajlu
@@ -75,7 +75,7 @@ int main(void)
 		
 		
 		send_str("  ");
-		itoa( mereni_napon , bafer, 10);
+		itoa( AVG_mereni_napon , bafer, 10);
 		send_str(bafer);
 		
 		send_str("  ");

@@ -138,7 +138,7 @@ volatile void sumator()
 		}
 		ref_napon_sa_pot = (ref_napon_sa_pot/BR_SEMPLOVA) * 19.613;  //1023 = 20000 mV
 		
-		
+		//ref_napon_sa_pot = 9000; //za potrebe debagovanja
 	}
 	else if (ad_kanal == 1)	//merena struja
 	{

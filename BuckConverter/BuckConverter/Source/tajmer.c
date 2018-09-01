@@ -54,7 +54,7 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 
 			greska_prethodna = greska; //zapamtim proslu gresku pre racunanja nove
 
-			greska = (int16_t)ref_napon_sa_pot - mereni_napon;    //greska napona (u mV)
+			greska = (int32_t)ref_napon_sa_pot - mereni_napon;    //greska napona (u mV)
 																 //desavao se overflow zato sto je ref_napon unsigned, posle kastovanja sve u redu
 				
 			Upravljanje = Kp*greska;	  //Proporcionalno dejstvo,      400 = max (~20V), 0 = min (0V)
