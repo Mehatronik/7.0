@@ -1,0 +1,626 @@
+
+DSP on atmega.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000000a  00800100  0000038e  00000422  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         0000038e  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          000006b2  0080010a  0080010a  0000042c  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  0000042c  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  0000045c  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000090  00000000  00000000  0000049c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00000ae1  00000000  00000000  0000052c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 000007a4  00000000  00000000  0000100d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000005a9  00000000  00000000  000017b1  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000130  00000000  00000000  00001d5c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000420  00000000  00000000  00001e8c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    000002b9  00000000  00000000  000022ac  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000070  00000000  00000000  00002565  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
+   4:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   8:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  10:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  14:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  18:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  1c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  20:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  24:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  28:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  2c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  30:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  34:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  38:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  3c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  40:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  44:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  48:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  4c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  50:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  54:	0c 94 7b 01 	jmp	0x2f6	; 0x2f6 <__vector_21>
+  58:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  5c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  60:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  64:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+
+00000068 <__ctors_end>:
+  68:	11 24       	eor	r1, r1
+  6a:	1f be       	out	0x3f, r1	; 63
+  6c:	cf ef       	ldi	r28, 0xFF	; 255
+  6e:	d8 e0       	ldi	r29, 0x08	; 8
+  70:	de bf       	out	0x3e, r29	; 62
+  72:	cd bf       	out	0x3d, r28	; 61
+
+00000074 <__do_copy_data>:
+  74:	11 e0       	ldi	r17, 0x01	; 1
+  76:	a0 e0       	ldi	r26, 0x00	; 0
+  78:	b1 e0       	ldi	r27, 0x01	; 1
+  7a:	ee e8       	ldi	r30, 0x8E	; 142
+  7c:	f3 e0       	ldi	r31, 0x03	; 3
+  7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
+  80:	05 90       	lpm	r0, Z+
+  82:	0d 92       	st	X+, r0
+  84:	aa 30       	cpi	r26, 0x0A	; 10
+  86:	b1 07       	cpc	r27, r17
+  88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
+
+0000008a <__do_clear_bss>:
+  8a:	27 e0       	ldi	r18, 0x07	; 7
+  8c:	aa e0       	ldi	r26, 0x0A	; 10
+  8e:	b1 e0       	ldi	r27, 0x01	; 1
+  90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
+
+00000092 <.do_clear_bss_loop>:
+  92:	1d 92       	st	X+, r1
+
+00000094 <.do_clear_bss_start>:
+  94:	ac 3b       	cpi	r26, 0xBC	; 188
+  96:	b2 07       	cpc	r27, r18
+  98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
+  9a:	0e 94 be 01 	call	0x37c	; 0x37c <main>
+  9e:	0c 94 c5 01 	jmp	0x38a	; 0x38a <_exit>
+
+000000a2 <__bad_interrupt>:
+  a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000a6 <ADCSetup>:
+		
+		sample=sample>>6;
+        sample=sample<<6;         
+
+        return sample;
+}
+  a6:	ea e7       	ldi	r30, 0x7A	; 122
+  a8:	f0 e0       	ldi	r31, 0x00	; 0
+  aa:	80 81       	ld	r24, Z
+  ac:	8d 62       	ori	r24, 0x2D	; 45
+  ae:	80 83       	st	Z, r24
+  b0:	ac e7       	ldi	r26, 0x7C	; 124
+  b2:	b0 e0       	ldi	r27, 0x00	; 0
+  b4:	8c 91       	ld	r24, X
+  b6:	85 6e       	ori	r24, 0xE5	; 229
+  b8:	8c 93       	st	X, r24
+  ba:	80 81       	ld	r24, Z
+  bc:	80 6c       	ori	r24, 0xC0	; 192
+  be:	80 83       	st	Z, r24
+  c0:	78 94       	sei
+  c2:	08 95       	ret
+
+000000c4 <PWMSetup>:
+  c4:	55 9a       	sbi	0x0a, 5	; 10
+  c6:	84 b5       	in	r24, 0x24	; 36
+  c8:	83 60       	ori	r24, 0x03	; 3
+  ca:	84 bd       	out	0x24, r24	; 36
+  cc:	84 b5       	in	r24, 0x24	; 36
+  ce:	80 62       	ori	r24, 0x20	; 32
+  d0:	84 bd       	out	0x24, r24	; 36
+  d2:	80 e8       	ldi	r24, 0x80	; 128
+  d4:	88 bd       	out	0x28, r24	; 40
+  d6:	85 b5       	in	r24, 0x25	; 37
+  d8:	81 60       	ori	r24, 0x01	; 1
+  da:	85 bd       	out	0x25, r24	; 37
+  dc:	08 95       	ret
+
+000000de <buttonSetup>:
+  de:	85 b1       	in	r24, 0x05	; 5
+  e0:	83 6c       	ori	r24, 0xC3	; 195
+  e2:	85 b9       	out	0x05, r24	; 5
+  e4:	8b b1       	in	r24, 0x0b	; 11
+  e6:	80 6c       	ori	r24, 0xC0	; 192
+  e8:	8b b9       	out	0x0b, r24	; 11
+  ea:	08 95       	ret
+
+000000ec <echo>:
+	static uint16_t indexRead=1;
+	uint16_t temp=0;
+	static uint8_t Buffer[BUFLENGTH]={0};
+	static uint8_t downSample=1; //
+		
+	temp=sample  +  (Buffer[indexRead]>>1); //Reads sample and adds echo 
+  ec:	20 91 07 01 	lds	r18, 0x0107	; 0x800107 <indexRead.1638>
+  f0:	30 91 08 01 	lds	r19, 0x0108	; 0x800108 <indexRead.1638+0x1>
+	
+	Buffer[indexWrite]=(uint8_t)temp;	   
+  f4:	40 91 80 04 	lds	r20, 0x0480	; 0x800480 <indexWrite.1637>
+  f8:	50 91 81 04 	lds	r21, 0x0481	; 0x800481 <indexWrite.1637+0x1>
+	static uint16_t indexRead=1;
+	uint16_t temp=0;
+	static uint8_t Buffer[BUFLENGTH]={0};
+	static uint8_t downSample=1; //
+		
+	temp=sample  +  (Buffer[indexRead]>>1); //Reads sample and adds echo 
+  fc:	f9 01       	movw	r30, r18
+  fe:	ee 57       	subi	r30, 0x7E	; 126
+ 100:	fb 4f       	sbci	r31, 0xFB	; 251
+ 102:	90 81       	ld	r25, Z
+ 104:	96 95       	lsr	r25
+ 106:	89 0f       	add	r24, r25
+	
+	Buffer[indexWrite]=(uint8_t)temp;	   
+ 108:	fa 01       	movw	r30, r20
+ 10a:	ee 57       	subi	r30, 0x7E	; 126
+ 10c:	fb 4f       	sbci	r31, 0xFB	; 251
+ 10e:	80 83       	st	Z, r24
+
+	if (downSample==1)
+ 110:	90 91 06 01 	lds	r25, 0x0106	; 0x800106 <downSample.1641>
+ 114:	91 30       	cpi	r25, 0x01	; 1
+ 116:	09 f5       	brne	.+66     	; 0x15a <echo+0x6e>
+	{	
+		indexRead++;
+ 118:	2f 5f       	subi	r18, 0xFF	; 255
+ 11a:	3f 4f       	sbci	r19, 0xFF	; 255
+		if (indexRead==(BUFLENGTH-1)) indexRead=0;
+ 11c:	28 33       	cpi	r18, 0x38	; 56
+ 11e:	93 e0       	ldi	r25, 0x03	; 3
+ 120:	39 07       	cpc	r19, r25
+ 122:	29 f0       	breq	.+10     	; 0x12e <echo+0x42>
+	
+	Buffer[indexWrite]=(uint8_t)temp;	   
+
+	if (downSample==1)
+	{	
+		indexRead++;
+ 124:	30 93 08 01 	sts	0x0108, r19	; 0x800108 <indexRead.1638+0x1>
+ 128:	20 93 07 01 	sts	0x0107, r18	; 0x800107 <indexRead.1638>
+ 12c:	04 c0       	rjmp	.+8      	; 0x136 <echo+0x4a>
+		if (indexRead==(BUFLENGTH-1)) indexRead=0;
+ 12e:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <indexRead.1638+0x1>
+ 132:	10 92 07 01 	sts	0x0107, r1	; 0x800107 <indexRead.1638>
+
+		indexWrite++;
+ 136:	4f 5f       	subi	r20, 0xFF	; 255
+ 138:	5f 4f       	sbci	r21, 0xFF	; 255
+		if (indexWrite==(BUFLENGTH-1)) indexWrite=0;
+ 13a:	48 33       	cpi	r20, 0x38	; 56
+ 13c:	93 e0       	ldi	r25, 0x03	; 3
+ 13e:	59 07       	cpc	r21, r25
+ 140:	29 f0       	breq	.+10     	; 0x14c <echo+0x60>
+	if (downSample==1)
+	{	
+		indexRead++;
+		if (indexRead==(BUFLENGTH-1)) indexRead=0;
+
+		indexWrite++;
+ 142:	50 93 81 04 	sts	0x0481, r21	; 0x800481 <indexWrite.1637+0x1>
+ 146:	40 93 80 04 	sts	0x0480, r20	; 0x800480 <indexWrite.1637>
+ 14a:	04 c0       	rjmp	.+8      	; 0x154 <echo+0x68>
+		if (indexWrite==(BUFLENGTH-1)) indexWrite=0;
+ 14c:	10 92 81 04 	sts	0x0481, r1	; 0x800481 <indexWrite.1637+0x1>
+ 150:	10 92 80 04 	sts	0x0480, r1	; 0x800480 <indexWrite.1637>
+
+		downSample=0;
+ 154:	10 92 06 01 	sts	0x0106, r1	; 0x800106 <downSample.1641>
+ 158:	08 95       	ret
+
+
+	}else{
+		downSample=1;
+ 15a:	91 e0       	ldi	r25, 0x01	; 1
+ 15c:	90 93 06 01 	sts	0x0106, r25	; 0x800106 <downSample.1641>
+	}
+
+
+	return  (uint8_t)temp;
+}	
+ 160:	08 95       	ret
+
+00000162 <phasor>:
+	static uint8_t Buffer[BUFPH]={0};	
+	static uint16_t indexWrite=0;
+	static uint16_t indexRead=1;
+	static uint16_t temp=0;
+	
+	temp=(sample>>1)+(Buffer[indexRead]>>1); //Reads sample and adds flanger 
+ 162:	68 2f       	mov	r22, r24
+ 164:	66 95       	lsr	r22
+ 166:	20 91 04 01 	lds	r18, 0x0104	; 0x800104 <indexRead.1647>
+ 16a:	30 91 05 01 	lds	r19, 0x0105	; 0x800105 <indexRead.1647+0x1>
+ 16e:	f9 01       	movw	r30, r18
+ 170:	e6 51       	subi	r30, 0x16	; 22
+ 172:	fc 4f       	sbci	r31, 0xFC	; 252
+ 174:	90 81       	ld	r25, Z
+ 176:	96 95       	lsr	r25
+	
+	Buffer[indexWrite]=sample;
+ 178:	40 91 e8 03 	lds	r20, 0x03E8	; 0x8003e8 <indexWrite.1646>
+ 17c:	50 91 e9 03 	lds	r21, 0x03E9	; 0x8003e9 <indexWrite.1646+0x1>
+ 180:	fa 01       	movw	r30, r20
+ 182:	e6 51       	subi	r30, 0x16	; 22
+ 184:	fc 4f       	sbci	r31, 0xFC	; 252
+ 186:	80 83       	st	Z, r24
+	  
+
+	indexRead++;
+ 188:	2f 5f       	subi	r18, 0xFF	; 255
+ 18a:	3f 4f       	sbci	r19, 0xFF	; 255
+	if (indexRead>=BUFPH-1) indexRead=0;
+ 18c:	25 39       	cpi	r18, 0x95	; 149
+ 18e:	31 05       	cpc	r19, r1
+ 190:	28 f4       	brcc	.+10     	; 0x19c <phasor+0x3a>
+	temp=(sample>>1)+(Buffer[indexRead]>>1); //Reads sample and adds flanger 
+	
+	Buffer[indexWrite]=sample;
+	  
+
+	indexRead++;
+ 192:	30 93 05 01 	sts	0x0105, r19	; 0x800105 <indexRead.1647+0x1>
+ 196:	20 93 04 01 	sts	0x0104, r18	; 0x800104 <indexRead.1647>
+ 19a:	04 c0       	rjmp	.+8      	; 0x1a4 <phasor+0x42>
+	if (indexRead>=BUFPH-1) indexRead=0;
+ 19c:	10 92 05 01 	sts	0x0105, r1	; 0x800105 <indexRead.1647+0x1>
+ 1a0:	10 92 04 01 	sts	0x0104, r1	; 0x800104 <indexRead.1647>
+
+	indexWrite++;
+ 1a4:	4f 5f       	subi	r20, 0xFF	; 255
+ 1a6:	5f 4f       	sbci	r21, 0xFF	; 255
+	if (indexWrite>=BUFPH) indexWrite=0;
+ 1a8:	46 39       	cpi	r20, 0x96	; 150
+ 1aa:	51 05       	cpc	r21, r1
+ 1ac:	28 f4       	brcc	.+10     	; 0x1b8 <phasor+0x56>
+	  
+
+	indexRead++;
+	if (indexRead>=BUFPH-1) indexRead=0;
+
+	indexWrite++;
+ 1ae:	50 93 e9 03 	sts	0x03E9, r21	; 0x8003e9 <indexWrite.1646+0x1>
+ 1b2:	40 93 e8 03 	sts	0x03E8, r20	; 0x8003e8 <indexWrite.1646>
+ 1b6:	04 c0       	rjmp	.+8      	; 0x1c0 <phasor+0x5e>
+	if (indexWrite>=BUFPH) indexWrite=0;
+ 1b8:	10 92 e9 03 	sts	0x03E9, r1	; 0x8003e9 <indexWrite.1646+0x1>
+ 1bc:	10 92 e8 03 	sts	0x03E8, r1	; 0x8003e8 <indexWrite.1646>
+	
+	return  (uint8_t)temp;
+}
+ 1c0:	86 2f       	mov	r24, r22
+ 1c2:	89 0f       	add	r24, r25
+ 1c4:	08 95       	ret
+
+000001c6 <lowpass>:
+
+extern uint8_t lowpass(uint8_t sample){
+	static uint8_t filter[9]={0};
+	
+	filter[8]=filter[7];
+ 1c6:	ef ed       	ldi	r30, 0xDF	; 223
+ 1c8:	f3 e0       	ldi	r31, 0x03	; 3
+ 1ca:	97 81       	ldd	r25, Z+7	; 0x07
+ 1cc:	90 87       	std	Z+8, r25	; 0x08
+	filter[7]=filter[6];
+ 1ce:	96 81       	ldd	r25, Z+6	; 0x06
+ 1d0:	97 83       	std	Z+7, r25	; 0x07
+	filter[6]=filter[5];
+ 1d2:	25 81       	ldd	r18, Z+5	; 0x05
+ 1d4:	26 83       	std	Z+6, r18	; 0x06
+	filter[5]=filter[4];
+ 1d6:	44 81       	ldd	r20, Z+4	; 0x04
+ 1d8:	45 83       	std	Z+5, r20	; 0x05
+	filter[4]=filter[3];
+ 1da:	63 81       	ldd	r22, Z+3	; 0x03
+ 1dc:	64 83       	std	Z+4, r22	; 0x04
+	filter[3]=filter[2];
+ 1de:	92 81       	ldd	r25, Z+2	; 0x02
+ 1e0:	93 83       	std	Z+3, r25	; 0x03
+	filter[2]=filter[1];
+ 1e2:	71 81       	ldd	r23, Z+1	; 0x01
+ 1e4:	72 83       	std	Z+2, r23	; 0x02
+	filter[1]=filter[0];
+ 1e6:	30 81       	ld	r19, Z
+ 1e8:	31 83       	std	Z+1, r19	; 0x01
+	filter[0]=sample;
+ 1ea:	80 83       	st	Z, r24
+
+	sample = (filter[0]*0 +filter[1]*0 + filter[2]*22 + filter[3]*75 +filter[4]*108 +filter[5]*75 + filter[6]*22 + filter[7]*0 + filter[8]*0)>>8; //fir order 7, window Kaiser (beta 2.5, fc 3000Hz)
+	
+	return  sample;
+ 1ec:	36 e1       	ldi	r19, 0x16	; 22
+ 1ee:	5b e4       	ldi	r21, 0x4B	; 75
+ 1f0:	59 9f       	mul	r21, r25
+ 1f2:	c0 01       	movw	r24, r0
+ 1f4:	11 24       	eor	r1, r1
+ 1f6:	37 9f       	mul	r19, r23
+ 1f8:	80 0d       	add	r24, r0
+ 1fa:	91 1d       	adc	r25, r1
+ 1fc:	11 24       	eor	r1, r1
+ 1fe:	7c e6       	ldi	r23, 0x6C	; 108
+ 200:	67 9f       	mul	r22, r23
+ 202:	80 0d       	add	r24, r0
+ 204:	91 1d       	adc	r25, r1
+ 206:	11 24       	eor	r1, r1
+ 208:	54 9f       	mul	r21, r20
+ 20a:	80 0d       	add	r24, r0
+ 20c:	91 1d       	adc	r25, r1
+ 20e:	11 24       	eor	r1, r1
+ 210:	32 9f       	mul	r19, r18
+ 212:	80 0d       	add	r24, r0
+ 214:	91 1d       	adc	r25, r1
+ 216:	11 24       	eor	r1, r1
+}
+ 218:	89 2f       	mov	r24, r25
+ 21a:	08 95       	ret
+
+0000021c <pitch_up>:
+extern uint8_t pitch_up(uint8_t sample){
+	static int indexWrite=0;
+	static int indexRead=1;
+	static uint8_t Buffer[BUFP]={0};
+	
+	Buffer[indexWrite]=sample;
+ 21c:	20 91 dd 03 	lds	r18, 0x03DD	; 0x8003dd <indexWrite.1656>
+ 220:	30 91 de 03 	lds	r19, 0x03DE	; 0x8003de <indexWrite.1656+0x1>
+ 224:	f9 01       	movw	r30, r18
+ 226:	eb 58       	subi	r30, 0x8B	; 139
+ 228:	fd 4f       	sbci	r31, 0xFD	; 253
+ 22a:	80 83       	st	Z, r24
+	   
+	indexRead+=2;
+ 22c:	80 91 02 01 	lds	r24, 0x0102	; 0x800102 <indexRead.1657>
+ 230:	90 91 03 01 	lds	r25, 0x0103	; 0x800103 <indexRead.1657+0x1>
+ 234:	02 96       	adiw	r24, 0x02	; 2
+
+	if (indexRead>=(BUFP-1)) indexRead=0;
+ 236:	87 36       	cpi	r24, 0x67	; 103
+ 238:	41 e0       	ldi	r20, 0x01	; 1
+ 23a:	94 07       	cpc	r25, r20
+ 23c:	2c f4       	brge	.+10     	; 0x248 <pitch_up+0x2c>
+	static int indexRead=1;
+	static uint8_t Buffer[BUFP]={0};
+	
+	Buffer[indexWrite]=sample;
+	   
+	indexRead+=2;
+ 23e:	90 93 03 01 	sts	0x0103, r25	; 0x800103 <indexRead.1657+0x1>
+ 242:	80 93 02 01 	sts	0x0102, r24	; 0x800102 <indexRead.1657>
+ 246:	04 c0       	rjmp	.+8      	; 0x250 <pitch_up+0x34>
+
+	if (indexRead>=(BUFP-1)) indexRead=0;
+ 248:	10 92 03 01 	sts	0x0103, r1	; 0x800103 <indexRead.1657+0x1>
+ 24c:	10 92 02 01 	sts	0x0102, r1	; 0x800102 <indexRead.1657>
+
+	indexWrite++;
+ 250:	2f 5f       	subi	r18, 0xFF	; 255
+ 252:	3f 4f       	sbci	r19, 0xFF	; 255
+	if (indexWrite>=(BUFP-1)) indexWrite=0;
+ 254:	27 36       	cpi	r18, 0x67	; 103
+ 256:	81 e0       	ldi	r24, 0x01	; 1
+ 258:	38 07       	cpc	r19, r24
+ 25a:	2c f4       	brge	.+10     	; 0x266 <pitch_up+0x4a>
+	   
+	indexRead+=2;
+
+	if (indexRead>=(BUFP-1)) indexRead=0;
+
+	indexWrite++;
+ 25c:	30 93 de 03 	sts	0x03DE, r19	; 0x8003de <indexWrite.1656+0x1>
+ 260:	20 93 dd 03 	sts	0x03DD, r18	; 0x8003dd <indexWrite.1656>
+ 264:	04 c0       	rjmp	.+8      	; 0x26e <pitch_up+0x52>
+	if (indexWrite>=(BUFP-1)) indexWrite=0;
+ 266:	10 92 de 03 	sts	0x03DE, r1	; 0x8003de <indexWrite.1656+0x1>
+ 26a:	10 92 dd 03 	sts	0x03DD, r1	; 0x8003dd <indexWrite.1656>
+	
+		
+	return  Buffer[indexRead];
+ 26e:	e0 91 02 01 	lds	r30, 0x0102	; 0x800102 <indexRead.1657>
+ 272:	f0 91 03 01 	lds	r31, 0x0103	; 0x800103 <indexRead.1657+0x1>
+ 276:	eb 58       	subi	r30, 0x8B	; 139
+ 278:	fd 4f       	sbci	r31, 0xFD	; 253
+}
+ 27a:	80 81       	ld	r24, Z
+ 27c:	08 95       	ret
+
+0000027e <pitch_down>:
+	static uint8_t half=0;
+	static uint8_t Buffer[BUFP]={0};
+
+	
+
+	Buffer[indexWrite]=sample;
+ 27e:	20 91 73 02 	lds	r18, 0x0273	; 0x800273 <indexWrite.1662>
+ 282:	30 91 74 02 	lds	r19, 0x0274	; 0x800274 <indexWrite.1662+0x1>
+ 286:	f9 01       	movw	r30, r18
+ 288:	e5 5f       	subi	r30, 0xF5	; 245
+ 28a:	fe 4f       	sbci	r31, 0xFE	; 254
+ 28c:	80 83       	st	Z, r24
+	  half++; 
+ 28e:	80 91 0a 01 	lds	r24, 0x010A	; 0x80010a <__data_end>
+ 292:	8f 5f       	subi	r24, 0xFF	; 255
+ 294:	80 93 0a 01 	sts	0x010A, r24	; 0x80010a <__data_end>
+	if(half==2){
+ 298:	82 30       	cpi	r24, 0x02	; 2
+ 29a:	59 f4       	brne	.+22     	; 0x2b2 <pitch_down+0x34>
+		indexRead++;
+ 29c:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__data_start>
+ 2a0:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <__data_start+0x1>
+ 2a4:	01 96       	adiw	r24, 0x01	; 1
+ 2a6:	90 93 01 01 	sts	0x0101, r25	; 0x800101 <__data_start+0x1>
+ 2aa:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__data_start>
+		half=0;
+ 2ae:	10 92 0a 01 	sts	0x010A, r1	; 0x80010a <__data_end>
+	}
+	
+
+	if (indexRead>=(BUFP-1)) indexRead=0;
+ 2b2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__data_start>
+ 2b6:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <__data_start+0x1>
+ 2ba:	87 36       	cpi	r24, 0x67	; 103
+ 2bc:	91 40       	sbci	r25, 0x01	; 1
+ 2be:	24 f0       	brlt	.+8      	; 0x2c8 <pitch_down+0x4a>
+ 2c0:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <__data_start+0x1>
+ 2c4:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__data_start>
+
+	indexWrite++;
+ 2c8:	2f 5f       	subi	r18, 0xFF	; 255
+ 2ca:	3f 4f       	sbci	r19, 0xFF	; 255
+	if (indexWrite>=(BUFP-1)) indexWrite=0;
+ 2cc:	27 36       	cpi	r18, 0x67	; 103
+ 2ce:	81 e0       	ldi	r24, 0x01	; 1
+ 2d0:	38 07       	cpc	r19, r24
+ 2d2:	2c f4       	brge	.+10     	; 0x2de <pitch_down+0x60>
+	}
+	
+
+	if (indexRead>=(BUFP-1)) indexRead=0;
+
+	indexWrite++;
+ 2d4:	30 93 74 02 	sts	0x0274, r19	; 0x800274 <indexWrite.1662+0x1>
+ 2d8:	20 93 73 02 	sts	0x0273, r18	; 0x800273 <indexWrite.1662>
+ 2dc:	04 c0       	rjmp	.+8      	; 0x2e6 <pitch_down+0x68>
+	if (indexWrite>=(BUFP-1)) indexWrite=0;
+ 2de:	10 92 74 02 	sts	0x0274, r1	; 0x800274 <indexWrite.1662+0x1>
+ 2e2:	10 92 73 02 	sts	0x0273, r1	; 0x800273 <indexWrite.1662>
+	
+	
+		
+	return  Buffer[indexRead];
+ 2e6:	e0 91 00 01 	lds	r30, 0x0100	; 0x800100 <__data_start>
+ 2ea:	f0 91 01 01 	lds	r31, 0x0101	; 0x800101 <__data_start+0x1>
+ 2ee:	e5 5f       	subi	r30, 0xF5	; 245
+ 2f0:	fe 4f       	sbci	r31, 0xFE	; 254
+}
+ 2f2:	80 81       	ld	r24, Z
+ 2f4:	08 95       	ret
+
+000002f6 <__vector_21>:
+
+
+ISR(ADC_vect) 
+{ 
+ 2f6:	1f 92       	push	r1
+ 2f8:	0f 92       	push	r0
+ 2fa:	0f b6       	in	r0, 0x3f	; 63
+ 2fc:	0f 92       	push	r0
+ 2fe:	11 24       	eor	r1, r1
+ 300:	2f 93       	push	r18
+ 302:	3f 93       	push	r19
+ 304:	4f 93       	push	r20
+ 306:	5f 93       	push	r21
+ 308:	6f 93       	push	r22
+ 30a:	7f 93       	push	r23
+ 30c:	8f 93       	push	r24
+ 30e:	9f 93       	push	r25
+ 310:	af 93       	push	r26
+ 312:	bf 93       	push	r27
+ 314:	ef 93       	push	r30
+ 316:	ff 93       	push	r31
+		uint8_t ADCdata=0;
+
+        ADCdata=ADCH;
+ 318:	80 91 79 00 	lds	r24, 0x0079	; 0x800079 <__TEXT_REGION_LENGTH__+0x7e0079>
+
+		if(effects&PITCHUP) ADCdata=pitch_up(ADCdata);
+ 31c:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 320:	91 fd       	sbrc	r25, 1
+ 322:	0e 94 0e 01 	call	0x21c	; 0x21c <pitch_up>
+		if(effects&PITCHDOWN) ADCdata=pitch_down(ADCdata);
+ 326:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 32a:	92 fd       	sbrc	r25, 2
+ 32c:	0e 94 3f 01 	call	0x27e	; 0x27e <pitch_down>
+		if(effects&BITCRUSH) ADCdata=bitcrush(ADCdata);
+ 330:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 334:	94 fd       	sbrc	r25, 4
+}
+
+extern uint8_t bitcrush(uint8_t sample){
+		
+		sample=sample>>6;
+        sample=sample<<6;         
+ 336:	80 7c       	andi	r24, 0xC0	; 192
+		if(effects&PITCHDOWN) ADCdata=pitch_down(ADCdata);
+		if(effects&BITCRUSH) ADCdata=bitcrush(ADCdata);
+
+				
+		//only echo or phasor can be used at one time
+		if(effects&ECHO)ADCdata=echo(ADCdata);
+ 338:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 33c:	95 fd       	sbrc	r25, 5
+ 33e:	0e 94 76 00 	call	0xec	; 0xec <echo>
+		if( effects&PHASOR) ADCdata=phasor(ADCdata);
+ 342:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 346:	99 23       	and	r25, r25
+ 348:	14 f4       	brge	.+4      	; 0x34e <__vector_21+0x58>
+ 34a:	0e 94 b1 00 	call	0x162	; 0x162 <phasor>
+		
+		if(effects&LOWPASS) ADCdata=lowpass(ADCdata); //clean up the signal
+ 34e:	90 91 bb 07 	lds	r25, 0x07BB	; 0x8007bb <effects>
+ 352:	90 fd       	sbrc	r25, 0
+ 354:	0e 94 e3 00 	call	0x1c6	; 0x1c6 <lowpass>
+		
+        OCR0B = ADCdata;
+ 358:	88 bd       	out	0x28, r24	; 40
+
+} 
+ 35a:	ff 91       	pop	r31
+ 35c:	ef 91       	pop	r30
+ 35e:	bf 91       	pop	r27
+ 360:	af 91       	pop	r26
+ 362:	9f 91       	pop	r25
+ 364:	8f 91       	pop	r24
+ 366:	7f 91       	pop	r23
+ 368:	6f 91       	pop	r22
+ 36a:	5f 91       	pop	r21
+ 36c:	4f 91       	pop	r20
+ 36e:	3f 91       	pop	r19
+ 370:	2f 91       	pop	r18
+ 372:	0f 90       	pop	r0
+ 374:	0f be       	out	0x3f, r0	; 63
+ 376:	0f 90       	pop	r0
+ 378:	1f 90       	pop	r1
+ 37a:	18 95       	reti
+
+0000037c <main>:
+
+
+int main(void)
+{
+    
+	ADCSetup();
+ 37c:	0e 94 53 00 	call	0xa6	; 0xa6 <ADCSetup>
+	PWMSetup();
+ 380:	0e 94 62 00 	call	0xc4	; 0xc4 <PWMSetup>
+	buttonSetup();
+ 384:	0e 94 6f 00 	call	0xde	; 0xde <buttonSetup>
+ 388:	ff cf       	rjmp	.-2      	; 0x388 <main+0xc>
+
+0000038a <_exit>:
+ 38a:	f8 94       	cli
+
+0000038c <__stop_program>:
+ 38c:	ff cf       	rjmp	.-2      	; 0x38c <__stop_program>

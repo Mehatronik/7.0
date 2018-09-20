@@ -45,7 +45,7 @@ int main(void)
 		sprintf(buffer, "%d", x);
 		lcd1602_send_string(buffer);
 		x++;
-		if(x>=999)
+		if(x>=32000)
 		{
 			x = 0;
 			lcd1602_clear(); //ujedno i vrati kursor na 0,0
@@ -53,7 +53,7 @@ int main(void)
 			lcd1602_goto_xy(0,1);
 		}
 			
-		_delay_ms(5);
+		//_delay_ms(5);
     }
 }
 
