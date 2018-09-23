@@ -71,7 +71,7 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 			Upravljanje += Ki * suma_greske;		//Integralno dejstvo sabiram sa P dejstvom
 			
 			
-			Upravljanje += Kd * (greska - greska_prethodna);
+			Upravljanje += Kd * (greska - greska_prethodna);	//Diferencijalno dejstvo. Znacajno poboljsalo ponasanje.
 			
 			
 			if(Upravljanje>=400)
@@ -87,7 +87,8 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 			}
 			
 			
-			OCR1A = (uint16_t)Upravljanje;
-	
+			OCR1A = (uint16_t)Upravljanje;	//i na kraju upis faktora ispune. Promenljiva "Upravljanje" je svojevrstan bafer.
+			
+			//OCR1A = 100; //debagovanje
 	
 }

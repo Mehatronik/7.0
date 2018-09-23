@@ -42,6 +42,8 @@ C_SRCS +=  \
 ../main.c \
 ../Source/ad_konverzija.c \
 ../Source/eksterni_interapt.c \
+../Source/i2c.c \
+../Source/lcd1602.c \
 ../Source/pwm.c \
 ../Source/tajmer.c \
 ../Source/uart.c
@@ -57,6 +59,8 @@ OBJS +=  \
 main.o \
 Source/ad_konverzija.o \
 Source/eksterni_interapt.o \
+Source/i2c.o \
+Source/lcd1602.o \
 Source/pwm.o \
 Source/tajmer.o \
 Source/uart.o
@@ -65,6 +69,8 @@ OBJS_AS_ARGS +=  \
 main.o \
 Source/ad_konverzija.o \
 Source/eksterni_interapt.o \
+Source/i2c.o \
+Source/lcd1602.o \
 Source/pwm.o \
 Source/tajmer.o \
 Source/uart.o
@@ -73,6 +79,8 @@ C_DEPS +=  \
 main.d \
 Source/ad_konverzija.d \
 Source/eksterni_interapt.d \
+Source/i2c.d \
+Source/lcd1602.d \
 Source/pwm.d \
 Source/tajmer.d \
 Source/uart.d
@@ -81,6 +89,8 @@ C_DEPS_AS_ARGS +=  \
 main.d \
 Source/ad_konverzija.d \
 Source/eksterni_interapt.d \
+Source/i2c.d \
+Source/lcd1602.d \
 Source/pwm.d \
 Source/tajmer.d \
 Source/uart.d
@@ -99,6 +109,10 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
 
 
 

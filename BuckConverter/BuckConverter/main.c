@@ -21,7 +21,8 @@ int main(void)
 	uart_init();
 	pwm_init();
 	tajmer0_init();
-	
+	i2c_init();
+	lcd1602_init();
 	
 	sei();
 	
@@ -32,6 +33,13 @@ int main(void)
 	int i = 0;
 	
 	unsigned long AVG_mereni_napon = 0;
+	
+	
+	lcd1602_clear();
+	lcd1602_goto_xy(5,0);
+	lcd1602_send_string("mV");
+	lcd1602_goto_xy(5,1);
+	lcd1602_send_string("mA");
 	
     while (1) 
     {
@@ -74,13 +82,23 @@ int main(void)
 		send_str(bafer);
 		
 		
+		
 		send_str("  ");
 		itoa( AVG_mereni_napon , bafer, 10);
 		send_str(bafer);
+		lcd1602_goto_xy(0,0);
+		lcd1602_send_string("     ");
+		lcd1602_goto_xy(0,0);
+		lcd1602_send_string(bafer);
+		
 		
 		send_str("  ");
 		itoa( merena_struja , bafer, 10);
 		send_str(bafer);
+		lcd1602_goto_xy(0,1);
+		lcd1602_send_string("     ");
+		lcd1602_goto_xy(0,1);
+		lcd1602_send_string(bafer);
 		
 		/*
 		send_str("  ");
@@ -117,11 +135,9 @@ int main(void)
 		*/
 
 		
-	
-		
 		send_str("\n");
 		
-	
+		
 		
 		}
     }

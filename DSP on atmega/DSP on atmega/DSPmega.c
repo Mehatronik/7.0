@@ -34,7 +34,7 @@
 
 
 volatile uint8_t effects= 0;
-
+volatile uint8_t ADCdata=0;
 
 
 
@@ -233,8 +233,10 @@ extern uint8_t pitch_down(uint8_t sample){
 
 ISR(ADC_vect) 
 { 
-		uint8_t ADCdata=0;
-
+		//uint8_t ADCdata=0;
+		
+		PORTB |= 1<<PORTB5; //set
+		
         ADCdata=ADCH;
 
 		if(effects&PITCHUP) ADCdata=pitch_up(ADCdata);
@@ -249,5 +251,5 @@ ISR(ADC_vect)
 		if(effects&LOWPASS) ADCdata=lowpass(ADCdata); //clean up the signal
 		
         OCR0B = ADCdata;
-
+		PORTB &= ~(1<<PORTB5); //reset
 } 

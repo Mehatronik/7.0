@@ -44,11 +44,11 @@ ISR(ADC_vect)
 	AD konverzija
 	ISR okine kada je gotova konverzija
 	*/
+	PORTD |= 1<<7;       //togle za osciloskop
 	
+	_2x8bit_reg_2_1x16bit_reg();   //upis adc rezultata u matricu; Trajanje ovog dela: ~2us
+
 	
-	_2x8bit_reg_2_1x16bit_reg();   //upis adc rezultata u matricu
-
-
 
 	
 	if (ad_kanal==0)
@@ -57,8 +57,7 @@ ISR(ADC_vect)
 			sumator();
 	else if (ad_kanal==2)
 			sumator();
-	
-	
+	//trajanje ovog gore dela sa ifovima: ~ 70 do 120 us. Ovde se najvise vremena trosi
 	
 	
 	//OCR1A = ref_napon_sa_pot * 20.0;  //top = 400
@@ -77,7 +76,7 @@ ISR(ADC_vect)
 		brojac_sempla++; //kad dodjes do kraja kanala predji na sledeci red semplova
 		if(brojac_sempla >= BR_SEMPLOVA) //kad dodjes do kraja kreni opet od nule
 			brojac_sempla = 0;
-	}
+	}	//trajanje ovog dela: ~1.2 us
 	
 	
 	
@@ -115,8 +114,9 @@ ISR(ADC_vect)
 	
 	
 	
-	PIND |= 1<<7;       //togle za osciloskop
+	//trajanje dela sa multipleksiranjem: ~ 1.7 us
 
+	PORTD &= ~(1<<7);       //togle za osciloskop
 }
 
 
@@ -179,22 +179,25 @@ volatile void _2x8bit_reg_2_1x16bit_reg()
 	//upis adc rezultata u matricu
 	
 	
-	//ADCL mora biti prvi procitan
-	adc_low = (uint8_t)ADCL;    //koriste se dva 8-bit registra jer je rezultat AD konverzije 10-bitan
-	adc_high = (uint8_t)ADCH;
+	////ADCL mora biti prvi procitan
+	//adc_low = (uint8_t)ADCL;    //koriste se dva 8-bit registra jer je rezultat AD konverzije 10-bitan
+	//adc_high = (uint8_t)ADCH;
+	//
+	///**stapam rezultate iz dva registra u jednu promenljivu na ovaj nacin**/
+	///**rezultat ad konverzije je 10-bit-an, tj. od 0 do 1023**/
+	//
+	//if(adc_high==0)
+		//adc_res[ad_kanal][brojac_sempla] = adc_low;
+	//else if(adc_high==1)
+		//adc_res[ad_kanal][brojac_sempla] = 256 + adc_low;
+	//else if(adc_high==2)
+		//adc_res[ad_kanal][brojac_sempla] = 512 + adc_low;	//256*2
+	//else if(adc_high==3)
+		//adc_res[ad_kanal][brojac_sempla] = 768 + adc_low;	//256*3
 	
-	/**stapam rezultate iz dva registra u jednu promenljivu na ovaj nacin**/
-	/**rezultat ad konverzije je 10-bit-an, tj. od 0 do 1023**/
 	
-	if(adc_high==0)
-		adc_res[ad_kanal][brojac_sempla] = adc_low;
-	else if(adc_high==1)
-		adc_res[ad_kanal][brojac_sempla] = 256 + adc_low;
-	else if(adc_high==2)
-		adc_res[ad_kanal][brojac_sempla] = 512 + adc_low;	//256*2
-	else if(adc_high==3)
-		adc_res[ad_kanal][brojac_sempla] = 768 + adc_low;	//256*3
-	
-	
+	adc_res[ad_kanal][brojac_sempla] = (uint16_t)ADC;	//LOL. skontao sam da 'postoji' vec ovaj 16-bit registar, tj da je resen problem
+														//citanja iz 2 8-bit registra. Sem toga, skontao sam mnogo jednostavniji nacin od ove komplikacije gore,
+														//a to je da uz pomoc siftovanja sve upisem u 16-bit promenljivu, u jednoj liniji koda.
 	
 }

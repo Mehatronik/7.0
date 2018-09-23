@@ -53,6 +53,7 @@
 typedef unsigned char uint8_t;
 typedef unsigned int uint16_t;
 extern volatile uint8_t effects;
+extern volatile uint8_t ADCdata;
 
 extern void ADCSetup();
 extern void PWMSetup();

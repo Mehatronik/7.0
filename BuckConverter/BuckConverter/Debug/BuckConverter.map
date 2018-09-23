@@ -68,12 +68,26 @@ Discarded input sections
  .text          0x00000000        0x0 Source/ad_konverzija.o
  .data          0x00000000        0x0 Source/ad_konverzija.o
  .bss           0x00000000        0x0 Source/ad_konverzija.o
+ .bss.adc_high  0x00000000        0x1 Source/ad_konverzija.o
+ .bss.adc_low   0x00000000        0x1 Source/ad_konverzija.o
  .text          0x00000000        0x0 Source/eksterni_interapt.o
  .data          0x00000000        0x0 Source/eksterni_interapt.o
  .bss           0x00000000        0x0 Source/eksterni_interapt.o
  .text.eksternInt_init
                 0x00000000       0x12 Source/eksterni_interapt.o
  .bss.ugao      0x00000000        0x4 Source/eksterni_interapt.o
+ .text          0x00000000        0x0 Source/i2c.o
+ .data          0x00000000        0x0 Source/i2c.o
+ .bss           0x00000000        0x0 Source/i2c.o
+ .text.i2c_stop_condition
+                0x00000000        0x8 Source/i2c.o
+ .text.i2c_recv_byte
+                0x00000000       0x16 Source/i2c.o
+ .text.i2c_recv_last_byte
+                0x00000000       0x16 Source/i2c.o
+ .text          0x00000000        0x0 Source/lcd1602.o
+ .data          0x00000000        0x0 Source/lcd1602.o
+ .bss           0x00000000        0x0 Source/lcd1602.o
  .text          0x00000000        0x0 Source/pwm.o
  .data          0x00000000        0x0 Source/pwm.o
  .bss           0x00000000        0x0 Source/pwm.o
@@ -258,6 +272,8 @@ LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/
 LOAD main.o
 LOAD Source/ad_konverzija.o
 LOAD Source/eksterni_interapt.o
+LOAD Source/i2c.o
+LOAD Source/lcd1602.o
 LOAD Source/pwm.o
 LOAD Source/tajmer.o
 LOAD Source/uart.o
@@ -368,7 +384,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0xf7c
+.text           0x00000000     0x117c
  *(.vectors)
  .vectors       0x00000000       0x68 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
                 0x00000000                __vector_default
@@ -449,121 +465,154 @@ END GROUP
                 0x000000a2                __vector_16
                 0x000000a6                . = ALIGN (0x2)
  *(.text.*)
- .text.main     0x000000a6      0x170 main.o
+ .text.main     0x000000a6      0x1f4 main.o
                 0x000000a6                main
  .text.ADC_init
-                0x00000216       0x1c Source/ad_konverzija.o
-                0x00000216                ADC_init
- .text.sumator  0x00000232      0x226 Source/ad_konverzija.o
-                0x00000232                sumator
+                0x0000029a       0x1c Source/ad_konverzija.o
+                0x0000029a                ADC_init
+ .text.sumator  0x000002b6      0x226 Source/ad_konverzija.o
+                0x000002b6                sumator
  .text._2x8bit_reg_2_1x16bit_reg
-                0x00000458       0xd6 Source/ad_konverzija.o
-                0x00000458                _2x8bit_reg_2_1x16bit_reg
+                0x000004dc       0x2a Source/ad_konverzija.o
+                0x000004dc                _2x8bit_reg_2_1x16bit_reg
  .text.__vector_21
-                0x0000052e      0x100 Source/ad_konverzija.o
-                0x0000052e                __vector_21
+                0x00000506      0x102 Source/ad_konverzija.o
+                0x00000506                __vector_21
  .text.__vector_1
-                0x0000062e       0x88 Source/eksterni_interapt.o
-                0x0000062e                __vector_1
+                0x00000608       0x88 Source/eksterni_interapt.o
+                0x00000608                __vector_1
+ .text.i2c_init
+                0x00000690        0x8 Source/i2c.o
+                0x00000690                i2c_init
+ .text.i2c_start_condition
+                0x00000698       0x12 Source/i2c.o
+                0x00000698                i2c_start_condition
+ .text.i2c_send_byte
+                0x000006aa       0x16 Source/i2c.o
+                0x000006aa                i2c_send_byte
+ .text.i2c_send_packet
+                0x000006c0       0x24 Source/i2c.o
+                0x000006c0                i2c_send_packet
+ .text.putnibble
+                0x000006e4       0x50 Source/lcd1602.o
+                0x000006e4                putnibble
+ .text.lcd1602_send_byte
+                0x00000734       0x44 Source/lcd1602.o
+                0x00000734                lcd1602_send_byte
+ .text.lcd1602_send_char
+                0x00000778       0x28 Source/lcd1602.o
+                0x00000778                lcd1602_send_char
+ .text.lcd1602_init
+                0x000007a0       0xba Source/lcd1602.o
+                0x000007a0                lcd1602_init
+ .text.lcd1602_clear
+                0x0000085a       0x16 Source/lcd1602.o
+                0x0000085a                lcd1602_clear
+ .text.lcd1602_goto_xy
+                0x00000870       0x12 Source/lcd1602.o
+                0x00000870                lcd1602_goto_xy
+ .text.lcd1602_send_string
+                0x00000882       0x2c Source/lcd1602.o
+                0x00000882                lcd1602_send_string
  .text.pwm_init
-                0x000006b6       0x34 Source/pwm.o
-                0x000006b6                pwm_init
+                0x000008ae       0x34 Source/pwm.o
+                0x000008ae                pwm_init
  .text.__vector_11
-                0x000006ea       0x16 Source/pwm.o
-                0x000006ea                __vector_11
+                0x000008e2       0x16 Source/pwm.o
+                0x000008e2                __vector_11
  .text.tajmer0_init
-                0x00000700       0x14 Source/tajmer.o
-                0x00000700                tajmer0_init
+                0x000008f8       0x14 Source/tajmer.o
+                0x000008f8                tajmer0_init
  .text.__vector_14
-                0x00000714      0x358 Source/tajmer.o
-                0x00000714                __vector_14
+                0x0000090c      0x360 Source/tajmer.o
+                0x0000090c                __vector_14
  .text.__vector_20
-                0x00000a6c       0x18 Source/uart.o
-                0x00000a6c                __vector_20
+                0x00000c6c       0x18 Source/uart.o
+                0x00000c6c                __vector_20
  .text.__vector_18
-                0x00000a84       0x56 Source/uart.o
-                0x00000a84                __vector_18
+                0x00000c84       0x56 Source/uart.o
+                0x00000c84                __vector_18
  .text.uart_init
-                0x00000ada       0x20 Source/uart.o
-                0x00000ada                uart_init
+                0x00000cda       0x20 Source/uart.o
+                0x00000cda                uart_init
  .text.send_str
-                0x00000afa       0x26 Source/uart.o
-                0x00000afa                send_str
+                0x00000cfa       0x26 Source/uart.o
+                0x00000cfa                send_str
  .text.avr-libc.fplib
-                0x00000b20        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3.o)
-                0x00000b20                __subsf3
-                0x00000b22                __addsf3
+                0x00000d20        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3.o)
+                0x00000d20                __subsf3
+                0x00000d22                __addsf3
  .text.avr-libc.fplib
-                0x00000b2e       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3x.o)
-                0x00000b50                __addsf3x
+                0x00000d2e       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3x.o)
+                0x00000d50                __addsf3x
  .text.avr-libc.fplib
-                0x00000bfa        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
-                0x00000bfa                __fixsfsi
+                0x00000dfa        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixsfsi.o)
+                0x00000dfa                __fixsfsi
  .text.avr-libc.fplib
-                0x00000c08       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
-                0x00000c08                __fixunssfsi
+                0x00000e08       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
+                0x00000e08                __fixunssfsi
  .text.avr-libc.fplib
-                0x00000c66       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(floatsisf.o)
-                0x00000c66                __floatunsisf
-                0x00000c6a                __floatsisf
+                0x00000e66       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(floatsisf.o)
+                0x00000e66                __floatunsisf
+                0x00000e6a                __floatsisf
  .text.avr-libc.fplib
-                0x00000ce0        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_inf.o)
-                0x00000ce0                __fp_inf
+                0x00000ee0        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_inf.o)
+                0x00000ee0                __fp_inf
  .text.avr-libc.fplib
-                0x00000cec        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_nan.o)
-                0x00000cec                __fp_nan
+                0x00000eec        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_nan.o)
+                0x00000eec                __fp_nan
  .text.avr-libc.fplib
-                0x00000cf2        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
-                0x00000cf2                __fp_pscA
+                0x00000ef2        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
+                0x00000ef2                __fp_pscA
  .text.avr-libc.fplib
-                0x00000d00        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
-                0x00000d00                __fp_pscB
+                0x00000f00        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
+                0x00000f00                __fp_pscB
  .text.avr-libc.fplib
-                0x00000d0e       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_round.o)
-                0x00000d0e                __fp_round
+                0x00000f0e       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_round.o)
+                0x00000f0e                __fp_round
  .text.avr-libc.fplib
-                0x00000d30       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_split3.o)
-                0x00000d30                __fp_split3
-                0x00000d40                __fp_splitA
+                0x00000f30       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_split3.o)
+                0x00000f30                __fp_split3
+                0x00000f40                __fp_splitA
  .text.avr-libc.fplib
-                0x00000d74        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_zero.o)
-                0x00000d74                __fp_zero
-                0x00000d76                __fp_szero
+                0x00000f74        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_zero.o)
+                0x00000f74                __fp_zero
+                0x00000f76                __fp_szero
  .text.avr-libc.fplib
-                0x00000d82        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3.o)
-                0x00000d82                __mulsf3
+                0x00000f82        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3.o)
+                0x00000f82                __mulsf3
  .text.avr-libc.fplib
-                0x00000d8a       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
-                0x00000da8                __mulsf3x
-                0x00000dae                __mulsf3_pse
+                0x00000f8a       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
+                0x00000fa8                __mulsf3x
+                0x00000fae                __mulsf3_pse
  .text.libgcc.div
-                0x00000e5c       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
-                0x00000e5c                _div
-                0x00000e5c                __divmodhi4
+                0x0000105c       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_divmodhi4.o)
+                0x0000105c                _div
+                0x0000105c                __divmodhi4
  .text.libgcc.div
-                0x00000e84       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodsi4.o)
-                0x00000e84                __udivmodsi4
+                0x00001084       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodsi4.o)
+                0x00001084                __udivmodsi4
  .text.libgcc.mul
-                0x00000ec8       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
-                0x00000ec8                __umulhisi3
+                0x000010c8       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+                0x000010c8                __umulhisi3
  .text.libgcc.div
-                0x00000ee6       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
-                0x00000ee6                __udivmodhi4
+                0x000010e6       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_udivmodhi4.o)
+                0x000010e6                __udivmodhi4
  .text.avr-libc
-                0x00000f0e       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(itoa_ncheck.o)
-                0x00000f0e                __itoa_ncheck
+                0x0000110e       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(itoa_ncheck.o)
+                0x0000110e                __itoa_ncheck
  .text.avr-libc
-                0x00000f24       0x34 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(utoa_ncheck.o)
-                0x00000f24                __utoa_ncheck
-                0x00000f26                __utoa_common
+                0x00001124       0x34 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(utoa_ncheck.o)
+                0x00001124                __utoa_ncheck
+                0x00001126                __utoa_common
  .text.avr-libc
-                0x00000f58       0x20 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strrev.o)
-                0x00000f58                strrev
-                0x00000f78                . = ALIGN (0x2)
+                0x00001158       0x20 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strrev.o)
+                0x00001158                strrev
+                0x00001178                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000f78        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x00000f78                _exit
-                0x00000f78                exit
+ .fini9         0x00001178        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x00001178                _exit
+                0x00001178                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -582,11 +631,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000f78        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x00001178        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000f7c                _etext = .
+                0x0000117c                _etext = .
 
-.data           0x00800100       0x16 load address 0x00000f7c
+.data           0x00800100       0x1e load address 0x0000117c
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -602,82 +651,79 @@ END GROUP
  *(.rodata)
  *(.rodata*)
  .rodata.str1.1
-                0x00800110        0x5 main.o
+                0x00800110        0xe main.o
+                                 0x11 (size before relaxing)
  *(.gnu.linkonce.d*)
-                0x00800116                . = ALIGN (0x2)
- *fill*         0x00800115        0x1 
-                0x00800116                _edata = .
-                0x00800116                PROVIDE (__data_end, .)
+                0x0080011e                . = ALIGN (0x2)
+                0x0080011e                _edata = .
+                0x0080011e                PROVIDE (__data_end, .)
 
-.bss            0x00800116       0xcd
-                0x00800116                PROVIDE (__bss_start, .)
+.bss            0x0080011e       0xcc
+                0x0080011e                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.i.1804    0x00800116        0x1 Source/ad_konverzija.o
- .bss.ad_kanal  0x00800117        0x1 Source/ad_konverzija.o
-                0x00800117                ad_kanal
- .bss.adc_high  0x00800118        0x1 Source/ad_konverzija.o
-                0x00800118                adc_high
- .bss.adc_low   0x00800119        0x1 Source/ad_konverzija.o
-                0x00800119                adc_low
+ .bss.i.1804    0x0080011e        0x1 Source/ad_konverzija.o
+ .bss.ad_kanal  0x0080011f        0x1 Source/ad_konverzija.o
+                0x0080011f                ad_kanal
  .bss.mereni_napon
-                0x0080011a        0x2 Source/ad_konverzija.o
-                0x0080011a                mereni_napon
+                0x00800120        0x2 Source/ad_konverzija.o
+                0x00800120                mereni_napon
  .bss.merena_struja
-                0x0080011c        0x2 Source/ad_konverzija.o
-                0x0080011c                merena_struja
+                0x00800122        0x2 Source/ad_konverzija.o
+                0x00800122                merena_struja
  .bss.ref_napon_sa_pot
-                0x0080011e        0x2 Source/ad_konverzija.o
-                0x0080011e                ref_napon_sa_pot
+                0x00800124        0x2 Source/ad_konverzija.o
+                0x00800124                ref_napon_sa_pot
  .bss.brojac_sempla
-                0x00800120        0x1 Source/ad_konverzija.o
-                0x00800120                brojac_sempla
- .bss.adc_res   0x00800121       0xa0 Source/ad_konverzija.o
-                0x00800121                adc_res
+                0x00800126        0x1 Source/ad_konverzija.o
+                0x00800126                brojac_sempla
+ .bss.adc_res   0x00800127       0xa0 Source/ad_konverzija.o
+                0x00800127                adc_res
  .bss.brojac_ext_interaptova
-                0x008001c1        0x2 Source/eksterni_interapt.o
-                0x008001c1                brojac_ext_interaptova
+                0x008001c7        0x2 Source/eksterni_interapt.o
+                0x008001c7                brojac_ext_interaptova
  .bss.smer_obrtanja
-                0x008001c3        0x1 Source/eksterni_interapt.o
-                0x008001c3                smer_obrtanja
- .bss.impulsi   0x008001c4        0x2 Source/eksterni_interapt.o
-                0x008001c4                impulsi
+                0x008001c9        0x1 Source/eksterni_interapt.o
+                0x008001c9                smer_obrtanja
+ .bss.impulsi   0x008001ca        0x2 Source/eksterni_interapt.o
+                0x008001ca                impulsi
+ .bss.lcd       0x008001cc        0x1 Source/lcd1602.o
  .bss.greska_prethodna
-                0x008001c6        0x4 Source/tajmer.o
-                0x008001c6                greska_prethodna
+                0x008001cd        0x4 Source/tajmer.o
+                0x008001cd                greska_prethodna
  .bss.suma_greske
-                0x008001ca        0x4 Source/tajmer.o
-                0x008001ca                suma_greske
- .bss.greska    0x008001ce        0x4 Source/tajmer.o
-                0x008001ce                greska
+                0x008001d1        0x4 Source/tajmer.o
+                0x008001d1                suma_greske
+ .bss.greska    0x008001d5        0x4 Source/tajmer.o
+                0x008001d5                greska
  .bss.Upravljanje
-                0x008001d2        0x2 Source/tajmer.o
-                0x008001d2                Upravljanje
+                0x008001d9        0x2 Source/tajmer.o
+                0x008001d9                Upravljanje
  .bss.flag_prekid_10ms
-                0x008001d4        0x1 Source/tajmer.o
-                0x008001d4                flag_prekid_10ms
+                0x008001db        0x1 Source/tajmer.o
+                0x008001db                flag_prekid_10ms
  .bss.flag_tajmer0_prekid
-                0x008001d5        0x1 Source/tajmer.o
-                0x008001d5                flag_tajmer0_prekid
+                0x008001dc        0x1 Source/tajmer.o
+                0x008001dc                flag_tajmer0_prekid
  .bss.buff_size
-                0x008001d6        0x1 Source/uart.o
-                0x008001d6                buff_size
+                0x008001dd        0x1 Source/uart.o
+                0x008001dd                buff_size
  *(COMMON)
- COMMON         0x008001d7        0x2 Source/tajmer.o
-                0x008001d7                brojac_prekida_tajmera0
- COMMON         0x008001d9        0xa Source/uart.o
-                0x008001d9                input_char
-                0x008001da                poslato
-                0x008001db                input_buffer
-                0x008001e3                PROVIDE (__bss_end, .)
-                0x00000f7c                __data_load_start = LOADADDR (.data)
-                0x00000f92                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x008001de        0x2 Source/tajmer.o
+                0x008001de                brojac_prekida_tajmera0
+ COMMON         0x008001e0        0xa Source/uart.o
+                0x008001e0                input_char
+                0x008001e1                poslato
+                0x008001e2                input_buffer
+                0x008001ea                PROVIDE (__bss_end, .)
+                0x0000117c                __data_load_start = LOADADDR (.data)
+                0x0000119a                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x008001e3        0x0
+.noinit         0x008001ea        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x008001e3                _end = .
+                0x008001ea                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -723,6 +769,8 @@ END GROUP
                                  0x31 (size before relaxing)
  .comment       0x00000030       0x31 Source/ad_konverzija.o
  .comment       0x00000030       0x31 Source/eksterni_interapt.o
+ .comment       0x00000030       0x31 Source/i2c.o
+ .comment       0x00000030       0x31 Source/lcd1602.o
  .comment       0x00000030       0x31 Source/pwm.o
  .comment       0x00000030       0x31 Source/tajmer.o
  .comment       0x00000030       0x31 Source/uart.o
@@ -747,7 +795,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x108
+.debug_aranges  0x00000000      0x1a8
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x20 main.o
@@ -756,78 +804,96 @@ END GROUP
  .debug_aranges
                 0x00000058       0x28 Source/eksterni_interapt.o
  .debug_aranges
-                0x00000080       0x28 Source/pwm.o
+                0x00000080       0x50 Source/i2c.o
  .debug_aranges
-                0x000000a8       0x28 Source/tajmer.o
+                0x000000d0       0x50 Source/lcd1602.o
  .debug_aranges
-                0x000000d0       0x38 Source/uart.o
+                0x00000120       0x28 Source/pwm.o
+ .debug_aranges
+                0x00000148       0x28 Source/tajmer.o
+ .debug_aranges
+                0x00000170       0x38 Source/uart.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x121c
+.debug_info     0x00000000     0x1cb1
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_info    0x000005f4      0x5a7 main.o
- .debug_info    0x00000b9b      0x1d6 Source/ad_konverzija.o
- .debug_info    0x00000d71       0xf6 Source/eksterni_interapt.o
- .debug_info    0x00000e67       0xa3 Source/pwm.o
- .debug_info    0x00000f0a      0x1c0 Source/tajmer.o
- .debug_info    0x000010ca      0x152 Source/uart.o
+ .debug_info    0x000005f4      0x7d2 main.o
+ .debug_info    0x00000dc6      0x1d6 Source/ad_konverzija.o
+ .debug_info    0x00000f9c       0xf6 Source/eksterni_interapt.o
+ .debug_info    0x00001092      0x188 Source/i2c.o
+ .debug_info    0x0000121a      0x6e2 Source/lcd1602.o
+ .debug_info    0x000018fc       0xa3 Source/pwm.o
+ .debug_info    0x0000199f      0x1c0 Source/tajmer.o
+ .debug_info    0x00001b5f      0x152 Source/uart.o
 
-.debug_abbrev   0x00000000      0xa75
+.debug_abbrev   0x00000000      0xd36
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_abbrev  0x000005a2      0x1bd main.o
- .debug_abbrev  0x0000075f       0xc5 Source/ad_konverzija.o
- .debug_abbrev  0x00000824       0x7f Source/eksterni_interapt.o
- .debug_abbrev  0x000008a3       0x67 Source/pwm.o
- .debug_abbrev  0x0000090a       0xa8 Source/tajmer.o
- .debug_abbrev  0x000009b2       0xc3 Source/uart.o
+ .debug_abbrev  0x000005a2      0x1d5 main.o
+ .debug_abbrev  0x00000777       0xc5 Source/ad_konverzija.o
+ .debug_abbrev  0x0000083c       0x7f Source/eksterni_interapt.o
+ .debug_abbrev  0x000008bb      0x10d Source/i2c.o
+ .debug_abbrev  0x000009c8      0x19c Source/lcd1602.o
+ .debug_abbrev  0x00000b64       0x67 Source/pwm.o
+ .debug_abbrev  0x00000bcb       0xa8 Source/tajmer.o
+ .debug_abbrev  0x00000c73       0xc3 Source/uart.o
 
-.debug_line     0x00000000      0xa3c
+.debug_line     0x00000000      0xeed
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x133 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_line    0x00000133      0x1ef main.o
- .debug_line    0x00000322      0x267 Source/ad_konverzija.o
- .debug_line    0x00000589      0x10b Source/eksterni_interapt.o
- .debug_line    0x00000694       0xe5 Source/pwm.o
- .debug_line    0x00000779      0x17d Source/tajmer.o
- .debug_line    0x000008f6      0x146 Source/uart.o
+ .debug_line    0x00000133      0x249 main.o
+ .debug_line    0x0000037c      0x237 Source/ad_konverzija.o
+ .debug_line    0x000005b3      0x10b Source/eksterni_interapt.o
+ .debug_line    0x000006be      0x1b3 Source/i2c.o
+ .debug_line    0x00000871      0x2ce Source/lcd1602.o
+ .debug_line    0x00000b3f       0xe5 Source/pwm.o
+ .debug_line    0x00000c24      0x183 Source/tajmer.o
+ .debug_line    0x00000da7      0x146 Source/uart.o
 
-.debug_frame    0x00000000      0x2a4
+.debug_frame    0x00000000      0x3e4
  *(.debug_frame)
  .debug_frame   0x00000000       0x38 main.o
  .debug_frame   0x00000038       0xbc Source/ad_konverzija.o
  .debug_frame   0x000000f4       0x50 Source/eksterni_interapt.o
- .debug_frame   0x00000144       0x40 Source/pwm.o
- .debug_frame   0x00000184       0xa4 Source/tajmer.o
- .debug_frame   0x00000228       0x7c Source/uart.o
+ .debug_frame   0x00000144       0x90 Source/i2c.o
+ .debug_frame   0x000001d4       0xb0 Source/lcd1602.o
+ .debug_frame   0x00000284       0x40 Source/pwm.o
+ .debug_frame   0x000002c4       0xa4 Source/tajmer.o
+ .debug_frame   0x00000368       0x7c Source/uart.o
 
-.debug_str      0x00000000      0x601
+.debug_str      0x00000000      0x768
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_str     0x00000208      0x210 main.o
-                                0x263 (size before relaxing)
- .debug_str     0x00000418       0x80 Source/ad_konverzija.o
+ .debug_str     0x00000208      0x258 main.o
+                                0x2ab (size before relaxing)
+ .debug_str     0x00000460       0x80 Source/ad_konverzija.o
                                 0x22c (size before relaxing)
- .debug_str     0x00000498       0x72 Source/eksterni_interapt.o
+ .debug_str     0x000004e0       0x72 Source/eksterni_interapt.o
                                 0x1d7 (size before relaxing)
- .debug_str     0x0000050a       0x1c Source/pwm.o
+ .debug_str     0x00000552       0x84 Source/i2c.o
+                                0x1f7 (size before relaxing)
+ .debug_str     0x000005d6       0xa3 Source/lcd1602.o
+                                0x26c (size before relaxing)
+ .debug_str     0x00000679       0x1c Source/pwm.o
                                 0x193 (size before relaxing)
- .debug_str     0x00000526       0x88 Source/tajmer.o
+ .debug_str     0x00000695       0x80 Source/tajmer.o
                                 0x246 (size before relaxing)
- .debug_str     0x000005ae       0x53 Source/uart.o
+ .debug_str     0x00000715       0x53 Source/uart.o
                                 0x1dd (size before relaxing)
 
-.debug_loc      0x00000000      0x5d4
+.debug_loc      0x00000000      0xc9d
  *(.debug_loc)
  .debug_loc     0x00000000      0x227 main.o
  .debug_loc     0x00000227      0x12e Source/ad_konverzija.o
  .debug_loc     0x00000355       0x56 Source/eksterni_interapt.o
- .debug_loc     0x000003ab       0x2f Source/pwm.o
- .debug_loc     0x000003da      0x133 Source/tajmer.o
- .debug_loc     0x0000050d       0xc7 Source/uart.o
+ .debug_loc     0x000003ab       0xb4 Source/i2c.o
+ .debug_loc     0x0000045f      0x615 Source/lcd1602.o
+ .debug_loc     0x00000a74       0x2f Source/pwm.o
+ .debug_loc     0x00000aa3      0x133 Source/tajmer.o
+ .debug_loc     0x00000bd6       0xc7 Source/uart.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -847,14 +913,16 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xc0
+.debug_ranges   0x00000000      0x140
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x28 main.o
  .debug_ranges  0x00000028       0x28 Source/ad_konverzija.o
  .debug_ranges  0x00000050       0x18 Source/eksterni_interapt.o
- .debug_ranges  0x00000068       0x18 Source/pwm.o
- .debug_ranges  0x00000080       0x18 Source/tajmer.o
- .debug_ranges  0x00000098       0x28 Source/uart.o
+ .debug_ranges  0x00000068       0x40 Source/i2c.o
+ .debug_ranges  0x000000a8       0x40 Source/lcd1602.o
+ .debug_ranges  0x000000e8       0x18 Source/pwm.o
+ .debug_ranges  0x00000100       0x18 Source/tajmer.o
+ .debug_ranges  0x00000118       0x28 Source/uart.o
 
 .debug_macro
  *(.debug_macro)

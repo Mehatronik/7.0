@@ -4,22 +4,36 @@
  * Created: 20.9.2018. 01.58.32
  * Author : Kovacevic
  */ 
+
+#define F_CPU 16000000UL
+
 #include "DSPmega.h"
 #include <avr/io.h>
-
+#include "uart.h"
+#include <util/delay.h>
 
 int main(void)
 {
-    
+    char buffer[15] = {0};
+	
+	uart_init();
 	ADCSetup();
 	PWMSetup();
 	buttonSetup();
+	
+	DDRB |= 1<<PORTB5; //led
+	
 	
     
 	//effects&= ~PITCHUP;
 	//effects|=BITCRUSH;
     while (1) 
     {
+		
+		sprintf(buffer, "%d", ADCdata);
+		send_str(buffer);
+		send_str("\n");
+		
 		//effects|=ECHO;
 		/*
 		if (PINB & (1<<PORTB6)){
@@ -54,6 +68,7 @@ int main(void)
 			effects|=LOWPASS;
 		}
 		*/
+		
 		
 		
     }
