@@ -25,7 +25,7 @@
 
 
 //Cista adresa eeproma je 10100xxy. xx su bitovi za adresiranje, dok je y read/write bit komanda
-#define atmel24C08A_adr_x0 0b10100000      // device address of EEPROM 24C08a, see datasheet; dodata 0 na kraju radi lakseg citanja i pisanja
+#define atmel24C08A_adr_x0 0b10100000      // device address of EEPROM 24C08a, see datasheet; dodata 0 na kraju radi lakseg citanja i pisanja; (0x28 << 1) za Samsung toner eeprom
 #define atmel24C08A_adr_x1 0b10100010	  //fizicki se koristi samo jedan pin (A1, A2, A3), dok su druga dva nepovezana eksterno, dok se interno
 #define atmel24C08A_adr_x2 0b10100100	  //koriste za adresiranje (10-bit), jer eeprom ima 1024 bajta
 #define atmel24C08A_adr_x3 0b10100110
@@ -37,7 +37,7 @@ char bafer[15];
 
 void eeprom_reset();
 void eeprom_read_all_print();  
-
+void eeprom_write_byte(uint16_t I2C_addr, uint16_t addr, uint8_t data);
 
 int main(void)
 {
@@ -50,7 +50,15 @@ int main(void)
 	//PB5 = dig13 = led - izlaz
 	DDRB |= 1<<PORTB5;
 	
+	/*
+	eeprom_write_byte(atmel24C08A_adr_x0, 511, 200);
+	eeprom_write_byte(atmel24C08A_adr_x0, 512, 200);
 	
+	eeprom_write_byte(atmel24C08A_adr_x0, 767, 111);
+	eeprom_write_byte(atmel24C08A_adr_x0, 768, 112);
+	
+	eeprom_write_byte(atmel24C08A_adr_x0, 1023, 188);
+	*/
 	
 	eeprom_read_all_print();  //procitaj ceo eeprom i odstampaj preko uarta
     
@@ -106,7 +114,7 @@ void eeprom_read_all_print()
 	{
 		for(j=0; j<16; j++)
 		{
-			ret = i2c_readNak();                    // read one byte
+			ret = i2c_readAck();                    // read one byte, request more data from device
 			
 			
 			/* slanje preko uarta */
@@ -121,5 +129,61 @@ void eeprom_read_all_print()
 	}
 	
 	i2c_stop();
+	
+}
+
+void eeprom_write_byte(uint16_t I2C_addr, uint16_t addr, uint8_t data)
+{
+	//za 1024 bajta EEPROM vazi ofa funkcija
+	//podeljen je u cetiri dela od 256
+	
+	//addr - adresa za upisivanje u eepromu		(0-1023)
+	//data - podatak za upisivanje na datu adresu	(0-255)
+	
+	if (addr < 256)	//I deo EEPROMA
+	{
+		i2c_start_wait( I2C_addr + I2C_WRITE);	// set device address and write mode, last bit is Read-1, Write-0;
+		
+		i2c_write(addr);                       // prvo pisanje je zadavanje adrese (ima ih 256 u jednom delu)
+		i2c_write(data);						// sledece pisanje je upis vrednosti u tu adresu
+		
+		i2c_stop();							// set stop conditon = release bus
+	}
+	else if (addr >= 256 && addr < 512)	//II deo EEPROMA
+	{
+		I2C_addr = (I2C_addr >> 1) + 1;  //prvo siftujem da bi uvecao gornju adresu, jer je LSB R/W komanda, a 1 i 2 bit su za adresiranje
+		I2C_addr = I2C_addr << 1;		   //potom vratim da bi bilo 8-bit. LSB se puni nulom
+		
+		i2c_start_wait( I2C_addr + I2C_WRITE);	// set device address and write mode, last bit is Read-1, Write-0;
+		
+		i2c_write(addr-256);                       // prvo pisanje je zadavanje adrese (ima ih 256 u jednom delu)
+		i2c_write(data);						// sledece pisanje je upis vrednosti u tu adresu
+		
+		i2c_stop();
+	}
+	else if (addr >= 512 && addr < 768) //III deo EEPROMA
+	{
+		I2C_addr = (I2C_addr >> 1) + 2;  //prvo siftujem da bi uvecao gornju adresu, jer je LSB R/W komanda, a 1 i 2 bit su za adresiranje
+		I2C_addr = I2C_addr << 1;		   //potom vratim da bi bilo 8-bit. LSB se puni nulom
+		
+		i2c_start_wait( I2C_addr + I2C_WRITE);	// set device address and write mode, last bit is Read-1, Write-0;
+		
+		i2c_write(addr-512);                       // prvo pisanje je zadavanje adrese (ima ih 256 u jednom delu)
+		i2c_write(data);						// sledece pisanje je upis vrednosti u tu adresu
+		
+		i2c_stop();
+	}
+	else if (addr >= 768 && addr < 1024) //IV deo EEPROMA
+	{
+		I2C_addr = (I2C_addr >> 1) + 3;  //prvo siftujem da bi uvecao gornju adresu, jer je LSB R/W komanda, a 1 i 2 bit su za adresiranje
+		I2C_addr = I2C_addr << 1;		   //potom vratim da bi bilo 8-bit. LSB se puni nulom
+		
+		i2c_start_wait( I2C_addr + I2C_WRITE);	// set device address and write mode, last bit is Read-1, Write-0;
+		
+		i2c_write(addr-768);                       // prvo pisanje je zadavanje adrese (ima ih 256 u jednom delu)
+		i2c_write(data);						// sledece pisanje je upis vrednosti u tu adresu
+		
+		i2c_stop();
+	}
 	
 }
