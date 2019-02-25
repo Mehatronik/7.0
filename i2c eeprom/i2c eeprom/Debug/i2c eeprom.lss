@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 000000c8  00000000  00000000  000009d4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000d14  00000000  00000000  00000a9c  2**0
+  6 .debug_info   00000d90  00000000  00000000  00000a9c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000008a3  00000000  00000000  000017b0  2**0
+  7 .debug_abbrev 000008b0  00000000  00000000  0000182c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000007c7  00000000  00000000  00002053  2**0
+  8 .debug_line   000007c7  00000000  00000000  000020dc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000001dc  00000000  00000000  0000281c  2**2
+  9 .debug_frame  000001dc  00000000  00000000  000028a4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000048c  00000000  00000000  000029f8  2**0
+ 10 .debug_str    000004a5  00000000  00000000  00002a80  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000005e0  00000000  00000000  00002e84  2**0
+ 11 .debug_loc    000005cc  00000000  00000000  00002f25  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000098  00000000  00000000  00003464  2**0
+ 12 .debug_ranges 00000098  00000000  00000000  000034f1  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -249,8 +249,8 @@ void eeprom_read_all_print()
  15e:	cf 93       	push	r28
  160:	df 93       	push	r29
 	
-	int i=0;
-	int j=0;
+	unsigned i=0;
+	unsigned j=0;
 	
 	/* podesim pocetnu adresu za citanje */
 	i2c_start_wait( atmel24C08A_adr_x0 + I2C_WRITE);
@@ -268,7 +268,7 @@ void eeprom_read_all_print()
  17a:	b1 2c       	mov	r11, r1
 			ret = i2c_readAck();                    // read one byte, request more data from device
 			
-			
+				
 			/* slanje preko uarta */
 			//itoa( ret , bafer, 10);
 			sprintf(bafer, "%3d", ret);   //presao sam igricu. moze i sprintf umesto itoa. %3d znaci da sam formatirao ispis na minimum 3 mesta, za pregledniji ispis.
@@ -283,16 +283,16 @@ void eeprom_read_all_print()
  18c:	c0 2e       	mov	r12, r16
  18e:	d1 2e       	mov	r13, r17
  190:	24 c0       	rjmp	.+72     	; 0x1da <eeprom_read_all_print+0x8c>
-	/* ispis na terrminal citavog sadrzaja. 64*16 = 1024. Tako ispisujem jer je takva interna organizacija memorije u eepromu */
-	for(i=0; i<64; i++)
-	{
+		send_str("  ");  //razmak		
+		*/
+		
 		for(j=0; j<16; j++)
 		{
 			ret = i2c_readAck();                    // read one byte, request more data from device
  192:	0e 94 9c 00 	call	0x138	; 0x138 <i2c_readAck>
  196:	80 93 1a 01 	sts	0x011A, r24	; 0x80011a <ret>
 			
-			
+				
 			/* slanje preko uarta */
 			//itoa( ret , bafer, 10);
 			sprintf(bafer, "%3d", ret);   //presao sam igricu. moze i sprintf umesto itoa. %3d znaci da sam formatirao ispis na minimum 3 mesta, za pregledniji ispis.
@@ -313,11 +313,11 @@ void eeprom_read_all_print()
  1b4:	91 e0       	ldi	r25, 0x01	; 1
  1b6:	0e 94 4d 01 	call	0x29a	; 0x29a <send_str>
  1ba:	21 97       	sbiw	r28, 0x01	; 1
-	i2c_start_wait( atmel24C08A_adr_x0 + I2C_READ);    //citanje
-	
-	/* ispis na terrminal citavog sadrzaja. 64*16 = 1024. Tako ispisujem jer je takva interna organizacija memorije u eepromu */
-	for(i=0; i<64; i++)
-	{
+		sprintf(bafer, "%2d", i);
+		send_str(bafer);
+		send_str("  ");  //razmak		
+		*/
+		
 		for(j=0; j<16; j++)
  1bc:	0f 90       	pop	r0
  1be:	0f 90       	pop	r0
@@ -343,7 +343,7 @@ void eeprom_read_all_print()
 	i2c_start_wait( atmel24C08A_adr_x0 + I2C_READ);    //citanje
 	
 	/* ispis na terrminal citavog sadrzaja. 64*16 = 1024. Tako ispisujem jer je takva interna organizacija memorije u eepromu */
-	for(i=0; i<64; i++)
+	for(i=0; i<64; i++)		//i<64 za 8Kbit, i<8 za 1Kbit
  1d8:	19 f0       	breq	.+6      	; 0x1e0 <eeprom_read_all_print+0x92>
 		
 	}
@@ -391,9 +391,9 @@ int main(void)
 	//PB5 = dig13 = led - izlaz
 	DDRB |= 1<<PORTB5;
  204:	25 9a       	sbi	0x04, 5	; 4
-	eeprom_write_byte(atmel24C08A_adr_x0, 768, 112);
-	
-	eeprom_write_byte(atmel24C08A_adr_x0, 1023, 188);
+	{
+		eeprom_write_byte(atmel24C08A_adr_x0, i+880, tajna_poruka[i]);
+	}
 	*/
 	
 	eeprom_read_all_print();  //procitaj ceo eeprom i odstampaj preko uarta

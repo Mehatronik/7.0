@@ -74,6 +74,10 @@ Discarded input sections
                 0x00000000       0x52 main.o
  .text.eeprom_write_byte
                 0x00000000       0xa0 main.o
+ .data.duzina_niza
+                0x00000000        0x2 main.o
+ .data.tajna_poruka
+                0x00000000       0x88 main.o
  .data.adr      0x00000000        0x1 main.o
  .text          0x00000000        0x0 Uart/uart.o
  .data          0x00000000        0x0 Uart/uart.o
@@ -626,19 +630,19 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xd14
+.debug_info     0x00000000      0xd90
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4      0x1bd i2cmaster/twimaster.o
- .debug_info    0x000007b1      0x411 main.o
- .debug_info    0x00000bc2      0x152 Uart/uart.o
+ .debug_info    0x000007b1      0x48d main.o
+ .debug_info    0x00000c3e      0x152 Uart/uart.o
 
-.debug_abbrev   0x00000000      0x8a3
+.debug_abbrev   0x00000000      0x8b0
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_abbrev  0x000005a2       0xe5 i2cmaster/twimaster.o
- .debug_abbrev  0x00000687      0x159 main.o
- .debug_abbrev  0x000007e0       0xc3 Uart/uart.o
+ .debug_abbrev  0x00000687      0x166 main.o
+ .debug_abbrev  0x000007ed       0xc3 Uart/uart.o
 
 .debug_line     0x00000000      0x7c7
  *(.debug_line .debug_line.* .debug_line_end)
@@ -653,21 +657,21 @@ END GROUP
  .debug_frame   0x000000a0       0xc0 main.o
  .debug_frame   0x00000160       0x7c Uart/uart.o
 
-.debug_str      0x00000000      0x48c
+.debug_str      0x00000000      0x4a5
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x1b1 i2cmaster/twimaster.o
                                 0x1e5 (size before relaxing)
- .debug_str     0x000003b9       0x82 main.o
-                                0x227 (size before relaxing)
- .debug_str     0x0000043b       0x51 Uart/uart.o
+ .debug_str     0x000003b9       0x9b main.o
+                                0x240 (size before relaxing)
+ .debug_str     0x00000454       0x51 Uart/uart.o
                                 0x1d5 (size before relaxing)
 
-.debug_loc      0x00000000      0x5e0
+.debug_loc      0x00000000      0x5cc
  *(.debug_loc)
  .debug_loc     0x00000000      0x12d i2cmaster/twimaster.o
- .debug_loc     0x0000012d      0x3ec main.o
- .debug_loc     0x00000519       0xc7 Uart/uart.o
+ .debug_loc     0x0000012d      0x3d8 main.o
+ .debug_loc     0x00000505       0xc7 Uart/uart.o
 
 .debug_macinfo
  *(.debug_macinfo)

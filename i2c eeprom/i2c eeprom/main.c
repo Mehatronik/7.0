@@ -25,7 +25,7 @@
 
 
 //Cista adresa eeproma je 10100xxy. xx su bitovi za adresiranje, dok je y read/write bit komanda
-#define atmel24C08A_adr_x0 0b10100000      // device address of EEPROM 24C08a, see datasheet; dodata 0 na kraju radi lakseg citanja i pisanja; (0x28 << 1) za Samsung toner eeprom
+#define atmel24C08A_adr_x0 (0x50 << 1) //0b10100000      // device address of EEPROM 24C08a, see datasheet; dodata 0 na kraju radi lakseg citanja i pisanja; (0x28 << 1) za Samsung toner eeprom
 #define atmel24C08A_adr_x1 0b10100010	  //fizicki se koristi samo jedan pin (A1, A2, A3), dok su druga dva nepovezana eksterno, dok se interno
 #define atmel24C08A_adr_x2 0b10100100	  //koriste za adresiranje (10-bit), jer eeprom ima 1024 bajta
 #define atmel24C08A_adr_x3 0b10100110
@@ -35,9 +35,21 @@ uint8_t adr = atmel24C08A_adr_x0; //pomocna prom da bi mogao menjati gornja 2 bi
 unsigned char ret;
 char bafer[15];
 
+uint8_t tajna_poruka[]= {86, 108, 97, 100, 97, 110, 32, 98, 101, 115, 101, 32, 111, 118, 100, 101,
+						 32, 50, 53, 46, 50, 46, 50, 48, 49, 57, 46, 32, 65, 107, 111, 32,
+						 111, 118, 111, 32, 98, 117, 100, 117, 32, 99, 105, 116, 97, 108, 105, 32,
+						 118, 97, 110, 122, 101, 109, 97, 108, 106, 115, 107, 105, 32, 111, 98, 108,
+						 105, 99, 105, 32, 122, 105, 118, 111, 116, 97, 32, 110, 101, 107, 97, 32,
+						 100, 111, 100, 106, 117, 32, 100, 97, 32, 105, 122, 98, 97, 118, 101, 32,
+						 111, 118, 111, 32, 109, 97, 108, 111, 32, 110, 111, 114, 109, 97, 108, 110,
+						 105, 104, 32, 108, 106, 117, 100, 105, 32, 115, 97, 32, 111, 118, 101, 32,
+						 112, 108, 97, 110, 101, 116, 101, 46 };
+	
+unsigned duzina_niza = sizeof(tajna_poruka)/sizeof(tajna_poruka[0]);
+
 void eeprom_reset();
 void eeprom_read_all_print();  
-void eeprom_write_byte(uint16_t I2C_addr, uint16_t addr, uint8_t data);
+void eeprom_write_byte(uint8_t I2C_addr, uint16_t addr, uint8_t data);
 
 int main(void)
 {
@@ -50,14 +62,18 @@ int main(void)
 	//PB5 = dig13 = led - izlaz
 	DDRB |= 1<<PORTB5;
 	
+	int i;
+	
 	/*
-	eeprom_write_byte(atmel24C08A_adr_x0, 511, 200);
-	eeprom_write_byte(atmel24C08A_adr_x0, 512, 200);
+	eeprom_write_byte(atmel24C08A_adr_x0, 15, 101);
+	eeprom_write_byte(atmel24C08A_adr_x0, 16, 102);
+	*/
 	
-	eeprom_write_byte(atmel24C08A_adr_x0, 767, 111);
-	eeprom_write_byte(atmel24C08A_adr_x0, 768, 112);
-	
-	eeprom_write_byte(atmel24C08A_adr_x0, 1023, 188);
+	/*
+	for (i=0; i<duzina_niza; ++i) //upisivanje tajne poruke
+	{
+		eeprom_write_byte(atmel24C08A_adr_x0, i+880, tajna_poruka[i]);
+	}
 	*/
 	
 	eeprom_read_all_print();  //procitaj ceo eeprom i odstampaj preko uarta
@@ -101,8 +117,8 @@ void eeprom_reset()
 void eeprom_read_all_print()
 {
 	
-	int i=0;
-	int j=0;
+	unsigned i=0;
+	unsigned j=0;
 	
 	/* podesim pocetnu adresu za citanje */
 	i2c_start_wait( atmel24C08A_adr_x0 + I2C_WRITE);
@@ -110,13 +126,36 @@ void eeprom_read_all_print()
 	i2c_start_wait( atmel24C08A_adr_x0 + I2C_READ);    //citanje
 	
 	/* ispis na terrminal citavog sadrzaja. 64*16 = 1024. Tako ispisujem jer je takva interna organizacija memorije u eepromu */
-	for(i=0; i<64; i++)
+	for(i=0; i<64; i++)		//i<64 za 8Kbit, i<8 za 1Kbit
 	{
+		
+				if(i==0)		//istampa redne brojeve kolona
+				{
+					send_str("     ");  //5 razmaka
+					for(j=0; j<16; j++)		
+					{
+						send_str("#");
+						sprintf(bafer, "%2d", j);
+						send_str(bafer);
+						
+						
+						send_str("  ");  //razmak
+					}
+					send_str("\n");  //novi red
+				}
+				
+		//stampa redne brojeve vrsta
+		send_str("#");
+		sprintf(bafer, "%2d", i);
+		send_str(bafer);
+		send_str("  ");  //razmak		
+		
+		
 		for(j=0; j<16; j++)
 		{
 			ret = i2c_readAck();                    // read one byte, request more data from device
 			
-			
+				
 			/* slanje preko uarta */
 			//itoa( ret , bafer, 10);
 			sprintf(bafer, "%3d", ret);   //presao sam igricu. moze i sprintf umesto itoa. %3d znaci da sam formatirao ispis na minimum 3 mesta, za pregledniji ispis.
@@ -132,7 +171,7 @@ void eeprom_read_all_print()
 	
 }
 
-void eeprom_write_byte(uint16_t I2C_addr, uint16_t addr, uint8_t data)
+void eeprom_write_byte(uint8_t I2C_addr, uint16_t addr, uint8_t data)
 {
 	//za 1024 bajta EEPROM vazi ofa funkcija
 	//podeljen je u cetiri dela od 256
