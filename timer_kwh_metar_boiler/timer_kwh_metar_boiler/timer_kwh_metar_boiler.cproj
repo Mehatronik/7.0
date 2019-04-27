@@ -100,6 +100,8 @@
       <Value>../Uart</Value>
       <Value>../lcd-1602</Value>
       <Value>../Common</Value>
+      <Value>../Timer</Value>
+      <Value>../ADC</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -122,6 +124,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ADC\ad_konverzija.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ADC\ad_konverzija.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Common\comm.h">
       <SubType>compile</SubType>
     </Compile>
@@ -140,6 +148,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Timer\tajmer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Timer\tajmer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Uart\uart.c">
       <SubType>compile</SubType>
     </Compile>
@@ -151,6 +165,8 @@
     <Folder Include="i2cmaster" />
     <Folder Include="lcd-1602" />
     <Folder Include="Common" />
+    <Folder Include="ADC" />
+    <Folder Include="Timer" />
     <Folder Include="Uart" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />

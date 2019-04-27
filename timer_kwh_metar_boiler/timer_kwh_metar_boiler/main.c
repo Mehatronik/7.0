@@ -18,7 +18,7 @@ int main(void)
 	int a=10, b=5, c=255;
 
 	uart_init();
-	i2c_init();				//NAPOMENA: uljuceni internal-pullup - ovi na SDA i SCL
+	i2c_init();				//NAPOMENA: uljuceni internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
 	
 	sei();	//global interrupt enable
