@@ -15,13 +15,13 @@
 int main(void)
 {
     
-	
+	DDRB |= 1<<PINB7; //izlaz 
 	
 	
     while (1) 
     {
 		PINB |= 1<<PINB7;  //toggle pb7 pin bez obzira na output/input
-		_delay_ms(1);
+		_delay_ms(50);
 		
     }
 	

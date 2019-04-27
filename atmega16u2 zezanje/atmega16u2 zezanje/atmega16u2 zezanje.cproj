@@ -27,14 +27,27 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data xmlns="">
-  <options />
+      <framework-data>
+  <options>
+    <option id="lufa.drivers.board.joystick" value="Add" config="" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+  </options>
   <configurations />
-  <files />
+  <files>
+    <file path="src/LUFA/LUFA/Drivers/Board/Joystick.h" framework="" version="17.04.18" source="LUFA\Drivers\Board\Joystick.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/Attributes.h" framework="" version="17.04.18" source="LUFA\Common\Attributes.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/Common.h" framework="" version="17.04.18" source="LUFA\Common\Common.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Version.h" framework="" version="17.04.18" source="LUFA\Version.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/Endianness.h" framework="" version="17.04.18" source="LUFA\Common\Endianness.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/Architectures.h" framework="" version="17.04.18" source="LUFA\Common\Architectures.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/CompilerSpecific.h" framework="" version="17.04.18" source="LUFA\Common\CompilerSpecific.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/BoardTypes.h" framework="" version="17.04.18" source="LUFA\Common\BoardTypes.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+    <file path="src/LUFA/LUFA/Common/ArchitectureSpecific.h" framework="" version="17.04.18" source="LUFA\Common\ArchitectureSpecific.h" changed="False" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
+  </files>
   <documentation help="" />
   <offline-documentation help="" />
   <dependencies>
     <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.34.1" />
+    <content-extension eid="0e160d5c-e331-48d9-850b-e0387912171b" uuidref="0e160d5c-e331-48d9-850b-e0387912171b" version="17.04.18" />
   </dependencies>
 </framework-data>
     </AsfFrameworkConfig>
@@ -58,6 +71,7 @@
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
+      <Value>../src/LUFA/.</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -72,6 +86,7 @@
   <avrgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
+      <Value>../src/LUFA/.</Value>
     </ListValues>
   </avrgcc.assembler.general.IncludePaths>
 </AvrGcc>
@@ -96,6 +111,7 @@
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
+      <Value>../src/LUFA/.</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -111,6 +127,7 @@
   <avrgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
+      <Value>../src/LUFA/.</Value>
     </ListValues>
   </avrgcc.assembler.general.IncludePaths>
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
@@ -121,6 +138,9 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

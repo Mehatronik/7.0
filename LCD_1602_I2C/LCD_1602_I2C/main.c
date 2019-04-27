@@ -8,7 +8,7 @@
  * Ispostavilo se da se u toj biblioteci koristi softverski i2c. Hardverski protokol zahteva
  * pull-up otpornike na SDA i SCL, jer hardverski modul moze samo da 'sink-uje' struju.
  * Ovaj i2c modul nema stavljene otpornike, pa sam stavio 1k prema 5V i sve je profunkcionisalo sa ovim kodom.
- *
+ * Edit: moguce je ukljuciti interne pull-up otpornike na kontroleru, tako da ova prica gore nije nuzno tacna
  */ 
 
 #define F_CPU 16000000UL
