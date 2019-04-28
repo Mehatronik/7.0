@@ -33,7 +33,7 @@ void i2c_init(void)
   TWSR = 0;                         /* no prescaler */
   TWBR = ((F_CPU/SCL_CLOCK)-16)/2;  /* must be > 10 for stable operation */
   
-  PORTC |= (1<<SDA_pin)|(1<<SCL_pin);	//omogucuje internal pull up ako je DDR oznacen kao ulaz
+  //PORTC |= (1<<SDA_pin)|(1<<SCL_pin);	//omogucuje internal pull up ako je DDR oznacen kao ulaz
   
 }
 

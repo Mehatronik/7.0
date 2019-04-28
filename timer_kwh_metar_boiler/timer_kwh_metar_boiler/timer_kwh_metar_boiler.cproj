@@ -102,6 +102,8 @@
       <Value>../Common</Value>
       <Value>../Timer</Value>
       <Value>../ADC</Value>
+      <Value>../RTC DS3231</Value>
+      <Value>../PCint</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -136,7 +138,7 @@
     <Compile Include="i2cmaster\i2cmaster.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="i2cmaster\twimaster.c">
+    <Compile Include="i2cmaster\i2cmaster.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lcd-1602\lcd1602.c">
@@ -146,6 +148,18 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PCint\pin_change_interrupt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PCint\pin_change_interrupt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="RTC DS3231\rtc_ds3231.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="RTC DS3231\rtc_ds3231.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Timer\tajmer.c">
@@ -166,6 +180,8 @@
     <Folder Include="lcd-1602" />
     <Folder Include="Common" />
     <Folder Include="ADC" />
+    <Folder Include="PCint" />
+    <Folder Include="RTC DS3231" />
     <Folder Include="Timer" />
     <Folder Include="Uart" />
   </ItemGroup>

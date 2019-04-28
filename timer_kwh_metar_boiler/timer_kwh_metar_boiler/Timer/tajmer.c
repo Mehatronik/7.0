@@ -22,7 +22,6 @@ void tajmer0_init()
 	OCR0A = 249;		//da bi se dobila frekvencija 1kHz odnosno prekid na svaki 1ms
 	TIMSK0 = 0b10;		//compare match A interrupt enable
 	
-	DDRB |= 1<<PINB5;		//pinB 5 - DIG13 = OUTPUT
 }
 
 ISR(TIMER0_COMPA_vect)   //1ms prekid
@@ -35,8 +34,7 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 	if(brojac_prekida_tajmera0 == 10)	//1ms * 10 = 10ms
 	{
 		brojac_prekida_tajmera0 = 0;
-		flag_prekid_10ms = 1;
-		PINB |= 1<<PINB5;					//toogle pinB 5 - DIG13, test da vidim da li je korektna frekvencija
+		flag_prekid_10ms = 1;				
 		
 	}
 	

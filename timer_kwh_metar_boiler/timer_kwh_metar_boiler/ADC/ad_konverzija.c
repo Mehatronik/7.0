@@ -53,13 +53,10 @@ ISR(ADC_vect)
 	
 	ad_kanal++;			//inkrementiraj kanal
 	if(ad_kanal > 1)	//kreni opet od nule kad dodjes do poslednjeg; 1, da citam samo prva dva
-	{
 		ad_kanal = 0;
 		
-	}	//trajanje ovog dela:
-	
-	
-	
+
+
 	
 	//multipleksiranje ad ulaza; tj. promena ad kanala
 	switch(ad_kanal)

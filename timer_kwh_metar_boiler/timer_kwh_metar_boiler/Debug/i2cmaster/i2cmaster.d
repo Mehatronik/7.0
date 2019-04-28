@@ -1,4 +1,4 @@
-i2cmaster/twimaster.d i2cmaster/twimaster.o: ../i2cmaster/twimaster.c \
+i2cmaster/i2cmaster.d i2cmaster/i2cmaster.o: ../i2cmaster/i2cmaster.c \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\inttypes.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdint.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdint.h \
