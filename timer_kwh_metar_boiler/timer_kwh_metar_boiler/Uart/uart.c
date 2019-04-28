@@ -9,10 +9,10 @@
  *
  */ 
 
-#include <avr/interrupt.h>
+#include "comm.h"
+#include "uart.h"
 #include <stdint.h>
 #include <stdlib.h>
-#include "uart.h"
 #include <string.h>
 
 volatile unsigned char poslato;
@@ -44,7 +44,7 @@ void uart_init()
 	UBRR0 = 207;	//Baud 9600 bps
 }
 
-void send_str(unsigned char *str)
+void send_str(char *str)
 {
 	//funkcija za slanje stringova
 	

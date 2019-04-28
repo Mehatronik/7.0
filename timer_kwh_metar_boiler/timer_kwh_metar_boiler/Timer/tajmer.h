@@ -8,12 +8,9 @@
 
 #ifndef TAJMER_H_
 #define TAJMER_H_
-#include <inttypes.h>
+
 void tajmer0_init();	//prototip funkcije
 
-
-extern volatile unsigned char flag_tajmer0_prekid, flag_prekid_10ms;
-extern volatile unsigned int brojac_prekida_tajmera0;
 
 
 #endif /* TAJMER_H_ */

@@ -9,7 +9,6 @@
 #ifndef AD_KONVERZIJA_H_
 #define AD_KONVERZIJA_H_
 
-#include <inttypes.h>
 
 
 //prototipovi funkcija

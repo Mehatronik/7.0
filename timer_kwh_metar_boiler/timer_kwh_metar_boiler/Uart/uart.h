@@ -11,12 +11,10 @@
 
 #define INPUT_BUFF_SIZE 8
 
-extern volatile unsigned char poslato;
-extern volatile unsigned char input_char;
-extern volatile unsigned char input_buffer[INPUT_BUFF_SIZE], buff_size;
+/* prototipovi */
 
 void uart_init();
-void send_str(unsigned char *str);
+void send_str(char *str);
 
 
 

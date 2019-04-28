@@ -4,10 +4,9 @@
  * Created: 1.12.2017. 22.09.18
  *  Author: Ko''
  */ 
-#include "ad_konverzija.h"
+
 #include "comm.h"
-
-
+#include "ad_konverzija.h"
 
 
 volatile uint16_t mereni_napon = 0; 
@@ -17,11 +16,9 @@ volatile uint8_t ad_kanal = 0;
 
 
 
-
-
 void ADC_init()
 {
-	DDRD |= 1<<DDB7;
+	DDRD |= 1<<PINB7;
 	
 	PRR = 0;						//power reduction off
 	
@@ -40,7 +37,7 @@ ISR(ADC_vect)
 	ISR okine kada je gotova konverzija
 	*/
 	
-	PORTD |= 1<<7;       //togle za osciloskop
+	PORTD |= 1<<PINB7;       //togle za osciloskop
 	
 	//upis ad konverzije oba kanala u odgovarajuce promenljive
 	if(ad_kanal == 0)

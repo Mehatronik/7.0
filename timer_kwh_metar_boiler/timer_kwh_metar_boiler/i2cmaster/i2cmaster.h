@@ -173,7 +173,16 @@ extern unsigned char i2c_readNak(void);
  @return   byte read from I2C device
  */
 extern unsigned char i2c_read(unsigned char ack);
-#define i2c_read(ack)  (ack) ? i2c_readAck() : i2c_readNak(); 
+#define i2c_read(ack)  (ack) ? i2c_readAck() : i2c_readNak();
+
+
+/*************************************************************************
+ Dodato od strane mene da bih olaksao upravljanje lcd-om 16x02
+ koji koristi drugu i2c "biblioteku"
+ 
+ Return:  no return - void
+*************************************************************************/
+extern void i2c_send_packet(unsigned char value, unsigned char address); 
 
 
 
