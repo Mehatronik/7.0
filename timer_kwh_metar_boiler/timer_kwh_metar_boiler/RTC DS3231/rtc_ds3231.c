@@ -26,25 +26,17 @@ unsigned char DS3231_Read(unsigned char address)
 	unsigned char value = 0;
 	
 	i2c_start_wait(DS3231_Write_addr + I2C_WRITE);	// set device address and write mode
-			//twi_write(DS3231_Write_addr);
 	i2c_write(address);
-	i2c_start_wait(DS3231_Write_addr + I2C_READ);       // set device address and read mode
-			//twi_write(DS3231_Read_addr);
-	value = i2c_readNak(); //read one byte, read is followed by a stop condition
-			//twi_stop();
-	
+	i2c_start_wait(DS3231_Write_addr + I2C_READ);    // set device address and read mode
+	value = i2c_readNak();							 //read one byte, read is followed by a stop condition
+
 	return value;
 }
 
 
 void DS3231_Write(unsigned char address, unsigned char value)
 {
-	//twi_start();
-	//twi_write(DS3231_Write_addr);
-	//twi_write(address);
-	//twi_write(value);
-	//twi_stop();
-	
+
 	i2c_start_wait(DS3231_Write_addr + I2C_WRITE);	// set device address and write mode
 	i2c_write(address);
 	i2c_write(value);
@@ -55,15 +47,19 @@ void DS3231_Write(unsigned char address, unsigned char value)
 
 void DS3231_init()
 {
-	//twi_Init(100000);
 	
-	DS3231_Write(controlREG, 0x00);
-	DS3231_Write(statusREG, 0x08);
-}
+	DS3231_Write(controlREG, 0x00);   //oscilator ON on BAT;  EOSC, BBSQW, CONV, RS2, RS1, INTCN, A2IE, A1IE = 0 (datasheet ds3231 za detalje)
+	DS3231_Write(statusREG, 0x00);	  //32khz out off;  1<<EN32kHz - ON
+} 
 
 
 void getTime(unsigned char *p3, unsigned char *p2, unsigned char *p1, unsigned char *p0, unsigned char hour_format)
 {
+	
+	//getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
+	//dakle, *p3=sat, *p2=minut, *p1=sekund, *p0=am/pm
+	
+	
 	unsigned char tmp = 0;
 	
 	tmp = DS3231_Read(secondREG);
@@ -177,13 +173,13 @@ void setA1Time(unsigned char hSet, unsigned char mSet, unsigned char am_pm_state
 					break;
 				}
 			}
-			DS3231_Write(hourREG, ((tmp | (0x1F & (decimal_to_bcd(alarm1hrREG))))));
+			DS3231_Write(alarm1hrREG, ((tmp | (0x1F & (decimal_to_bcd(hSet))))));
 			break;
 		}
 		
 		default:
 		{
-			DS3231_Write(hourREG, (0x3F & (decimal_to_bcd(alarm1hrREG))));
+			DS3231_Write(alarm1hrREG, (0x3F & (decimal_to_bcd(hSet))));
 			break;
 		}
 	}
@@ -213,13 +209,13 @@ void setA2Time(unsigned char hSet, unsigned char mSet, unsigned char am_pm_state
 					break;
 				}
 			}
-			DS3231_Write(hourREG, ((tmp | (0x1F & (decimal_to_bcd(alarm2hrREG))))));
+			DS3231_Write(alarm2hrREG, ((tmp | (0x1F & (decimal_to_bcd(hSet))))));
 			break;
 		}
 		
 		default:
 		{
-			DS3231_Write(hourREG, (0x3F & (decimal_to_bcd(alarm2hrREG))));
+			DS3231_Write(alarm2hrREG, (0x3F & (decimal_to_bcd(hSet))));
 			break;
 		}
 	}

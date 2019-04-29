@@ -34,15 +34,33 @@
 #define tempMSBREG                  0x11
 #define tempLSBREG                  0x12
 
+/* Control register(0x0E) bits */
+#define EOSC  7
+#define BBSQW 6
+#define CONV  5
+#define RS2   4
+#define RS1   3
+#define INTCN 2
+#define A2IE  1
+#define A1IE  0
+
+/* Status register(0x0F) bits */
+#define OSF     7
+#define EN32kHz 3
+#define BSY     2
+#define A2F     1
+#define A1F     0
+
+
 #define _24_hour_format             0
 #define _12_hour_format             1
 #define am                          0
 #define pm                          1
 
 
-unsigned char bcd_to_decimal(unsigned char d);
-unsigned char decimal_to_bcd(unsigned char d);
-unsigned char DS3231_Read(unsigned char address);
+extern unsigned char bcd_to_decimal(unsigned char d);
+extern unsigned char decimal_to_bcd(unsigned char d);
+extern unsigned char DS3231_Read(unsigned char address);
 void DS3231_Write(unsigned char address, unsigned char value);
 extern void DS3231_init();
 extern void getTime(unsigned char *p3, unsigned char *p2, unsigned char *p1, unsigned char *p0, unsigned char hour_format);

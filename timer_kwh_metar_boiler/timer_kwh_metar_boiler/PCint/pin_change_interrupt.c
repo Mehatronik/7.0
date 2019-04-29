@@ -27,7 +27,6 @@ void pc_init()
 	
 	DDRC &= ~(1<<PINC3);  //PCINT11 je na pinu PC3, ulaz
 	
-	DDRB |= 1<<PINB5;		//pinB 5 - DIG13 = OUTPUT LED DIODA
 }
 
 ISR(PCINT1_vect) 
@@ -37,10 +36,8 @@ ISR(PCINT1_vect)
 	   cime dobijam 1 sekund.
 	*/
 	
-	//moze i  (PINC & 1<<PINC3) == 1, ali je redundantno
+	//moze i  (PINC & 1<<PINC3) == 0b1000, ali je redundantno
 	if(PINC & (1<<PINC3) )		
 		flag_pc_int = 1;
 
-	
-	PINB |= 1<<PINB5;   //toogle pinB 5 - DIG13, LED DIODA test da vidim da li je korektna frekvencija
 }

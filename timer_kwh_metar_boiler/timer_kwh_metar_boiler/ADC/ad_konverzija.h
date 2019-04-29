@@ -12,7 +12,7 @@
 
 
 //prototipovi funkcija
-void ADC_init();		
+extern void ADC_init();		
 
 
 

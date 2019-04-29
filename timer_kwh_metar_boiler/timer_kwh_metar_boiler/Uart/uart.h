@@ -13,8 +13,8 @@
 
 /* prototipovi */
 
-void uart_init();
-void send_str(char *str);
+extern void uart_init();
+extern void send_str(char *str);
 
 
 

@@ -9,7 +9,7 @@
 #ifndef TAJMER_H_
 #define TAJMER_H_
 
-void tajmer0_init();	//prototip funkcije
+extern void tajmer0_init();	//prototip funkcije
 
 
 
