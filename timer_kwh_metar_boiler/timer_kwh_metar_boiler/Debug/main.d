@@ -19,7 +19,9 @@ main.d main.o: .././main.c ../Common/comm.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stddef.h \
  ../RTC\ DS3231/rtc_ds3231.h ../PCint/pin_change_interrupt.h \
  ../Timer/tajmer.h ../i2cmaster/i2cmaster.h ../lcd-1602/lcd1602.h \
- ../ADC/ad_konverzija.h ../Uart/uart.h
+ ../ADC/ad_konverzija.h ../Uart/uart.h ../PushButtons/tasteri.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdlib.h
 
 ../Common/comm.h:
 
@@ -72,3 +74,9 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 ../ADC/ad_konverzija.h:
 
 ../Uart/uart.h:
+
+../PushButtons/tasteri.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdlib.h:

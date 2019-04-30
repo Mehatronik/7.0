@@ -104,6 +104,7 @@
       <Value>../ADC</Value>
       <Value>../RTC DS3231</Value>
       <Value>../PCint</Value>
+      <Value>../PushButtons</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -156,6 +157,12 @@
     <Compile Include="PCint\pin_change_interrupt.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PushButtons\tasteri.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PushButtons\tasteri.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="RTC DS3231\rtc_ds3231.c">
       <SubType>compile</SubType>
     </Compile>
@@ -180,6 +187,7 @@
     <Folder Include="lcd-1602" />
     <Folder Include="Common" />
     <Folder Include="ADC" />
+    <Folder Include="PushButtons" />
     <Folder Include="PCint" />
     <Folder Include="RTC DS3231" />
     <Folder Include="Timer" />

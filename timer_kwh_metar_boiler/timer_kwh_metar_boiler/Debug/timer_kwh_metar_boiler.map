@@ -30,6 +30,8 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
                               main.o (__do_copy_data)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
                               ADC/ad_konverzija.o (__do_clear_bss)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strcpy.o)
+                              main.o (strcpy)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
                               main.o (sprintf)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(vfprintf_std.o)
@@ -54,8 +56,6 @@ input_char          0x1               Uart/uart.o
 poslato             0x1               Uart/uart.o
 input_buffer        0x8               Uart/uart.o
 led_pin             0x1               lcd-1602/lcd1602.o
-brojac_prekida_tajmera0
-                    0x2               Timer/tajmer.o
 
 Discarded input sections
 
@@ -76,14 +76,15 @@ Discarded input sections
  .text          0x00000000        0x0 lcd-1602/lcd1602.o
  .data          0x00000000        0x0 lcd-1602/lcd1602.o
  .bss           0x00000000        0x0 lcd-1602/lcd1602.o
- .text.lcd1602_goto_xy
-                0x00000000       0x12 lcd-1602/lcd1602.o
  .text          0x00000000        0x0 main.o
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
  .text          0x00000000        0x0 PCint/pin_change_interrupt.o
  .data          0x00000000        0x0 PCint/pin_change_interrupt.o
  .bss           0x00000000        0x0 PCint/pin_change_interrupt.o
+ .text          0x00000000        0x0 PushButtons/tasteri.o
+ .data          0x00000000        0x0 PushButtons/tasteri.o
+ .bss           0x00000000        0x0 PushButtons/tasteri.o
  .text          0x00000000        0x0 RTC DS3231/rtc_ds3231.o
  .data          0x00000000        0x0 RTC DS3231/rtc_ds3231.o
  .bss           0x00000000        0x0 RTC DS3231/rtc_ds3231.o
@@ -212,6 +213,9 @@ Discarded input sections
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
  .text.libgcc.fixed
                 0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strcpy.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strcpy.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strcpy.o)
  .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
  .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
@@ -280,6 +284,7 @@ LOAD i2cmaster/i2cmaster.o
 LOAD lcd-1602/lcd1602.o
 LOAD main.o
 LOAD PCint/pin_change_interrupt.o
+LOAD PushButtons/tasteri.o
 LOAD RTC DS3231/rtc_ds3231.o
 LOAD Timer/tajmer.o
 LOAD Uart/uart.o
@@ -390,7 +395,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0xe72
+.text           0x00000000      0xfc6
  *(.vectors)
  .vectors       0x00000000       0x68 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
                 0x00000000                __vector_default
@@ -511,85 +516,100 @@ END GROUP
  .text.lcd1602_clear
                 0x000003a6       0x16 lcd-1602/lcd1602.o
                 0x000003a6                lcd1602_clear
+ .text.lcd1602_goto_xy
+                0x000003bc       0x12 lcd-1602/lcd1602.o
+                0x000003bc                lcd1602_goto_xy
  .text.lcd1602_send_string
-                0x000003bc       0x2c lcd-1602/lcd1602.o
-                0x000003bc                lcd1602_send_string
+                0x000003ce       0x2c lcd-1602/lcd1602.o
+                0x000003ce                lcd1602_send_string
+ .text.byte_to_binary
+                0x000003fa       0x6c main.o
+                0x000003fa                byte_to_binary
  .text.period_paljenja
-                0x000003e8      0x110 main.o
-                0x000003e8                period_paljenja
- .text.main     0x000004f8       0xe0 main.o
-                0x000004f8                main
- .text.pc_init  0x000005d8       0x18 PCint/pin_change_interrupt.o
-                0x000005d8                pc_init
+                0x00000466      0x110 main.o
+                0x00000466                period_paljenja
+ .text.main     0x00000576      0x10e main.o
+                0x00000576                main
+ .text.pc_init  0x00000684       0x18 PCint/pin_change_interrupt.o
+                0x00000684                pc_init
  .text.__vector_4
-                0x000005f0       0x22 PCint/pin_change_interrupt.o
-                0x000005f0                __vector_4
+                0x0000069c       0x22 PCint/pin_change_interrupt.o
+                0x0000069c                __vector_4
+ .text.tasteri_init
+                0x000006be       0x1a PushButtons/tasteri.o
+                0x000006be                tasteri_init
+ .text.ocitaj_tastere
+                0x000006d8       0x52 PushButtons/tasteri.o
+                0x000006d8                ocitaj_tastere
  .text.bcd_to_decimal
-                0x00000612       0x16 RTC DS3231/rtc_ds3231.o
-                0x00000612                bcd_to_decimal
+                0x0000072a       0x16 RTC DS3231/rtc_ds3231.o
+                0x0000072a                bcd_to_decimal
  .text.decimal_to_bcd
-                0x00000628       0x28 RTC DS3231/rtc_ds3231.o
-                0x00000628                decimal_to_bcd
+                0x00000740       0x28 RTC DS3231/rtc_ds3231.o
+                0x00000740                decimal_to_bcd
  .text.DS3231_Read
-                0x00000650       0x1e RTC DS3231/rtc_ds3231.o
-                0x00000650                DS3231_Read
+                0x00000768       0x1e RTC DS3231/rtc_ds3231.o
+                0x00000768                DS3231_Read
  .text.DS3231_Write
-                0x0000066e       0x24 RTC DS3231/rtc_ds3231.o
-                0x0000066e                DS3231_Write
+                0x00000786       0x24 RTC DS3231/rtc_ds3231.o
+                0x00000786                DS3231_Write
  .text.DS3231_init
-                0x00000692       0x12 RTC DS3231/rtc_ds3231.o
-                0x00000692                DS3231_init
- .text.getTime  0x000006a4       0x7c RTC DS3231/rtc_ds3231.o
-                0x000006a4                getTime
- .text.setTime  0x00000720       0x66 RTC DS3231/rtc_ds3231.o
-                0x00000720                setTime
+                0x000007aa       0x12 RTC DS3231/rtc_ds3231.o
+                0x000007aa                DS3231_init
+ .text.getTime  0x000007bc       0x7c RTC DS3231/rtc_ds3231.o
+                0x000007bc                getTime
+ .text.setTime  0x00000838       0x66 RTC DS3231/rtc_ds3231.o
+                0x00000838                setTime
  .text.tajmer0_init
-                0x00000786       0x12 Timer/tajmer.o
-                0x00000786                tajmer0_init
+                0x0000089e       0x18 Timer/tajmer.o
+                0x0000089e                tajmer0_init
  .text.__vector_14
-                0x00000798       0x4e Timer/tajmer.o
-                0x00000798                __vector_14
+                0x000008b6       0x76 Timer/tajmer.o
+                0x000008b6                __vector_14
  .text.__vector_20
-                0x000007e6       0x18 Uart/uart.o
-                0x000007e6                __vector_20
+                0x0000092c       0x18 Uart/uart.o
+                0x0000092c                __vector_20
  .text.__vector_18
-                0x000007fe       0x56 Uart/uart.o
-                0x000007fe                __vector_18
+                0x00000944       0x56 Uart/uart.o
+                0x00000944                __vector_18
  .text.uart_init
-                0x00000854       0x20 Uart/uart.o
-                0x00000854                uart_init
+                0x0000099a       0x20 Uart/uart.o
+                0x0000099a                uart_init
  .text.send_str
-                0x00000874       0x26 Uart/uart.o
-                0x00000874                send_str
+                0x000009ba       0x26 Uart/uart.o
+                0x000009ba                send_str
  .text.avr-libc
-                0x0000089a       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
-                0x0000089a                sprintf
+                0x000009e0        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strcpy.o)
+                0x000009e0                strcpy
  .text.avr-libc
-                0x000008de      0x3c2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(vfprintf_std.o)
-                0x000008de                vfprintf
+                0x000009ee       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(sprintf.o)
+                0x000009ee                sprintf
  .text.avr-libc
-                0x00000ca0       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
-                0x00000ca0                strnlen_P
+                0x00000a32      0x3c2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(vfprintf_std.o)
+                0x00000a32                vfprintf
  .text.avr-libc
-                0x00000cb6       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen.o)
-                0x00000cb6                strnlen
+                0x00000df4       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen_P.o)
+                0x00000df4                strnlen_P
  .text.avr-libc
-                0x00000ccc       0x78 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(fputc.o)
-                0x00000ccc                fputc
+                0x00000e0a       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(strnlen.o)
+                0x00000e0a                strnlen
  .text.avr-libc
-                0x00000d44       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
-                0x00000d44                __ultoa_invert
+                0x00000e20       0x78 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(fputc.o)
+                0x00000e20                fputc
+ .text.avr-libc
+                0x00000e98       0xbc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
+                0x00000e98                __ultoa_invert
  .text.libgcc.prologue
-                0x00000e00       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_prologue.o)
-                0x00000e00                __prologue_saves__
+                0x00000f54       0x38 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_prologue.o)
+                0x00000f54                __prologue_saves__
  .text.libgcc.prologue
-                0x00000e38       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_epilogue.o)
-                0x00000e38                __epilogue_restores__
-                0x00000e6e                . = ALIGN (0x2)
+                0x00000f8c       0x36 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_epilogue.o)
+                0x00000f8c                __epilogue_restores__
+                0x00000fc2                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000e6e        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x00000e6e                _exit
-                0x00000e6e                exit
+ .fini9         0x00000fc2        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x00000fc2                _exit
+                0x00000fc2                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -608,71 +628,88 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000e6e        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x00000fc2        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000e72                _etext = .
+                0x00000fc6                _etext = .
 
-.data           0x00800100       0x24 load address 0x00000e72
+.data           0x00800100       0x2a load address 0x00000fc6
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
+ .data.tasteri_reg.1942
+                0x00800100        0x1 PushButtons/tasteri.o
  *(.rodata)
  *(.rodata*)
  .rodata.str1.1
-                0x00800100       0x24 main.o
+                0x00800101       0x28 main.o
  *(.gnu.linkonce.d*)
-                0x00800124                . = ALIGN (0x2)
-                0x00800124                _edata = .
-                0x00800124                PROVIDE (__data_end, .)
+                0x0080012a                . = ALIGN (0x2)
+ *fill*         0x00800129        0x1 
+                0x0080012a                _edata = .
+                0x0080012a                PROVIDE (__data_end, .)
 
-.bss            0x00800124       0x1c
-                0x00800124                PROVIDE (__bss_start, .)
+.bss            0x0080012a       0x28
+                0x0080012a                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.ad_kanal  0x00800124        0x1 ADC/ad_konverzija.o
-                0x00800124                ad_kanal
+ .bss.ad_kanal  0x0080012a        0x1 ADC/ad_konverzija.o
+                0x0080012a                ad_kanal
  .bss.merena_struja
-                0x00800125        0x2 ADC/ad_konverzija.o
-                0x00800125                merena_struja
+                0x0080012b        0x2 ADC/ad_konverzija.o
+                0x0080012b                merena_struja
  .bss.mereni_napon
-                0x00800127        0x2 ADC/ad_konverzija.o
-                0x00800127                mereni_napon
- .bss.vreme_trenutno.2062
-                0x00800129        0x2 main.o
- .bss.vreme_off.2061
-                0x0080012b        0x2 main.o
- .bss.vreme_on.2060
-                0x0080012d        0x2 main.o
+                0x0080012d        0x2 ADC/ad_konverzija.o
+                0x0080012d                mereni_napon
+ .bss.vreme_trenutno.2365
+                0x0080012f        0x2 main.o
+ .bss.vreme_off.2364
+                0x00800131        0x2 main.o
+ .bss.vreme_on.2363
+                0x00800133        0x2 main.o
+ .bss.b.2342    0x00800135        0x9 main.o
  .bss.flag_pc_int
-                0x0080012f        0x1 PCint/pin_change_interrupt.o
-                0x0080012f                flag_pc_int
+                0x0080013e        0x1 PCint/pin_change_interrupt.o
+                0x0080013e                flag_pc_int
+ .bss.brojac_prekida_tajmera0_debounce_half
+                0x0080013f        0x1 Timer/tajmer.o
+                0x0080013f                brojac_prekida_tajmera0_debounce_half
+ .bss.brojac_prekida_tajmera0_debounce
+                0x00800140        0x1 Timer/tajmer.o
+                0x00800140                brojac_prekida_tajmera0_debounce
+ .bss.brojac_prekida_tajmera0
+                0x00800141        0x1 Timer/tajmer.o
+                0x00800141                brojac_prekida_tajmera0
+ .bss.flag_prekid_debounce_time_half
+                0x00800142        0x1 Timer/tajmer.o
+                0x00800142                flag_prekid_debounce_time_half
+ .bss.flag_prekid_debounce_time
+                0x00800143        0x1 Timer/tajmer.o
+                0x00800143                flag_prekid_debounce_time
  .bss.flag_prekid_10ms
-                0x00800130        0x1 Timer/tajmer.o
-                0x00800130                flag_prekid_10ms
+                0x00800144        0x1 Timer/tajmer.o
+                0x00800144                flag_prekid_10ms
  .bss.flag_tajmer0_prekid
-                0x00800131        0x1 Timer/tajmer.o
-                0x00800131                flag_tajmer0_prekid
+                0x00800145        0x1 Timer/tajmer.o
+                0x00800145                flag_tajmer0_prekid
  .bss.buff_size
-                0x00800132        0x1 Uart/uart.o
-                0x00800132                buff_size
+                0x00800146        0x1 Uart/uart.o
+                0x00800146                buff_size
  *(COMMON)
- COMMON         0x00800133        0x1 lcd-1602/lcd1602.o
-                0x00800133                led_pin
- COMMON         0x00800134        0x2 Timer/tajmer.o
-                0x00800134                brojac_prekida_tajmera0
- COMMON         0x00800136        0xa Uart/uart.o
-                0x00800136                input_char
-                0x00800137                poslato
-                0x00800138                input_buffer
-                0x00800140                PROVIDE (__bss_end, .)
-                0x00000e72                __data_load_start = LOADADDR (.data)
-                0x00000e96                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x00800147        0x1 lcd-1602/lcd1602.o
+                0x00800147                led_pin
+ COMMON         0x00800148        0xa Uart/uart.o
+                0x00800148                input_char
+                0x00800149                poslato
+                0x0080014a                input_buffer
+                0x00800152                PROVIDE (__bss_end, .)
+                0x00000fc6                __data_load_start = LOADADDR (.data)
+                0x00000ff0                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x00800140        0x0
+.noinit         0x00800152        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x00800140                _end = .
+                0x00800152                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -720,6 +757,7 @@ END GROUP
  .comment       0x00000030       0x31 lcd-1602/lcd1602.o
  .comment       0x00000030       0x31 main.o
  .comment       0x00000030       0x31 PCint/pin_change_interrupt.o
+ .comment       0x00000030       0x31 PushButtons/tasteri.o
  .comment       0x00000030       0x31 RTC DS3231/rtc_ds3231.o
  .comment       0x00000030       0x31 Timer/tajmer.o
  .comment       0x00000030       0x31 Uart/uart.o
@@ -748,7 +786,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x210
+.debug_aranges  0x00000000      0x240
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x28 ADC/ad_konverzija.o
@@ -757,67 +795,73 @@ END GROUP
  .debug_aranges
                 0x00000088       0x50 lcd-1602/lcd1602.o
  .debug_aranges
-                0x000000d8       0x28 main.o
+                0x000000d8       0x30 main.o
  .debug_aranges
-                0x00000100       0x28 PCint/pin_change_interrupt.o
+                0x00000108       0x28 PCint/pin_change_interrupt.o
  .debug_aranges
-                0x00000128       0x88 RTC DS3231/rtc_ds3231.o
+                0x00000130       0x28 PushButtons/tasteri.o
  .debug_aranges
-                0x000001b0       0x28 Timer/tajmer.o
+                0x00000158       0x88 RTC DS3231/rtc_ds3231.o
  .debug_aranges
-                0x000001d8       0x38 Uart/uart.o
+                0x000001e0       0x28 Timer/tajmer.o
+ .debug_aranges
+                0x00000208       0x38 Uart/uart.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x20d4
+.debug_info     0x00000000     0x22ec
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_info    0x000005f4       0xea ADC/ad_konverzija.o
  .debug_info    0x000006de      0x224 i2cmaster/i2cmaster.o
  .debug_info    0x00000902      0x6cc lcd-1602/lcd1602.o
- .debug_info    0x00000fce      0x434 main.o
- .debug_info    0x00001402       0xb6 PCint/pin_change_interrupt.o
- .debug_info    0x000014b8      0x9e4 RTC DS3231/rtc_ds3231.o
- .debug_info    0x00001e9c       0xdf Timer/tajmer.o
- .debug_info    0x00001f7b      0x159 Uart/uart.o
+ .debug_info    0x00000fce      0x514 main.o
+ .debug_info    0x000014e2       0xb6 PCint/pin_change_interrupt.o
+ .debug_info    0x00001598       0xf5 PushButtons/tasteri.o
+ .debug_info    0x0000168d      0x9e4 RTC DS3231/rtc_ds3231.o
+ .debug_info    0x00002071      0x122 Timer/tajmer.o
+ .debug_info    0x00002193      0x159 Uart/uart.o
 
-.debug_abbrev   0x00000000      0xd21
+.debug_abbrev   0x00000000      0xe09
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_abbrev  0x000005a2       0x7f ADC/ad_konverzija.o
  .debug_abbrev  0x00000621      0x115 i2cmaster/i2cmaster.o
  .debug_abbrev  0x00000736      0x182 lcd-1602/lcd1602.o
- .debug_abbrev  0x000008b8      0x154 main.o
- .debug_abbrev  0x00000a0c       0x7f PCint/pin_change_interrupt.o
- .debug_abbrev  0x00000a8b      0x154 RTC DS3231/rtc_ds3231.o
- .debug_abbrev  0x00000bdf       0x7f Timer/tajmer.o
- .debug_abbrev  0x00000c5e       0xc3 Uart/uart.o
+ .debug_abbrev  0x000008b8      0x19d main.o
+ .debug_abbrev  0x00000a55       0x7f PCint/pin_change_interrupt.o
+ .debug_abbrev  0x00000ad4       0x9f PushButtons/tasteri.o
+ .debug_abbrev  0x00000b73      0x154 RTC DS3231/rtc_ds3231.o
+ .debug_abbrev  0x00000cc7       0x7f Timer/tajmer.o
+ .debug_abbrev  0x00000d46       0xc3 Uart/uart.o
 
-.debug_line     0x00000000     0x1151
+.debug_line     0x00000000     0x1340
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x133 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000133      0x140 ADC/ad_konverzija.o
  .debug_line    0x00000273      0x2f1 i2cmaster/i2cmaster.o
  .debug_line    0x00000564      0x2d7 lcd-1602/lcd1602.o
- .debug_line    0x0000083b      0x26e main.o
- .debug_line    0x00000aa9       0xe3 PCint/pin_change_interrupt.o
- .debug_line    0x00000b8c      0x394 RTC DS3231/rtc_ds3231.o
- .debug_line    0x00000f20       0xed Timer/tajmer.o
- .debug_line    0x0000100d      0x144 Uart/uart.o
+ .debug_line    0x0000083b      0x2fa main.o
+ .debug_line    0x00000b35       0xe3 PCint/pin_change_interrupt.o
+ .debug_line    0x00000c18      0x121 PushButtons/tasteri.o
+ .debug_line    0x00000d39      0x394 RTC DS3231/rtc_ds3231.o
+ .debug_line    0x000010cd      0x12f Timer/tajmer.o
+ .debug_line    0x000011fc      0x144 Uart/uart.o
 
-.debug_frame    0x00000000      0x534
+.debug_frame    0x00000000      0x594
  *(.debug_frame)
  .debug_frame   0x00000000       0x54 ADC/ad_konverzija.o
  .debug_frame   0x00000054       0xb8 i2cmaster/i2cmaster.o
  .debug_frame   0x0000010c       0xb0 lcd-1602/lcd1602.o
- .debug_frame   0x000001bc       0x60 main.o
- .debug_frame   0x0000021c       0x44 PCint/pin_change_interrupt.o
- .debug_frame   0x00000260      0x210 RTC DS3231/rtc_ds3231.o
- .debug_frame   0x00000470       0x48 Timer/tajmer.o
- .debug_frame   0x000004b8       0x7c Uart/uart.o
+ .debug_frame   0x000001bc       0x90 main.o
+ .debug_frame   0x0000024c       0x44 PCint/pin_change_interrupt.o
+ .debug_frame   0x00000290       0x34 PushButtons/tasteri.o
+ .debug_frame   0x000002c4      0x210 RTC DS3231/rtc_ds3231.o
+ .debug_frame   0x000004d4       0x44 Timer/tajmer.o
+ .debug_frame   0x00000518       0x7c Uart/uart.o
 
-.debug_str      0x00000000      0x819
+.debug_str      0x00000000      0x916
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.132/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_str     0x00000208      0x19c ADC/ad_konverzija.o
@@ -826,27 +870,30 @@ END GROUP
                                 0x213 (size before relaxing)
  .debug_str     0x00000440       0xeb lcd-1602/lcd1602.o
                                 0x280 (size before relaxing)
- .debug_str     0x0000052b      0x12c main.o
-                                0x2f2 (size before relaxing)
- .debug_str     0x00000657       0x2b PCint/pin_change_interrupt.o
+ .debug_str     0x0000052b      0x170 main.o
+                                0x34d (size before relaxing)
+ .debug_str     0x0000069b       0x2b PCint/pin_change_interrupt.o
                                 0x1bb (size before relaxing)
- .debug_str     0x00000682       0xeb RTC DS3231/rtc_ds3231.o
+ .debug_str     0x000006c6       0x72 PushButtons/tasteri.o
+                                0x20a (size before relaxing)
+ .debug_str     0x00000738       0xeb RTC DS3231/rtc_ds3231.o
                                 0x2bc (size before relaxing)
- .debug_str     0x0000076d       0x5b Timer/tajmer.o
-                                0x1e4 (size before relaxing)
- .debug_str     0x000007c8       0x51 Uart/uart.o
+ .debug_str     0x00000823       0xa2 Timer/tajmer.o
+                                0x264 (size before relaxing)
+ .debug_str     0x000008c5       0x51 Uart/uart.o
                                 0x1f2 (size before relaxing)
 
-.debug_loc      0x00000000     0x1901
+.debug_loc      0x00000000     0x1a23
  *(.debug_loc)
  .debug_loc     0x00000000       0x63 ADC/ad_konverzija.o
  .debug_loc     0x00000063      0x19c i2cmaster/i2cmaster.o
  .debug_loc     0x000001ff      0x615 lcd-1602/lcd1602.o
- .debug_loc     0x00000814      0x188 main.o
- .debug_loc     0x0000099c       0x3c PCint/pin_change_interrupt.o
- .debug_loc     0x000009d8      0xe19 RTC DS3231/rtc_ds3231.o
- .debug_loc     0x000017f1       0x49 Timer/tajmer.o
- .debug_loc     0x0000183a       0xc7 Uart/uart.o
+ .debug_loc     0x00000814      0x256 main.o
+ .debug_loc     0x00000a6a       0x3c PCint/pin_change_interrupt.o
+ .debug_loc     0x00000aa6       0x61 PushButtons/tasteri.o
+ .debug_loc     0x00000b07      0xe19 RTC DS3231/rtc_ds3231.o
+ .debug_loc     0x00001920       0x3c Timer/tajmer.o
+ .debug_loc     0x0000195c       0xc7 Uart/uart.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -866,16 +913,17 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000      0x190
+.debug_ranges   0x00000000      0x1b0
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x18 ADC/ad_konverzija.o
  .debug_ranges  0x00000018       0x50 i2cmaster/i2cmaster.o
  .debug_ranges  0x00000068       0x40 lcd-1602/lcd1602.o
- .debug_ranges  0x000000a8       0x18 main.o
- .debug_ranges  0x000000c0       0x18 PCint/pin_change_interrupt.o
- .debug_ranges  0x000000d8       0x78 RTC DS3231/rtc_ds3231.o
- .debug_ranges  0x00000150       0x18 Timer/tajmer.o
- .debug_ranges  0x00000168       0x28 Uart/uart.o
+ .debug_ranges  0x000000a8       0x20 main.o
+ .debug_ranges  0x000000c8       0x18 PCint/pin_change_interrupt.o
+ .debug_ranges  0x000000e0       0x18 PushButtons/tasteri.o
+ .debug_ranges  0x000000f8       0x78 RTC DS3231/rtc_ds3231.o
+ .debug_ranges  0x00000170       0x18 Timer/tajmer.o
+ .debug_ranges  0x00000188       0x28 Uart/uart.o
 
 .debug_macro
  *(.debug_macro)

@@ -13,11 +13,12 @@
 #include "lcd1602.h"
 #include "ad_konverzija.h"
 #include "uart.h"
-
+#include "tasteri.h"
+#include <stdio.h>      /* printf */
+#include <string.h>     /* strcat */
+#include <stdlib.h>     /* strtol */
 
 /**************************************************** extern promenljive **********************************************************/
-extern volatile unsigned char flag_tajmer0_prekid;
-extern volatile unsigned char flag_prekid_10ms;
 extern volatile uint16_t mereni_napon;
 extern volatile uint16_t merena_struja;
 /**********************************************************************************************************************************/
@@ -39,6 +40,19 @@ extern volatile uint16_t merena_struja;
 
 
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime);  //typedef struct mora biti pre prototipa da bi je video
+const char *byte_to_binary(int x)
+{
+	static char b[9];
+	b[0] = '\0';
+
+	int z;
+	for (z = 128; z > 0; z >>= 1)
+	{
+		strcat(b, ((x & z) == z) ? "1" : "0");
+	}
+
+	return b;
+}
 
 int main(void)
 {
@@ -54,16 +68,18 @@ int main(void)
 	
 	char bafer[20];
 	uint8_t ukljuceno = 0;  //0=OFF 1=ON
+	uint8_t tasteri = 0xFF;
 	
 /******************************** Inicijalizacija perifirija ***************************************************/
 
-	tajmer0_init();
+	tajmer0_init();			////PD2-3 output
 	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
 	ADC_init();				//NAPOMENA:	PINB7 output
 	uart_init();			//baud 9600
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
+	tasteri_init();			//NAPOMENA: PD4-7 i PB0-1 INPUT, INT_PULLUP=ON
 	
 	DDRB |= 1<<PINB5;		//pinB 5 - DIG13 = OUTPUT LED DIODA
 	DDRB |= 1<<PINB4;
@@ -81,6 +97,11 @@ int main(void)
     while (1) 
     {
 		
+		tasteri = ocitaj_tastere();	//vrv bolje prebaciti negde u tajmer da se stalno desava
+		//tasteri = PIND;
+		sprintf(bafer, "%s", byte_to_binary(tasteri));
+		lcd1602_goto_xy(0,1);
+		lcd1602_send_string(bafer);
 		
 		if(flag_pc_int)
 		{
@@ -94,6 +115,8 @@ int main(void)
 			
 			lcd1602_clear();
 			lcd1602_send_string(bafer);
+			
+			
 			
 			ukljuceno = period_paljenja(&Vreme_paljenja, &Vreme_gasenja, &vreme_datum);
 			
@@ -134,7 +157,7 @@ uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *Curr
 	send_str("\n"); //novi red
 	
 	
-	if (vreme_on >= vreme_off)  // >= ?? razmotri dodatno SVE granicne slucajeve
+	if (vreme_on >= vreme_off)  // >= ?? razmotri dodatno SVE granicne slucajeve; edit:provereno, sve u fuli radi
 	{
 		//npr. ON=23:20 OFF=05:30
 		//postoji prelaz preko 00:00 !UVEK! kada je ON>OFF

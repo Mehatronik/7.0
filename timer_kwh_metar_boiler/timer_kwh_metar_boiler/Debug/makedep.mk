@@ -12,6 +12,8 @@ main.c
 
 PCint\pin_change_interrupt.c
 
+PushButtons\tasteri.c
+
 RTC DS3231\rtc_ds3231.c
 
 Timer\tajmer.c
