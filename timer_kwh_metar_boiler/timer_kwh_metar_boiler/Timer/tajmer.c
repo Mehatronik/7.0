@@ -39,14 +39,14 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 	brojac_prekida_tajmera0_debounce_half++; 
 	brojac_prekida_tajmera0_debounce++;
 		
-	if(brojac_prekida_tajmera0 == 10)	//1ms * 10 = 10ms
+	if(brojac_prekida_tajmera0 == 255)	//1ms * 10 = 10ms  !!!brojac je 8-bit znaci ide do max 255 LOLOOLOLOLO
 	{
 		brojac_prekida_tajmera0 = 0;
 		flag_prekid_10ms = 1;				
 		
 	}
 	
-	if(brojac_prekida_tajmera0_debounce_half == DEBOUNCE_TIME_half)	//25ms
+	if(brojac_prekida_tajmera0_debounce_half == DEBOUNCE_TIME_half)	//3ms
 	{
 		brojac_prekida_tajmera0_debounce_half = 0;
 		flag_prekid_debounce_time_half = 1;
@@ -54,7 +54,7 @@ ISR(TIMER0_COMPA_vect)   //1ms prekid
 	}
 	
 	
-	if(brojac_prekida_tajmera0_debounce == DEBOUNCE_TIME)	//1ms * 50 = 50ms
+	if(brojac_prekida_tajmera0_debounce == DEBOUNCE_TIME)	//1ms * 6 = 6ms
 	{
 		brojac_prekida_tajmera0_debounce = 0;
 		flag_prekid_debounce_time = 1;

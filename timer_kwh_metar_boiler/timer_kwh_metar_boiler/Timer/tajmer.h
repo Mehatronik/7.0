@@ -11,8 +11,8 @@
 
 #include <inttypes.h>
 
-#define DEBOUNCE_TIME 50					//50*1ms vezano je za osnovni tajmer prekid, tj za brojanje prekida
-#define DEBOUNCE_TIME_half DEBOUNCE_TIME/2	//25ms
+#define DEBOUNCE_TIME 6					//6*1ms vezano je za osnovni tajmer prekid, tj za brojanje prekida
+#define DEBOUNCE_TIME_half DEBOUNCE_TIME/2	//3ms
 
 extern volatile uint8_t flag_tajmer0_prekid;
 extern volatile uint8_t flag_prekid_10ms;

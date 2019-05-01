@@ -14,9 +14,8 @@
 #include "ad_konverzija.h"
 #include "uart.h"
 #include "tasteri.h"
-#include <stdio.h>      /* printf */
-#include <string.h>     /* strcat */
-#include <stdlib.h>     /* strtol */
+#include "state_machine.h"
+
 
 /**************************************************** extern promenljive **********************************************************/
 extern volatile uint16_t mereni_napon;
@@ -40,15 +39,18 @@ extern volatile uint16_t merena_struja;
 
 
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime);  //typedef struct mora biti pre prototipa da bi je video
+
 const char *byte_to_binary(int x)
 {
 	static char b[9];
 	b[0] = '\0';
-
+	char *p = b;
+	
 	int z;
 	for (z = 128; z > 0; z >>= 1)
 	{
-		strcat(b, ((x & z) == z) ? "1" : "0");
+		//strcat(b, ((x & z) == z) ? "1" : "0");
+		*p++ = (x & z) ? '1' : '0';
 	}
 
 	return b;
@@ -62,13 +64,18 @@ int main(void)
 	Time_date Vreme_gasenja;
 	
 	Vreme_paljenja.hr = 23;
-	Vreme_paljenja.min = 58;
-	Vreme_gasenja.hr = 23;
-	Vreme_gasenja.min = 59;
+	Vreme_paljenja.min = 59;
+	Vreme_gasenja.hr = 0;
+	Vreme_gasenja.min = 1;
 	
 	char bafer[20];
 	uint8_t ukljuceno = 0;  //0=OFF 1=ON
 	uint8_t tasteri = 0xFF;
+	uint8_t sati = 0;
+	uint8_t STATE = DISPL1;
+	
+	getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
+	sati = vreme_datum.hr;
 	
 /******************************** Inicijalizacija perifirija ***************************************************/
 
@@ -91,17 +98,94 @@ int main(void)
 	//getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 	//getDate(&vreme_datum.dy, &vreme_datum.dt, &vreme_datum.mt, &vreme_datum.yr);
 	
-	setTime(23, 57, 55, am, _24_hour_format);
+	setTime(23, 59, 55, am, _24_hour_format);
 	
 	
     while (1) 
     {
 		
+		/* bez obzira na STATE dole provera vremena treba da ide na 1s odnosno provera
+		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda ne bi trebao da koci program */
+		
+		if (flag_pc_int_pomocni)
+		{
+			flag_pc_int_pomocni = 0;
+			/* da sam koristio isti flag kao u automatu stanja, a ovde ga resetujem, dole nikada
+			   ne bi bio ispunjen uslov za reset */
+			
+			/* paljenje/gasenje releja > grjaca bojlera */
+			ukljuceno = period_paljenja(&Vreme_paljenja, &Vreme_gasenja, &vreme_datum);
+			
+			if (ukljuceno)
+			PORTB |= 1<<PINB5;   //high
+			else
+			PORTB &= ~(1<<PINB5);	//low
+			
+		}
+		
+		
+		
+		/* automat stanja za menije na displeju */
+		switch(STATE)
+		{
+			
+			case DISPL1:
+						if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
+						{
+							flag_pc_int = 0; //resetujem flag koji je u ISR
+							
+							
+							getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
+							sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
+							//send_str(bafer);
+							//send_str("\n"); //novi red
+							
+							lcd1602_clear();
+							lcd1602_send_string(bafer);
+		
+						}
+			break;
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+		/*
+		
+		//polling
 		tasteri = ocitaj_tastere();	//vrv bolje prebaciti negde u tajmer da se stalno desava
 		//tasteri = PIND;
-		sprintf(bafer, "%s", byte_to_binary(tasteri));
-		lcd1602_goto_xy(0,1);
-		lcd1602_send_string(bafer);
+		
+		
+		
+		if (flag_prekid_10ms)	//promenio na 100ms
+		{
+			flag_prekid_10ms = 0;		
+			
+			
+			if (  !(tasteri & (1<<TASTER_GORE)) )	
+				sati++;
+			else if ( !(tasteri & (1<<TASTER_DOLE)) )
+				sati--;
+				
+				
+			sprintf(bafer, "%s", byte_to_binary(tasteri));
+			
+			lcd1602_goto_xy(0,1);
+			lcd1602_send_string(bafer);
+			
+			sprintf(bafer, "%d", sati);
+			lcd1602_goto_xy(12,0);
+			lcd1602_send_string(bafer);
+			lcd1602_send_byte(0b1111, LCD_COMMAND);	//blinking cursor ON
+				
+				
+		}
+		
 		
 		if(flag_pc_int)
 		{
@@ -125,7 +209,7 @@ int main(void)
 			else
 				PORTB &= ~(1<<PINB5);	//low
 			
-		}
+		}*/
     }
 }
 

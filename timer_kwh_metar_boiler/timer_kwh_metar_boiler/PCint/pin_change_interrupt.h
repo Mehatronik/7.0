@@ -12,5 +12,6 @@
 extern void pc_init();
 
 extern volatile uint8_t flag_pc_int;
+extern volatile uint8_t flag_pc_int_pomocni;
 
 #endif /* PIN_CHANGE_INTERRUPT_H_ */

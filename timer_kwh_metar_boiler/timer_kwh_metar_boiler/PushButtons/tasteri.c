@@ -31,7 +31,7 @@ uint8_t ocitaj_tastere()
 	   debouncovani i stanje u registru predstavlja stvarno stanje tastera		*/
 	
 	
-	/* u tajmeru imam zapravo "2 tajmera" tj. procitam sve tastere prvi put pa posle 25ms (tj. Deb.Perioda/2)
+	/* u tajmeru imam zapravo "2 tajmera" tj. procitam sve tastere prvi put pa posle 3ms (tj. Deb.Perioda/2)
 	   opet procitam stanje. Ako se poklapaju konacno upisujem stanje iz dve pomocne promenljive u glavnu promenljivu
 	   koja preslikava stvano stanje	*/
 
@@ -39,7 +39,7 @@ uint8_t ocitaj_tastere()
 	uint8_t temp_reg1 = 0xFF;
 	uint8_t temp_reg2 = 0xFF;
 	
-	if (flag_prekid_debounce_time_half)		//prvo citanje 25ms; zapravo perioda je 25ms jer je to razlika izmedju prvog i drugog citanja
+	if (flag_prekid_debounce_time_half)		//prvo citanje 3ms; zapravo perioda je 3ms jer je to razlika izmedju prvog i drugog citanja
 	{
 		flag_prekid_debounce_time_half = 0;	//reset flag
 		
@@ -48,7 +48,7 @@ uint8_t ocitaj_tastere()
 		temp_reg1 = (PINB << 4 )|(PIND >> 4);	//prva 4 LSB su PIND a posle njih su 2 bita iz PINB
 
 	}
-	if (flag_prekid_debounce_time)		//drugo citanje 50ms, tj 25ms posle drugog
+	if (flag_prekid_debounce_time)		//drugo citanje 6ms, tj 3ms posle drugog
 	{
 		flag_prekid_debounce_time = 0;
 		

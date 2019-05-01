@@ -136,6 +136,9 @@
     <Compile Include="Common\comm.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Common\state_machine.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="i2cmaster\i2cmaster.h">
       <SubType>compile</SubType>
     </Compile>
