@@ -76,7 +76,7 @@ int main(void)
 	uint8_t STATE = DISPL1;
 	int8_t kursor = 0;
 	uint8_t flag_pod_vremena = 1;
-	
+	uint8_t provera = 0;
 /******************************** Inicijalizacija perifirija ***************************************************/
 
 	tajmer0_init();			////PD2-3 output
@@ -98,7 +98,7 @@ int main(void)
 	//getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 	//getDate(&vreme_datum.dy, &vreme_datum.dt, &vreme_datum.mt, &vreme_datum.yr);
 	
-	setTime(23, 59, 55, am, _24_hour_format);
+	//setTime(23, 59, 55, am, _24_hour_format);
 	
 	
     while (1) 
@@ -109,7 +109,7 @@ int main(void)
 		
 		/* bez obzira na STATE provera vremena treba da ide na 1s odnosno provera
 		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda (swithc-case) ne bi trebao da koci program */
-		if (flag_pc_int_pomocni)
+		if (flag_pc_int_pomocni)		//ide na 1 sekund
 		{
 			flag_pc_int_pomocni = 0;
 			/* da sam koristio isti flag kao u automatu stanja, a ovde ga resetujem, dole nikada
@@ -125,7 +125,10 @@ int main(void)
 				PORTB |= 1<<PINB5;   //high
 			else
 				PORTB &= ~(1<<PINB5);	//low
-			
+				
+			sprintf(bafer, "%d", provera);
+			send_str(bafer);
+			send_str("\n");
 		}
 		
 		
@@ -192,18 +195,18 @@ int main(void)
 						}
 						else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 						{
-							kursor = 0;		//resetujem kursor jer ostane memorisan
+							kursor = 0;			//resetujem kursor jer ostane memorisan
 							STATE = POD_SAT;	//meni za podesavanje sata
 						}
 						else if(kursor == 1 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 						{
-							kursor = 0;		//resetujem kursor jer ostane memorisan
-							STATE = SUB_MENU1;	//sub_meni za podesavanje on ili off vremena
+							kursor = 0;			//resetujem kursor jer ostane memorisan
+							STATE = POD_ON_OFF;	//sub_meni za podesavanje on ili off vremena
 						}
 						else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
 						{
-							kursor = 0;		//resetujem kursor jer ostane memorisan
-							STATE = DISPL1;
+							kursor = 0;			//resetujem kursor jer ostane memorisan
+							STATE = DISPL1;		//vraca se na prethodni meni, tj. glavni meni
 						}		
 			break;
 			
@@ -215,19 +218,74 @@ int main(void)
 							flag_pod_vremena = 0;
 							sanp_shot_vremena = vreme_datum;
 							sprintf(bafer, "%02d:%02d:%02d", sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s);
+							
+							kursor = 5; //na 5 je hh, na 8 je mm a na 11 je ss
+							
+							lcd1602_goto_xy(0,0);
+							lcd1602_send_string("PODESAVANJE SATA");
+							
+							lcd1602_goto_xy(0,1);
+							lcd1602_send_string("    ");
+							lcd1602_send_string(bafer);
+							lcd1602_send_string("    ");
+							
+							lcd1602_goto_xy(kursor,1);
+							lcd1602_cursor_blink(1);
 						}
 						
-						lcd1602_goto_xy(0,0);
-						lcd1602_send_string("PODESAVANJE SATA");
-						
-						lcd1602_goto_xy(0,1);
-						lcd1602_send_string("    ");
-						lcd1602_send_string(bafer);
-						lcd1602_send_string("    ");
-						
-						if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )
+						if ( ocitaj_jedan_taster(tasteri, TASTER_DESNO) )		//kursor desno
+						{
+							kursor += 3;
+							if(kursor > 11)
+								kursor = 11;
+							lcd1602_goto_xy(kursor,1);
+						}
+						else if (ocitaj_jedan_taster(tasteri, TASTER_LEVO))		//kursor levo
+						{
+							kursor -= 3;
+							if(kursor < 5)
+								kursor = 5;
+							lcd1602_goto_xy(kursor,1);
+						}
+						else if (ocitaj_jedan_taster(tasteri, TASTER_GORE) && kursor==5)	//podesava SATE ++
+						{
+							sanp_shot_vremena.hr++;
+							if(sanp_shot_vremena.hr >= 24 && sanp_shot_vremena.hr < 30)		//<30 posto je hr = unsigned int
+								sanp_shot_vremena.hr = 0;
+							
+							sprintf(bafer, "%02d", sanp_shot_vremena.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if (ocitaj_jedan_taster(tasteri, TASTER_DOLE) && kursor==5)	//podesava SATE --
+						{
+							sanp_shot_vremena.hr--;
+							if(sanp_shot_vremena.hr >= 250 && sanp_shot_vremena.hr <= 255)	//posto je hr = unsigned int 8 bit i overflow se desi
+								sanp_shot_vremena.hr = 23;
+							
+							sprintf(bafer, "%02d", sanp_shot_vremena.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) && kursor==8 )	//podesava MINUTE ++
+						{
+							provera = 1;
+							//nece da uskoci u ovaj deo koda jebemu sunce suncevo mu jebem, ne znam zasto, nema logike
+							//pokusao sam sa razlicitim nivoima optimizacije, i sa iskljucenom optimizacijom i isto
+							//kada sam gore za menjanje hh stavio kursor==8 onda je upao u njega
+							//kursor promenljiva je ok, provereno
+							//da li kod za menjanje sata nesto cudno uradi, ali ne nema smisla zato sto
+							//ne djiram sate a kad stavim kursor na minute opet ne radi nebo mu jebem, probacu sutra
+						}
+						else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
 						{
 							flag_pod_vremena = 1; //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
+							kursor = 0;			  //reset kursora
+							lcd1602_cursor_blink(0);	  //isklucim blinking cursor
 							STATE = MENU1;	//vraca se u prethodni meni
 						}
 						

@@ -14,9 +14,8 @@
 #define DISPL2		1
 #define MENU1		2
 #define POD_SAT		3
-#define SUB_MENU1	4
-#define POD_ONTIME	5
-#define POD_OFFTIME 6
+#define POD_ON_OFF	4
+
 
 
 

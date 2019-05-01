@@ -57,5 +57,9 @@ extern void lcd1602_goto_xy(char col, char row);
  */
 extern void lcd1602_send_string(const char *str);
 
+/**
+ * Turn on blinking cursor
+ */
+extern void lcd1602_cursor_blink(uint8_t on_off);
 
 #endif

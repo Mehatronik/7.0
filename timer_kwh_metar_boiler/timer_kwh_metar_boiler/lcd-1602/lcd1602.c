@@ -104,3 +104,11 @@ void lcd1602_send_string(const char *str)
 		i++;
 	}
 }
+
+void lcd1602_cursor_blink(uint8_t on_off)
+{
+	if(on_off)
+		lcd1602_send_byte(0b1111,LCD_COMMAND);
+	else
+		lcd1602_send_byte(0b1100,LCD_COMMAND);
+}
