@@ -8,6 +8,9 @@
 #include "comm.h"
 #include "tasteri.h"
 #include "tajmer.h"
+#include "uart.h"
+
+char buff[50];
 
 void tasteri_init()
 {
@@ -61,4 +64,31 @@ uint8_t ocitaj_tastere()
 	}
 	
 	return tasteri_reg;
+}
+
+uint8_t ocitaj_jedan_taster(uint8_t buttons_reg, uint8_t button)
+{
+	/* f-ja prima vrednost, tj. broj tastera koji je definisan #define-om u tasteri.h fajlu*/
+	/* VAZNO: ova f-ja samo proverava stanje jednog tastera u registru, a u programu je neophodno pozivati
+	   funkciju za citanje tastera, tj. potrebno je polling-ovati	*/
+	/* potrebno je otpustiti taster da bi se uvazilo njegovo ili stiskanje bilo kog drugog tastera */
+	
+	
+	uint8_t stisnut = 0;
+	static uint8_t temp_tast = 0;
+	static uint8_t flag_stisnut = 0;
+	
+	if ( (~buttons_reg & (1<<button)) && flag_stisnut == 0 )		//taster stisnut
+	{
+		flag_stisnut = 1;		//specava ponovni ulazak ako je ostao stisnut
+		temp_tast = button;		//zapamtim koji je taster stisnut
+		stisnut = 1;
+	}
+	if ( (~buttons_reg & (1<<temp_tast)) == 0 )		//provera da li je otpusten taster koji je stisnut
+	{
+		flag_stisnut = 0;	//resetujem flag tek kada je otpusten taster koji je stisnut
+	}
+			
+	
+	return stisnut;
 }

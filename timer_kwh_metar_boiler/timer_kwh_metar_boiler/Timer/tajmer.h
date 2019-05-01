@@ -2,7 +2,7 @@
  * tajmer.h
  *
  * Created: 2.12.2017. 22.09.10
- *  Author: Ko''
+ *  Author: Kovacevic
  */ 
 
 

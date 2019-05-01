@@ -77,7 +77,7 @@ void lcd1602_init()
 void lcd1602_clear()
 {
 	lcd1602_send_byte(0x01, LCD_COMMAND);
-	_delay_us(1500);
+	_delay_us(1700);
 }
 
 void lcd1602_goto_xy(char col, char row)

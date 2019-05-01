@@ -60,29 +60,29 @@ int main(void)
 {
 
 	Time_date vreme_datum;
-	Time_date Vreme_paljenja;
-	Time_date Vreme_gasenja;
+	Time_date vreme_paljenja;
+	Time_date vreme_gasenja;
+	Time_date sanp_shot_vremena;	//za potrebe podesavanje vremena
 	
-	Vreme_paljenja.hr = 23;
-	Vreme_paljenja.min = 59;
-	Vreme_gasenja.hr = 0;
-	Vreme_gasenja.min = 1;
+	vreme_paljenja.hr = 23;
+	vreme_paljenja.min = 30;
+	vreme_gasenja.hr = 5;
+	vreme_gasenja.min = 40;
 	
 	char bafer[20];
 	uint8_t ukljuceno = 0;  //0=OFF 1=ON
 	uint8_t tasteri = 0xFF;
-	uint8_t sati = 0;
+
 	uint8_t STATE = DISPL1;
-	
-	getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
-	sati = vreme_datum.hr;
+	int8_t kursor = 0;
+	uint8_t flag_pod_vremena = 1;
 	
 /******************************** Inicijalizacija perifirija ***************************************************/
 
 	tajmer0_init();			////PD2-3 output
 	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
-	ADC_init();				//NAPOMENA:	PINB7 output
+	ADC_init();				
 	uart_init();			//baud 9600
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
@@ -103,23 +103,28 @@ int main(void)
 	
     while (1) 
     {
+		/* polling tastera */
+		tasteri = ocitaj_tastere();
 		
-		/* bez obzira na STATE dole provera vremena treba da ide na 1s odnosno provera
-		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda ne bi trebao da koci program */
 		
+		/* bez obzira na STATE provera vremena treba da ide na 1s odnosno provera
+		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda (swithc-case) ne bi trebao da koci program */
 		if (flag_pc_int_pomocni)
 		{
 			flag_pc_int_pomocni = 0;
 			/* da sam koristio isti flag kao u automatu stanja, a ovde ga resetujem, dole nikada
-			   ne bi bio ispunjen uslov za reset */
+			   ne bi bio ispunjen uslov za flag_pc_int==1 */
+			
+			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
+			
 			
 			/* paljenje/gasenje releja > grjaca bojlera */
-			ukljuceno = period_paljenja(&Vreme_paljenja, &Vreme_gasenja, &vreme_datum);
+			ukljuceno = period_paljenja(&vreme_paljenja, &vreme_gasenja, &vreme_datum);
 			
 			if (ukljuceno)
-			PORTB |= 1<<PINB5;   //high
+				PORTB |= 1<<PINB5;   //high
 			else
-			PORTB &= ~(1<<PINB5);	//low
+				PORTB &= ~(1<<PINB5);	//low
 			
 		}
 		
@@ -130,86 +135,117 @@ int main(void)
 		{
 			
 			case DISPL1:
+						/* ispis vremena svaki sekund dok je u ovom CASE-u */
 						if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
 						{
 							flag_pc_int = 0; //resetujem flag koji je u ISR
-							
 							
 							getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 							sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
 							//send_str(bafer);
 							//send_str("\n"); //novi red
 							
-							lcd1602_clear();
+							//lcd1602_clear();
+							
+							/*izbegao sam celear-ovanje ekrana koje izaziva teperenje dipleja, sa dodavanjem razmaka pre i posle zeljenog ispisa */
+							lcd1602_goto_xy(0,0);
+							lcd1602_send_string("    ");
 							lcd1602_send_string(bafer);
+							lcd1602_send_string("    ");
+							
+							lcd1602_goto_xy(0,1);
+							lcd1602_send_string("  ");
+							sprintf(bafer, "%02d:%02d->%02d:%02d", vreme_paljenja.hr, vreme_paljenja.min, vreme_gasenja.hr, vreme_gasenja.min);
+							lcd1602_send_string(bafer);
+							lcd1602_send_string("  ");
 		
 						}
+						
+						if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut   !(tasteri & (1<<TASTER_ENTER))
+							STATE = MENU1;
 			break;
 			
+			case MENU1:
+						//lcd1602_clear();
+						
+						lcd1602_goto_xy(0, kursor);
+						lcd1602_send_string(">");
+						lcd1602_goto_xy(0, !kursor);
+						lcd1602_send_string(" ");
+						
+						lcd1602_goto_xy(1,0);
+						lcd1602_send_string("PODESI SAT     ");
+						lcd1602_goto_xy(1,1);
+						lcd1602_send_string("PODESI PERIOD  ");
+						
+						if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) ) //ocitaj_jedan_taster(tasteri, TASTER_DOLE)
+						{
+							kursor++;
+							if(kursor > 1)
+								kursor = 1;
+						}
+						else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
+						{
+							kursor--;
+							if(kursor < 0)
+								kursor = 0;
+						}
+						else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+						{
+							kursor = 0;		//resetujem kursor jer ostane memorisan
+							STATE = POD_SAT;	//meni za podesavanje sata
+						}
+						else if(kursor == 1 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+						{
+							kursor = 0;		//resetujem kursor jer ostane memorisan
+							STATE = SUB_MENU1;	//sub_meni za podesavanje on ili off vremena
+						}
+						else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
+						{
+							kursor = 0;		//resetujem kursor jer ostane memorisan
+							STATE = DISPL1;
+						}		
+			break;
 			
+			case POD_SAT:
+						
+						/* da ocita trenutno vreme samo prvi puta kada upadne u ovaj case	*/
+						if (flag_pod_vremena)
+						{
+							flag_pod_vremena = 0;
+							sanp_shot_vremena = vreme_datum;
+							sprintf(bafer, "%02d:%02d:%02d", sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s);
+						}
+						
+						lcd1602_goto_xy(0,0);
+						lcd1602_send_string("PODESAVANJE SATA");
+						
+						lcd1602_goto_xy(0,1);
+						lcd1602_send_string("    ");
+						lcd1602_send_string(bafer);
+						lcd1602_send_string("    ");
+						
+						if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )
+						{
+							flag_pod_vremena = 1; //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
+							STATE = MENU1;	//vraca se u prethodni meni
+						}
+						
+			break;
 			
-			
+			default: {}
 			
 		}
 		
 		
 		
-		/*
+		
 		
 		//polling
-		tasteri = ocitaj_tastere();	//vrv bolje prebaciti negde u tajmer da se stalno desava
+		//tasteri = ocitaj_tastere();	//vrv bolje prebaciti negde u tajmer da se stalno desava
 		//tasteri = PIND;
 		
 		
-		
-		if (flag_prekid_10ms)	//promenio na 100ms
-		{
-			flag_prekid_10ms = 0;		
-			
-			
-			if (  !(tasteri & (1<<TASTER_GORE)) )	
-				sati++;
-			else if ( !(tasteri & (1<<TASTER_DOLE)) )
-				sati--;
-				
-				
-			sprintf(bafer, "%s", byte_to_binary(tasteri));
-			
-			lcd1602_goto_xy(0,1);
-			lcd1602_send_string(bafer);
-			
-			sprintf(bafer, "%d", sati);
-			lcd1602_goto_xy(12,0);
-			lcd1602_send_string(bafer);
-			lcd1602_send_byte(0b1111, LCD_COMMAND);	//blinking cursor ON
-				
-				
-		}
-		
-		
-		if(flag_pc_int)
-		{
-			flag_pc_int = 0; //resetujem flag koji je u ISR
-			
-			
-			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
-			sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
-			//send_str(bafer);
-			//send_str("\n"); //novi red
-			
-			lcd1602_clear();
-			lcd1602_send_string(bafer);
-			
-			
-			
-			ukljuceno = period_paljenja(&Vreme_paljenja, &Vreme_gasenja, &vreme_datum);
-			
-			if (ukljuceno)
-				PORTB |= 1<<PINB5;   //high
-			else
-				PORTB &= ~(1<<PINB5);	//low
-			
-		}*/
     }
 }
 
@@ -236,9 +272,9 @@ uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *Curr
 	vreme_trenutno = (CurrentTime->hr)*100 + CurrentTime->min;
 	
 	
-	sprintf(buff, "ON:%d OFF:%d Tr:%d",vreme_on, vreme_off, vreme_trenutno);
-	send_str(buff);
-	send_str("\n"); //novi red
+	//sprintf(buff, "ON:%d OFF:%d Tr:%d",vreme_on, vreme_off, vreme_trenutno);
+	//send_str(buff);
+	//send_str("\n"); //novi red
 	
 	
 	if (vreme_on >= vreme_off)  // >= ?? razmotri dodatno SVE granicne slucajeve; edit:provereno, sve u fuli radi

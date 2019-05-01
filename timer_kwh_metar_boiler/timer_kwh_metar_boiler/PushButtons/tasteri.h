@@ -30,6 +30,6 @@
 
 extern void tasteri_init();
 extern uint8_t ocitaj_tastere();
-
+extern uint8_t ocitaj_jedan_taster(uint8_t buttons_reg, uint8_t button);
 
 #endif /* TASTERI_H_ */

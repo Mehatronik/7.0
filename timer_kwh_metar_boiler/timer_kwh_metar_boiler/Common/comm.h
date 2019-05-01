@@ -18,5 +18,4 @@
 #include <stdio.h>
 
 
-
 #endif /* COMM_H_ */

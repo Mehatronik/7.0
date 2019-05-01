@@ -37,7 +37,6 @@ ISR(ADC_vect)
 	ISR okine kada je gotova konverzija
 	*/
 	
-	PORTD |= 1<<PINB7;       //togle za osciloskop
 	
 	//upis ad konverzije oba kanala u odgovarajuce promenljive
 	if(ad_kanal == 0)
@@ -94,7 +93,7 @@ ISR(ADC_vect)
 	
 	//trajanje dela sa multipleksiranjem: ~ 1.7 us
 
-	PORTD &= ~(1<<7);       //togle za osciloskop
+
 }
 
 
