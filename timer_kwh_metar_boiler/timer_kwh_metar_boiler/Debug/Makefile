@@ -48,6 +48,7 @@ SUBDIRS :=  \
 C_SRCS +=  \
 ../ADC/ad_konverzija.c \
 ../i2cmaster/i2cmaster.c \
+../lcd-1602/ispomoc_za_ispis.c \
 ../lcd-1602/lcd1602.c \
 ../main.c \
 ../PCint/pin_change_interrupt.c \
@@ -66,6 +67,7 @@ ASM_SRCS +=
 OBJS +=  \
 ADC/ad_konverzija.o \
 i2cmaster/i2cmaster.o \
+lcd-1602/ispomoc_za_ispis.o \
 lcd-1602/lcd1602.o \
 main.o \
 PCint/pin_change_interrupt.o \
@@ -77,6 +79,7 @@ Uart/uart.o
 OBJS_AS_ARGS +=  \
 ADC/ad_konverzija.o \
 i2cmaster/i2cmaster.o \
+lcd-1602/ispomoc_za_ispis.o \
 lcd-1602/lcd1602.o \
 main.o \
 PCint/pin_change_interrupt.o \
@@ -88,6 +91,7 @@ Uart/uart.o
 C_DEPS +=  \
 ADC/ad_konverzija.d \
 i2cmaster/i2cmaster.d \
+lcd-1602/ispomoc_za_ispis.d \
 lcd-1602/lcd1602.d \
 main.d \
 PCint/pin_change_interrupt.d \
@@ -99,6 +103,7 @@ Uart/uart.d
 C_DEPS_AS_ARGS +=  \
 ADC/ad_konverzija.d \
 i2cmaster/i2cmaster.d \
+lcd-1602/ispomoc_za_ispis.d \
 lcd-1602/lcd1602.d \
 main.d \
 PCint/pin_change_interrupt.d \
@@ -121,6 +126,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

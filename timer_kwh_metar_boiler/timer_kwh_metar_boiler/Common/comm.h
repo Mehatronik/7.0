@@ -10,6 +10,9 @@
 #define COMM_H_
 
 #define  F_CPU 16000000UL
+#define UVECAJ 0U
+#define UMANJI 1U
+
 
 #include <avr/io.h>
 #include <avr/interrupt.h>

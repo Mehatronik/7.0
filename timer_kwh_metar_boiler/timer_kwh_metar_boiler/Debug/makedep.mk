@@ -6,6 +6,8 @@ ADC\ad_konverzija.c
 
 i2cmaster\i2cmaster.c
 
+lcd-1602\ispomoc_za_ispis.c
+
 lcd-1602\lcd1602.c
 
 main.c
