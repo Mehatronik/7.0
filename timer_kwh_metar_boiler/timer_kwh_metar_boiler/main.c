@@ -43,11 +43,10 @@ Time_date sanp_shot_vremena;	//za potrebe podesavanje vremena
 char bafer[20];
 uint8_t ukljuceno = 0;  //0=OFF 1=ON
 uint8_t tasteri = 0xFF;
-
 uint8_t STATE = DISPL1;
 int8_t kursor = 0;
 uint8_t flag_pod_vremena = 1;
-uint8_t provera = 0;
+uint8_t flag_pod_ONOFF = 1;
 
 /************************** prototipovi funkcija **************************/
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime);  //typedef struct mora biti pre prototipa da bi je video
@@ -84,7 +83,7 @@ int main(void)
 	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
 	ADC_init();				
-	uart_init(9600);		//vidi f-ju za opcije bauda
+	uart_init(500000);		//vidi f-ju za opcije bauda  500k
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
 	tasteri_init();			//NAPOMENA: PD4-7 i PB0-1 INPUT, INT_PULLUP=ON
@@ -120,18 +119,18 @@ int main(void)
 			
 			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 			
+			sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
+			send_str(bafer);
+			send_str("\n"); //novi red
 			
-			/* paljenje/gasenje releja > grjaca bojlera */
+			/* paljenje/gasenje releja > grjaca bojlera; edit: zapravo o grejacu odlucuje termostat bojlera, ovim se pali bojler */
 			ukljuceno = period_paljenja(&vreme_paljenja, &vreme_gasenja, &vreme_datum);
 			
 			if (ukljuceno)
 				PORTB |= 1<<PINB5;   //high
 			else
 				PORTB &= ~(1<<PINB5);	//low
-				
-			sprintf(bafer, "%d", provera);
-			send_str(bafer);
-			send_str("\n");
+					
 		}
 		
 		
@@ -159,7 +158,7 @@ uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *Curr
 	static uint16_t vreme_off;
 	static uint16_t vreme_trenutno;
 	
-	char buff[50];
+	//char buff[50];
 	
 	/* prebacim sate i minute u jednu promenljivu */
 	vreme_on = (On_time->hr)*100 + On_time->min;
@@ -218,206 +217,361 @@ void fsm_lcd_menu()
 	{
 		
 		case DISPL1:
-		/* ispis vremena svaki sekund dok je u ovom CASE-u */
-		if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
-		{
-			flag_pc_int = 0; //resetujem flag koji je u ISR
+				/* ispis vremena svaki sekund dok je u ovom CASE-u */
+				if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
+				{
+					flag_pc_int = 0; //resetujem flag koji je u ISR
 			
-			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
-			sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
-			//send_str(bafer);
-			//send_str("\n"); //novi red
+					getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
+					sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
+					
+					//lcd1602_clear();
 			
-			//lcd1602_clear();
+					/*izbegao sam celear-ovanje ekrana koje izaziva teperenje dipleja, sa dodavanjem razmaka pre i posle zeljenog ispisa */
+					lcd1602_goto_xy(0,0);
+					lcd1602_send_string("    ");
+					lcd1602_send_string(bafer);
+					lcd1602_send_string("    ");
 			
-			/*izbegao sam celear-ovanje ekrana koje izaziva teperenje dipleja, sa dodavanjem razmaka pre i posle zeljenog ispisa */
-			lcd1602_goto_xy(0,0);
-			lcd1602_send_string("    ");
-			lcd1602_send_string(bafer);
-			lcd1602_send_string("    ");
+					lcd1602_goto_xy(0,1);
+					lcd1602_send_string("  ");
+					sprintf(bafer, "%02d:%02d--%02d:%02d", vreme_paljenja.hr, vreme_paljenja.min, vreme_gasenja.hr, vreme_gasenja.min);
+					lcd1602_send_string(bafer);
+					lcd1602_send_string("  ");
 			
-			lcd1602_goto_xy(0,1);
-			lcd1602_send_string("  ");
-			sprintf(bafer, "%02d:%02d->%02d:%02d", vreme_paljenja.hr, vreme_paljenja.min, vreme_gasenja.hr, vreme_gasenja.min);
-			lcd1602_send_string(bafer);
-			lcd1602_send_string("  ");
-			
-		}
+				}
 		
-		if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut   !(tasteri & (1<<TASTER_ENTER))
-		STATE = MENU1;
+				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut   !(tasteri & (1<<TASTER_ENTER))
+					STATE = MENU1;
 		break;
 		
 		case MENU1:
-		//lcd1602_clear();
+					//lcd1602_clear();
 		
-		lcd1602_goto_xy(0, kursor);
-		lcd1602_send_string(">");
-		lcd1602_goto_xy(0, !kursor);
-		lcd1602_send_string(" ");
+					lcd1602_goto_xy(0, kursor);
+					lcd1602_send_string(">");
+					lcd1602_goto_xy(0, !kursor);
+					lcd1602_send_string(" ");
 		
-		lcd1602_goto_xy(1,0);
-		lcd1602_send_string("PODESI SAT     ");
-		lcd1602_goto_xy(1,1);
-		lcd1602_send_string("PODESI PERIOD  ");
+					lcd1602_goto_xy(1,0);
+					lcd1602_send_string("PODESI SAT     ");
+					lcd1602_goto_xy(1,1);
+					lcd1602_send_string("PODESI PERIOD  ");
 		
-		if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )		//djira kursor vertikalno ka dole
-		{
-			kursor++;
-			if(kursor > 1)
-			kursor = 1;
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )	//djira kursor vertikalno ka gore
-		{
-			kursor--;
-			if(kursor < 0)
-			kursor = 0;
-		}
-		else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
-		{
-			kursor = 0;			//resetujem kursor jer ostane memorisan
-			STATE = POD_SAT;	//meni za podesavanje sata
-		}
-		else if(kursor == 1 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
-		{
-			kursor = 0;			//resetujem kursor jer ostane memorisan
-			STATE = POD_ON_OFF;	//sub_meni za podesavanje on ili off vremena
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
-		{
-			kursor = 0;			//resetujem kursor jer ostane memorisan
-			STATE = DISPL1;		//vraca se na prethodni meni, tj. glavni meni
-		}
+					if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )		//djira kursor vertikalno ka dole
+					{
+						kursor++;
+						if(kursor > 1)
+						kursor = 1;
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )	//djira kursor vertikalno ka gore
+					{
+						kursor--;
+						if(kursor < 0)
+						kursor = 0;
+					}
+					else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					{
+						kursor = 0;			//resetujem kursor jer ostane memorisan
+						STATE = POD_SAT;	//meni za podesavanje sata
+					}
+					else if(kursor == 1 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					{
+						kursor = 0;			//resetujem kursor jer ostane memorisan
+						STATE = POD_ON_OFF;	//sub_meni za podesavanje on ili off vremena
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
+					{
+						kursor = 0;			//resetujem kursor jer ostane memorisan
+						STATE = DISPL1;		//vraca se na prethodni meni, tj. glavni meni
+					}
 		break;
 		
 		case POD_SAT:
 		
-		/* da ocita trenutno vreme samo prvi puta kada upadne u ovaj case	*/
-		if (flag_pod_vremena)
-		{
-			flag_pod_vremena = 0;
-			sanp_shot_vremena = vreme_datum;
-			sprintf(bafer, "%02d:%02d:%02d", sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s);
+					/* da ocita trenutno vreme samo prvi puta kada upadne u ovaj case	*/
+					if (flag_pod_vremena)
+					{
+						flag_pod_vremena = 0;
+						sanp_shot_vremena = vreme_datum;
+						sprintf(bafer, "%02d:%02d:%02d", sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s);
 			
-			kursor = 5; //na 5 je hh, na 8 je mm a na 11 je ss
+						kursor = 5; //na 5 je hh, na 8 je mm a na 11 je ss
 			
-			lcd1602_goto_xy(0,0);
-			lcd1602_send_string("PODESAVANJE SATA");
+						lcd1602_goto_xy(0,0);
+						lcd1602_send_string("PODESAVANJE SATA");
 			
-			lcd1602_goto_xy(0,1);
-			lcd1602_send_string("    ");
-			lcd1602_send_string(bafer);
-			lcd1602_send_string("    ");
+						lcd1602_goto_xy(0,1);
+						lcd1602_send_string("    ");
+						lcd1602_send_string(bafer);
+						lcd1602_send_string("    ");
 			
-			lcd1602_goto_xy(kursor,1);
-			lcd1602_cursor_blink(1);
-		}
+						lcd1602_goto_xy(kursor,1);
+						lcd1602_cursor_blink(1);
+					}
 		
-		if ( ocitaj_jedan_taster(tasteri, TASTER_DESNO) )		//kursor desno
-		{
-			kursor += 3;
-			if(kursor > 11)
-			kursor = 11;
-			lcd1602_goto_xy(kursor,1);
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_LEVO))		//kursor levo
-		{
-			kursor -= 3;
-			if(kursor < 5)
-			kursor = 5;
-			lcd1602_goto_xy(kursor,1);
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
-		{
-			if (kursor == 5)	//podesava SATE ++
-			{
-				sanp_shot_vremena.hr++;
-				if(sanp_shot_vremena.hr >= 24 && sanp_shot_vremena.hr < 30)		//<30 posto je hr = unsigned int
-				sanp_shot_vremena.hr = 0;
+					if ( ocitaj_jedan_taster(tasteri, TASTER_DESNO) )		//kursor desno
+					{
+						kursor += 3;
+						if(kursor > 11)
+							kursor = 11;
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_LEVO))		//kursor levo
+					{
+						kursor -= 3;
+						if(kursor < 5)
+							kursor = 5;
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
+					{
+						if (kursor == 5)	//podesava SATE ++
+						{
+							sanp_shot_vremena.hr++;
+							if(sanp_shot_vremena.hr >= 24 && sanp_shot_vremena.hr < 30)		//<30 posto je hr = unsigned int
+								sanp_shot_vremena.hr = 0;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.hr);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
-			}
-			else if (kursor == 8)	//podesava MINUTE ++
-			{
-				sanp_shot_vremena.min++;
-				if(sanp_shot_vremena.min >= 60 && sanp_shot_vremena.min < 65)		//<65 posto je = unsigned int
-				sanp_shot_vremena.min = 0;
+							sprintf(bafer, "%02d", sanp_shot_vremena.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if (kursor == 8)	//podesava MINUTE ++
+						{
+							sanp_shot_vremena.min++;
+							if(sanp_shot_vremena.min >= 60 && sanp_shot_vremena.min < 65)		//<65 posto je = unsigned int
+								sanp_shot_vremena.min = 0;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.min);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(vreme_datum.hr, sanp_shot_vremena.min, vreme_datum.s, am, _24_hour_format);
-			}
-			else if (kursor == 11)	//podesava SEKUNDE ++
-			{
-				sanp_shot_vremena.s++;
-				if(sanp_shot_vremena.s >= 60 && sanp_shot_vremena.s < 65)		//<65 posto je = unsigned int
-				sanp_shot_vremena.s = 0;
+							sprintf(bafer, "%02d", sanp_shot_vremena.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(vreme_datum.hr, sanp_shot_vremena.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if (kursor == 11)	//podesava SEKUNDE ++
+						{
+							sanp_shot_vremena.s++;
+							if(sanp_shot_vremena.s >= 60 && sanp_shot_vremena.s < 65)		//<65 posto je = unsigned int
+								sanp_shot_vremena.s = 0;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.s);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(vreme_datum.hr, vreme_datum.min, sanp_shot_vremena.s, am, _24_hour_format);
-			}
+							sprintf(bafer, "%02d", sanp_shot_vremena.s);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(vreme_datum.hr, vreme_datum.min, sanp_shot_vremena.s, am, _24_hour_format);
+						}
 			
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
-		{
-			if (kursor == 5)	//podesava SATE --
-			{
-				sanp_shot_vremena.hr--;
-				if(sanp_shot_vremena.hr >= 250 && sanp_shot_vremena.hr <= 255)	//posto je hr = unsigned int 8 bit i overflow se desi
-				sanp_shot_vremena.hr = 23;
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
+					{
+						if (kursor == 5)	//podesava SATE --
+						{
+							sanp_shot_vremena.hr--;
+							if(sanp_shot_vremena.hr >= 250 && sanp_shot_vremena.hr <= 255)	//posto je hr = unsigned int 8 bit i overflow se desi
+								sanp_shot_vremena.hr = 23;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.hr);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
-			}
-			else if (kursor == 8)	//podesava MINUTE --
-			{
-				sanp_shot_vremena.min--;
-				if(sanp_shot_vremena.min >= 250 && sanp_shot_vremena.min <= 255)	//posto je = unsigned int 8 bit i overflow se desi
-				sanp_shot_vremena.min = 59;
+							sprintf(bafer, "%02d", sanp_shot_vremena.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(sanp_shot_vremena.hr, vreme_datum.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if (kursor == 8)	//podesava MINUTE --
+						{
+							sanp_shot_vremena.min--;
+							if(sanp_shot_vremena.min >= 250 && sanp_shot_vremena.min <= 255)	//posto je = unsigned int 8 bit i overflow se desi
+								sanp_shot_vremena.min = 59;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.min);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(vreme_datum.hr, sanp_shot_vremena.min, vreme_datum.s, am, _24_hour_format);
-			}
-			else if (kursor == 11)	//podesava SEKUNDE --
-			{
-				sanp_shot_vremena.s--;
-				if(sanp_shot_vremena.s >= 250 && sanp_shot_vremena.s <= 255)	//posto je = unsigned int 8 bit i overflow se desi
-				sanp_shot_vremena.s = 59;
+							sprintf(bafer, "%02d", sanp_shot_vremena.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(vreme_datum.hr, sanp_shot_vremena.min, vreme_datum.s, am, _24_hour_format);
+						}
+						else if (kursor == 11)	//podesava SEKUNDE --
+						{
+							sanp_shot_vremena.s--;
+							if(sanp_shot_vremena.s >= 250 && sanp_shot_vremena.s <= 255)	//posto je = unsigned int 8 bit i overflow se desi
+								sanp_shot_vremena.s = 59;
 				
-				sprintf(bafer, "%02d", sanp_shot_vremena.s);
-				lcd1602_goto_xy(kursor-1,1);
-				lcd1602_send_string(bafer);
-				lcd1602_goto_xy(kursor,1);
-				//setTime(vreme_datum.hr, vreme_datum.min, sanp_shot_vremena.s, am, _24_hour_format);
-			}
+							sprintf(bafer, "%02d", sanp_shot_vremena.s);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//setTime(vreme_datum.hr, vreme_datum.min, sanp_shot_vremena.s, am, _24_hour_format);
+						}
 			
-		}
-		else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
-		{
-			/* vreme se upise tek kad se izleti iz ovog menija, tj. ono vreme koje stoji na ekranu ce biti upisano */
-			setTime(sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s, am, _24_hour_format);
-			flag_pod_vremena = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
-			kursor = 0;					//reset kursora
-			lcd1602_cursor_blink(0);	//isklucim blinking cursor
-			STATE = MENU1;				//vraca se u prethodni meni
-		}
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
+					{
+						/* vreme se upise tek kad se izleti iz ovog menija, tj. ono vreme koje stoji na ekranu ce biti upisano */
+						setTime(sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s, am, _24_hour_format);
+						flag_pod_vremena = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
+						kursor = 0;					//reset kursora
+						lcd1602_cursor_blink(0);	//isklucim blinking cursor
+						STATE = MENU1;				//vraca se u prethodni meni
+					}
 		
 		break;
+		
+		case POD_ON_OFF:
+					/* podesavanje perioda paljenja i gasenja */
+					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
+					if (flag_pod_ONOFF)
+					{
+						flag_pod_ONOFF = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
+						
+						kursor = 3;			//hh1:mm1 = 3,6 ; hh2:mm2 = 10,13
+						
+						lcd1602_goto_xy(0,0);
+						lcd1602_send_string("  UPALI--UGASI  ");
+						
+						sprintf(bafer, "%02d:%02d--%02d:%02d", vreme_paljenja.hr, vreme_paljenja.min, vreme_gasenja.hr, vreme_gasenja.min);
+						
+						lcd1602_goto_xy(0,1);
+						lcd1602_send_string("  ");
+						lcd1602_send_string(bafer);
+						lcd1602_send_string("  ");
+						
+						lcd1602_goto_xy(kursor,1);
+						lcd1602_cursor_blink(1);
+						
+					}
+					if ( ocitaj_jedan_taster(tasteri, TASTER_DESNO) )		//kursor desno
+					{
+						kursor += 3;
+						if(kursor > 6 && kursor <10)	//zbog asimetrije pri prikazu: 23:30--05:04
+							kursor = 10;
+						else if (kursor > 13)
+							kursor = 13;
+							
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_LEVO))		//kursor levo
+					{
+						kursor -= 3;
+						if(kursor < 10 && kursor > 6)	//zbog asimetrije pri prikazu: 23:30--05:04
+							kursor = 6;
+						else if(kursor < 3)
+							kursor = 3;
+							
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
+					{
+						if (kursor == 3)									//podesava SATE_ON ++
+						{
+							vreme_paljenja.hr++;
+							if(vreme_paljenja.hr >= 24 && vreme_paljenja.hr < 30)		//<30 posto je hr = unsigned int
+								vreme_paljenja.hr = 0;
+							
+							sprintf(bafer, "%02d", vreme_paljenja.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 6)								//podesava MINUTE_ON ++
+						{
+							vreme_paljenja.min++;
+							if(vreme_paljenja.min >= 60 && vreme_paljenja.min < 65)		//<65 posto je = unsigned int
+								vreme_paljenja.min = 0;
+							
+							sprintf(bafer, "%02d", vreme_paljenja.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 10)								//podesava SATE_OFF ++
+						{
+							vreme_gasenja.hr++;
+							if(vreme_gasenja.hr >= 24 && vreme_gasenja.hr < 30)		//<65 posto je = unsigned int
+								vreme_gasenja.hr = 0;
+							
+							sprintf(bafer, "%02d", vreme_gasenja.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 13)								//podesava MINUTE_OFF ++
+						{
+							vreme_gasenja.min++;
+							if(vreme_gasenja.min >= 60 && vreme_gasenja.min < 65)		//<65 posto je = unsigned int
+								vreme_gasenja.min = 0;
+							
+							sprintf(bafer, "%02d", vreme_gasenja.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
+					{
+						if (kursor == 3)									//podesava SATE_ON --
+						{
+							vreme_paljenja.hr--;
+							if(vreme_paljenja.hr >= 250 && vreme_paljenja.hr <= 255)	//posto je hr = unsigned int 8 bit i overflow se desi
+								vreme_paljenja.hr = 23;
+							
+							sprintf(bafer, "%02d", vreme_paljenja.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 6)								//podesava MINUTE_ON --
+						{
+							vreme_paljenja.min--;
+							if(vreme_paljenja.min >= 250 && vreme_paljenja.min <= 255)	//posto je = unsigned int 8 bit i overflow se desi
+								vreme_paljenja.min = 59;
+							
+							sprintf(bafer, "%02d", vreme_paljenja.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 10)								//podesava SATE_OFF --
+						{
+							vreme_gasenja.hr--;
+							if(vreme_gasenja.hr >= 250 && vreme_gasenja.hr <= 255)	//posto je hr = unsigned int 8 bit i overflow se desi
+								vreme_gasenja.hr = 23;
+							
+							sprintf(bafer, "%02d", vreme_gasenja.hr);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+						else if (kursor == 13)								//podesava MINUTE_OFF --
+						{
+							vreme_gasenja.min--;
+							if(vreme_gasenja.min >= 250 && vreme_gasenja.min <= 255)	//posto je = unsigned int 8 bit i overflow se desi
+								vreme_gasenja.min = 59;
+							
+							sprintf(bafer, "%02d", vreme_gasenja.min);
+							lcd1602_goto_xy(kursor-1,1);
+							lcd1602_send_string(bafer);
+							lcd1602_goto_xy(kursor,1);
+							//TODO: UPIS U EEPROM
+						}
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
+					{
+						
+						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						kursor = 0;					//reset kursora
+						lcd1602_cursor_blink(0);	//isklucim blinking cursor
+						STATE = MENU1;				//vraca se u prethodni meni
+					}
+					
+		break;
+		
 		
 		default: {}
 		
