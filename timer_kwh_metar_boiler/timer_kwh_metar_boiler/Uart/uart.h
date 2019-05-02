@@ -2,7 +2,8 @@
  * uart.h
  *
  * Created: 1.12.2017. 23.00.49
- *  Author: Ko''
+ *  Author: Jovica
+ *  Modified: Kovacevic
  */ 
 
 
@@ -13,7 +14,7 @@
 
 /* prototipovi */
 
-extern void uart_init();
+extern void uart_init(uint32_t baud_rate);
 extern void send_str(char *str);
 
 
