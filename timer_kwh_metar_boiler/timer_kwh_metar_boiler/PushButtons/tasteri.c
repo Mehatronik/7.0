@@ -121,17 +121,17 @@ uint8_t ocitaj_jedan_taster(uint8_t buttons_reg, uint8_t button)
 	
 	/*
 	sprintf(buff, "butt_reg:%s  ", byte_to_binary(buttons_reg));
-	send_str(buff);
+	uart_send_str(buff);
 							         
 	sprintf(buff, "butt:%s  ", byte_to_binary(button));						
-	send_str(buff);		
+	uart_send_str(buff);		
 	
 	sprintf(buff, "tmp_t:%s  ", byte_to_binary(1<<temp_tast));
-	send_str(buff);	
+	uart_send_str(buff);	
 	
 	sprintf(buff, "flag_stis:%d  ", flag_stisnut);
-	send_str(buff);		
-	send_str("\n");
+	uart_send_str(buff);		
+	uart_send_str("\n");
 	*/
 	
 	return stisnut;

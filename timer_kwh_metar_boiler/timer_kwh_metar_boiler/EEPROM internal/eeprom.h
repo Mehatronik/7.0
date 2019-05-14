@@ -9,6 +9,13 @@
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
+/* Citanje i pisanje EEPROM-a koji se nalazi unutar uC-a ATmega 328p.
+ * Velicine je 1024 byte-a, tj. 1024 adrese * 8 bita svaka vrednost.
+ * Funkcije za citanje i pisanje su preuzete iz datasheet-a sa minornom
+ * modifikacijom
+ */
+
+
 #include "comm.h"
 
 #define UPALI_HR_ADR   0

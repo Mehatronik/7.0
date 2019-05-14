@@ -15,7 +15,7 @@
 /* prototipovi */
 
 extern void uart_init(uint32_t baud_rate);
-extern void send_str(char *str);
+extern void uart_send_str(char *str);
 
 
 

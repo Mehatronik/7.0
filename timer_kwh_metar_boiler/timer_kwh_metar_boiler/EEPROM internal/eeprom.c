@@ -34,13 +34,13 @@ void EEPROM_write(uint16_t uiAddress, uint8_t ucData)
 	EEDR = ucData;
 	
 	/**********************!!!!!!!!!!!!!!!!!!!!!!***************************/
-	cli();		//zabrana interapta, po preporuci iz datasheet-a, doci ce do write-faila ako se desi interapt izmedju ova dva koraka
+	cli();									//zabrana interapta, po preporuci iz datasheet-a, doci ce do write-faila ako se desi interapt izmedju ova dva koraka
 	/* Write logical one to EEMPE */
 	EECR |= (1<<EEMPE);
 	
 	/* Start eeprom write by setting EEPE */
 	EECR |= (1<<EEPE);
 	
-	sei();		//dozvola interapta
+	sei();									//dozvola interapta
 	/**********************!!!!!!!!!!!!!!!!!!!!!!***************************/
 }

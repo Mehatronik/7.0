@@ -54,10 +54,18 @@ uint8_t STATE = DISPL1;	//pocetno stanje
 int8_t kursor = 0;
 uint8_t flag_pod_vremena = 1;
 uint8_t flag_pod_ONOFF = 1;
+uint8_t jednok_on_off = 0;	//flag za on/off jednokratnog perioda
+uint8_t jednok_se_desio = 0;
 
-char menu1_txt[3][17] = { "PODESI SAT     ",
+char menu1_txt[3][17] = { "JEDNOKRATNO",
 						  "PODESI PERIOD  ",
-						  "JEDNOKRATNO    "};
+						  "PODESI SAT     "		};		
+						  
+/* mapiram vrednost kursora za menije, TREBA da se POKLAPA sa redosledom u gornjem nizu stringova !!!!!! */
+#define KURSOR_PODSAT    2
+#define KURSOR_PODONOF   1
+#define KURSOR_JEDNOKRAT 0
+#define KURSOR_MENU1_MAX 2		//max vroj kursora za MENI 1	
 	
 
 /************************** prototipovi funkcija ***************************************/
@@ -136,7 +144,7 @@ int main(void)
 	for (i=0; i<1024; i++)
 	{
 		sprintf(bafer, "%d: %4d \n", i, EEPROM_read(i));
-		send_str(bafer);		
+		uart_send_str(bafer);		
 	}
 	*/
 	
@@ -161,11 +169,32 @@ int main(void)
 			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 			
 			//sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
-			//send_str(bafer);
-			//send_str("\n"); //novi red
+			//uart_send_str(bafer);
+			//uart_send_str("\n"); //novi red
 			
-			/* paljenje/gasenje releja > grjaca bojlera; edit: zapravo o grejacu odlucuje termostat bojlera, ovim se pali bojler */
-			ukljuceno = period_paljenja(&vreme_paljenja, &vreme_gasenja, &vreme_datum);
+			
+			/* JEDNOKRATNI PERIOD PALJENJA */						
+			if (jednok_on_off==1)
+			{
+				/* ako je setovan flag, pali bojler jednokratno */
+				/* potrebno je resetovati flag po isteku perioda */
+				if ( period_paljenja(&jednokratno_paljenje, &jednokratno_gasenje, &vreme_datum) )	//vraca 0 ili 1 (ugasi - upali)
+				{
+					ukljuceno = 1;			//ako je IF ispunjen setuj promenljivu "ukljuceno"
+					jednok_se_desio = 1;
+				}
+				else if(jednok_se_desio)												//jednok. setovan, ALI ISTEKAO
+				{																		//proverava se tek kad period paljenja vraca 0, tj kada gornji IF nije ispunjen
+					ukljuceno = 0;
+					jednok_on_off = 0;		//resetujem flag		
+					jednok_se_desio = 0;	//resetujem i ovaj flag. Da nema ovoga Jednokratno paljenje nikada ne bi startovalo ako tek treba da se desi
+				}
+			}
+			else
+				ukljuceno = 0;
+			
+			/* GLAVNI PERIOD; paljenje/gasenje releja > grjaca bojlera; edit: zapravo o grejacu odlucuje termostat bojlera, ovim se pali bojler */
+			ukljuceno |= period_paljenja(&vreme_paljenja, &vreme_gasenja, &vreme_datum);	//ILI veza glavnog i jednok. perioda
 			
 			if (ukljuceno)
 				PORTB |= 1<<PINB5;   //high
@@ -188,6 +217,7 @@ int main(void)
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime)
 {
 	/* pali bojler u vremenskom intervalu koji se prosledi ovoj funkciji, odnosno gasi ga van intervala */
+	/* RETURN: 0 OR 1 */
 	/* Dovoljno je uzeti u obzir samo sate i minute, sekunde nisu od znacaja */
 	/* Da bih olaksao sebi, sate i minute cu spajati u jednu promenljivu, npr. 22:15 se biti 2215 */
 	/* Prelazak preko 00:00 je granicni slucaj i desava se jedino kada je vreme ON VECE od vreme OFF */
@@ -285,7 +315,7 @@ void fsm_lcd_menu()
 			
 				}
 		
-				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut   !(tasteri & (1<<TASTER_ENTER))
+				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut
 					STATE = MENU1;
 		break;
 		
@@ -298,38 +328,68 @@ void fsm_lcd_menu()
 					
 					lcd1602_goto_xy(1,0);
 					lcd1602_send_string(menu1_txt[kursor]);
-					lcd1602_goto_xy(1,1);
-					pom = (pom==2) ? -1 : pom;	//if-else, wrap-around ekran
-					lcd1602_send_string(menu1_txt[pom + 1]);
+					if (kursor == KURSOR_JEDNOKRAT)			//jednokrat na prvoj liniji
+					{
+						if (jednok_on_off == 1)					//ako je on ispisi <ON> pored JEDNOKRATNO
+						{
+							lcd1602_goto_xy(12,0);
+							lcd1602_send_string("<ON>");
+						}
+						else					//ako je off ispisi <OF> pored JEDNOKRATNO
+						{
+							lcd1602_goto_xy(12,0);
+							lcd1602_send_string("<OF>");
+						}
+					}
 					
+					lcd1602_goto_xy(1,1);
+					pom = (pom==KURSOR_MENU1_MAX) ? -1 : pom;	//if-else, wrap-around ekran; -1 da bi dole krenuo od nule, tj od pocetka
+					lcd1602_send_string(menu1_txt[pom + 1]);
+					if ( (pom+1) == KURSOR_JEDNOKRAT)			//jednokrat na drugoj liniji, sa wrap-around-om
+					{
+						if (jednok_on_off == 1)					//ako je on ispisi <ON> pored JEDNOKRATNO
+						{
+							lcd1602_goto_xy(12,1);
+							lcd1602_send_string("<ON>");
+						}
+						else					//ako je off ispisi <OF> pored JEDNOKRATNO
+						{
+							lcd1602_goto_xy(12,1);
+							lcd1602_send_string("<OF>");
+						}
+					}
 
 		
 					if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )		//djira kursor vertikalno ka dole
 					{
 						kursor++;
-						if(kursor > 2)
+						if(kursor > KURSOR_MENU1_MAX)
 						kursor = 0;
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )	//djira kursor vertikalno ka gore
 					{
 						kursor--;
-						if(kursor < 0)
+						if(kursor < 0)		//min je 0, logicno
 						kursor = 2;
 					}
-					else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					else if(kursor == KURSOR_PODSAT && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 					{
 						kursor = 0;			//resetujem kursor jer ostane memorisan
 						STATE = POD_SAT;	//meni za podesavanje sata
 					}
-					else if(kursor == 1 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					else if(kursor == KURSOR_PODONOF && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 					{
 						kursor = 0;			//resetujem kursor jer ostane memorisan
 						STATE = POD_ON_OFF;	//sub_meni za podesavanje on ili off vremena
 					}
-					else if(kursor == 2 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					else if(kursor == KURSOR_JEDNOKRAT && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 					{
 						kursor = 0;			//resetujem kursor jer ostane memorisan
 						STATE = JEDNOKRATNO;	//sub_meni za podesavanje on ili off vremena jednokratno
+					}
+					else if( kursor == KURSOR_JEDNOKRAT && ( ocitaj_jedan_taster(tasteri, TASTER_LEVO) ||  ocitaj_jedan_taster(tasteri, TASTER_DESNO) ) ) //levo ili desno kad je na JEDNOKRATNO da togluje on/of
+					{
+						jednok_on_off = !jednok_on_off;	//toggle
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
 					{

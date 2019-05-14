@@ -61,7 +61,7 @@ void uart_init(uint32_t baud_rate)
 	
 }
 
-void send_str(char *str)
+void uart_send_str(char *str)
 {
 	//funkcija za slanje stringova
 	
