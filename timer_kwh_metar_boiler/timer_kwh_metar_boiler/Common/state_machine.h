@@ -15,6 +15,7 @@
 #define MENU1		2
 #define POD_SAT		3
 #define POD_ON_OFF	4
+#define JEDNOKRATNO 5
 
 
 

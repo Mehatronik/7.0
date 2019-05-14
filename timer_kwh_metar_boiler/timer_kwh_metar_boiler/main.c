@@ -39,6 +39,8 @@ extern volatile uint16_t merena_struja;
 Time_date vreme_datum;
 Time_date vreme_paljenja;
 Time_date vreme_gasenja;
+Time_date jednokratno_paljenje;
+Time_date jednokratno_gasenje;
 
 /* pomocne strukture za djiranje kroz menije, tacnije temp promenljive */
 Time_date snap_vreme_paljenja;
@@ -48,10 +50,15 @@ Time_date snap_shot_vremena;	//za potrebe podesavanje vremena
 char bafer[20];
 uint8_t ukljuceno = 0;  //0=OFF 1=ON
 uint8_t tasteri = 0xFF;
-uint8_t STATE = DISPL1;
+uint8_t STATE = DISPL1;	//pocetno stanje
 int8_t kursor = 0;
 uint8_t flag_pod_vremena = 1;
 uint8_t flag_pod_ONOFF = 1;
+
+char menu1_txt[3][17] = { "PODESI SAT     ",
+						  "PODESI PERIOD  ",
+						  "JEDNOKRATNO    "};
+	
 
 /************************** prototipovi funkcija ***************************************/
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime);  //typedef struct mora biti pre prototipa da bi je video
@@ -116,6 +123,11 @@ int main(void)
 	vreme_gasenja.hr = EEPROM_read(UGASI_HR_ADR);
 	vreme_gasenja.min = EEPROM_read(UGASI_MIN_ADR);
 	
+	jednokratno_paljenje.hr = EEPROM_read(JEDNOK_UPALI_HR_ADR);
+	jednokratno_paljenje.min = EEPROM_read(JEDNOK_UPALI_MIN_ADR);
+	jednokratno_gasenje.hr = EEPROM_read(JEDNOK_UGASI_HR_ADR);
+	jednokratno_gasenje.min = EEPROM_read(JEDNOK_UGASI_MIN_ADR);
+	
 	snap_vreme_paljenja = vreme_paljenja;
 	snap_vreme_gasenja = vreme_gasenja;
 	
@@ -148,7 +160,7 @@ int main(void)
 			
 			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 			
-			sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
+			//sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
 			//send_str(bafer);
 			//send_str("\n"); //novi red
 			
@@ -242,6 +254,8 @@ uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *Curr
 
 void fsm_lcd_menu()
 {
+	int pom;
+	
 	switch(STATE)
 	{
 		
@@ -277,28 +291,30 @@ void fsm_lcd_menu()
 		
 		case MENU1:
 					//lcd1602_clear();
-		
-					lcd1602_goto_xy(0, kursor);
-					lcd1602_send_string(">");
-					lcd1602_goto_xy(0, !kursor);
-					lcd1602_send_string(" ");
-		
+					pom = kursor;
+					
+					lcd1602_goto_xy(0, 0);
+					lcd1602_send_string(">");	//fiksno, a djiram text za menije vertikalno
+					
 					lcd1602_goto_xy(1,0);
-					lcd1602_send_string("PODESI SAT     ");
+					lcd1602_send_string(menu1_txt[kursor]);
 					lcd1602_goto_xy(1,1);
-					lcd1602_send_string("PODESI PERIOD  ");
+					pom = (pom==2) ? -1 : pom;	//if-else, wrap-around ekran
+					lcd1602_send_string(menu1_txt[pom + 1]);
+					
+
 		
 					if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )		//djira kursor vertikalno ka dole
 					{
 						kursor++;
-						if(kursor > 1)
-						kursor = 1;
+						if(kursor > 2)
+						kursor = 0;
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )	//djira kursor vertikalno ka gore
 					{
 						kursor--;
 						if(kursor < 0)
-						kursor = 0;
+						kursor = 2;
 					}
 					else if(kursor == 0 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 					{
@@ -309,6 +325,11 @@ void fsm_lcd_menu()
 					{
 						kursor = 0;			//resetujem kursor jer ostane memorisan
 						STATE = POD_ON_OFF;	//sub_meni za podesavanje on ili off vremena
+					}
+					else if(kursor == 2 && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
+					{
+						kursor = 0;			//resetujem kursor jer ostane memorisan
+						STATE = JEDNOKRATNO;	//sub_meni za podesavanje on ili off vremena jednokratno
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )				//taster nazad stisnut
 					{
@@ -487,6 +508,101 @@ void fsm_lcd_menu()
 					
 		break;
 		
+		case JEDNOKRATNO:
+					//da opali samo jednom, bez obzira na glavni period
+					/* prakticno kopija POD-ON-OFF samo se u drugu promenljivu belezi, cak pozajmljujem i iste tmp promenljive */
+					/* podesavanje perioda paljenja i gasenja */
+					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
+					if (flag_pod_ONOFF)
+					{
+						flag_pod_ONOFF = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
+						
+						snap_vreme_paljenja = jednokratno_paljenje;
+						snap_vreme_gasenja = jednokratno_gasenje;
+						
+						kursor = 3;			//hh1:mm1 = 3,6 ; hh2:mm2 = 10,13
+						
+						lcd1602_goto_xy(0,0);
+						lcd1602_send_string("  JEDNOKRATNO:  ");
+						
+						sprintf(bafer, "%02d:%02d--%02d:%02d", snap_vreme_paljenja.hr, snap_vreme_paljenja.min, snap_vreme_gasenja.hr, snap_vreme_gasenja.min);
+						
+						lcd1602_goto_xy(0,1);
+						lcd1602_send_string("  ");
+						lcd1602_send_string(bafer);
+						lcd1602_send_string("  ");
+						
+						lcd1602_goto_xy(kursor,1);
+						lcd1602_cursor_blink(1);
+						
+					}
+					if ( ocitaj_jedan_taster(tasteri, TASTER_DESNO) )		//kursor desno
+					{
+						kursor += 3;
+						if(kursor > 6 && kursor <10)	//zbog asimetrije pri prikazu: 23:30--05:04
+						kursor = 10;
+						else if (kursor > 13)
+						kursor = 13;
+						
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_LEVO))		//kursor levo
+					{
+						kursor -= 3;
+						if(kursor < 10 && kursor > 6)	//zbog asimetrije pri prikazu: 23:30--05:04
+						kursor = 6;
+						else if(kursor < 3)
+						kursor = 3;
+						
+						lcd1602_goto_xy(kursor,1);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
+					{
+						if (kursor == 3)												//podesava SATE_ON ++
+						sati_ispis(&snap_vreme_paljenja.hr, bafer, &kursor, UVECAJ);
+						else if (kursor == 6)											//podesava MINUTE_ON ++
+						minuti_ispis(&snap_vreme_paljenja.min, bafer, &kursor, UVECAJ);
+						else if (kursor == 10)											//podesava SATE_OFF ++
+						sati_ispis(&snap_vreme_gasenja.hr, bafer, &kursor, UVECAJ);
+						else if (kursor == 13)											//podesava MINUTE_OFF ++
+						minuti_ispis(&snap_vreme_gasenja.min, bafer, &kursor, UVECAJ);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
+					{
+						if (kursor == 3)												//podesava SATE_ON --
+						sati_ispis(&snap_vreme_paljenja.hr, bafer, &kursor, UMANJI);
+						else if (kursor == 6)											//podesava MINUTE_ON --
+						minuti_ispis(&snap_vreme_paljenja.min, bafer, &kursor, UMANJI);
+						else if (kursor == 10)											//podesava SATE_OFF --
+						sati_ispis(&snap_vreme_gasenja.hr, bafer, &kursor, UMANJI);
+						else if (kursor == 13)											//podesava MINUTE_OFF --
+						minuti_ispis(&snap_vreme_gasenja.min, bafer, &kursor, UMANJI);
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )				//ENTER vreme i izlaz iz menija
+					{
+						jednokratno_paljenje = snap_vreme_paljenja;	//konacno upisem
+						jednokratno_gasenje = snap_vreme_gasenja;
+						
+						/* upis u eeprom */
+						EEPROM_write(JEDNOK_UPALI_HR_ADR, jednokratno_paljenje.hr);
+						EEPROM_write(JEDNOK_UPALI_MIN_ADR, jednokratno_paljenje.min);
+						EEPROM_write(JEDNOK_UGASI_HR_ADR, jednokratno_gasenje.hr);
+						EEPROM_write(JEDNOK_UGASI_MIN_ADR, jednokratno_gasenje.min);
+						
+						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						kursor = 0;					//reset kursora
+						lcd1602_cursor_blink(0);	//isklucim blinking cursor
+						STATE = MENU1;				//vraca se u prethodni meni
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
+					{
+						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						kursor = 0;					//reset kursora
+						lcd1602_cursor_blink(0);	//isklucim blinking cursor
+						STATE = MENU1;				//vraca se u prethodni meni
+					}
+					
+		break;
 		
 		default: {}
 		

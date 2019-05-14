@@ -16,6 +16,11 @@
 #define UGASI_HR_ADR   2
 #define UGASI_MIN_ADR  3
 
+#define JEDNOK_UPALI_HR_ADR  4
+#define JEDNOK_UPALI_MIN_ADR 5
+#define JEDNOK_UGASI_HR_ADR  6
+#define JEDNOK_UGASI_MIN_ADR 7
+
 extern uint8_t EEPROM_read(uint16_t uiAddress);
 extern void EEPROM_write(uint16_t uiAddress, uint8_t ucData);
 
