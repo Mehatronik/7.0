@@ -15,6 +15,7 @@
 #include "uart.h"
 #include "tasteri.h"
 #include "state_machine.h"
+#include "eeprom.h"
 
 
 /**************************************************** extern promenljive **********************************************************/
@@ -38,7 +39,11 @@ extern volatile uint16_t merena_struja;
 Time_date vreme_datum;
 Time_date vreme_paljenja;
 Time_date vreme_gasenja;
-Time_date sanp_shot_vremena;	//za potrebe podesavanje vremena
+
+/* pomocne strukture za djiranje kroz menije, tacnije temp promenljive */
+Time_date snap_vreme_paljenja;
+Time_date snap_vreme_gasenja;
+Time_date snap_shot_vremena;	//za potrebe podesavanje vremena
 
 char bafer[20];
 uint8_t ukljuceno = 0;  //0=OFF 1=ON
@@ -75,11 +80,6 @@ const char *byte_to_binary(int x)
 
 int main(void)
 {
-
-	vreme_paljenja.hr = 23;
-	vreme_paljenja.min = 30;
-	vreme_gasenja.hr = 5;
-	vreme_gasenja.min = 40;
 	
 	
 /******************************** Inicijalizacija perifirija ***************************************************/
@@ -88,7 +88,7 @@ int main(void)
 	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
 	ADC_init();				
-	uart_init(500000);		//vidi f-ju za opcije bauda  500k
+	uart_init(500000);		//vidi f-ju za opcije bauda 500k
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
 	tasteri_init();			//NAPOMENA: PD2-7 INPUT, INT_PULLUP=ON
@@ -102,8 +102,32 @@ int main(void)
 	
 	//getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 	//getDate(&vreme_datum.dy, &vreme_datum.dt, &vreme_datum.mt, &vreme_datum.yr);
-	
 	//setTime(23, 59, 55, am, _24_hour_format);
+	//int i;
+	
+	//EEPROM_write(UPALI_HR_ADR, 23);
+	//EEPROM_write(UPALI_MIN_ADR, 25);
+	//EEPROM_write(UGASI_HR_ADR, 5);
+	//EEPROM_write(UGASI_MIN_ADR, 45);
+	
+	/* citanje on-off vremena iz eeproma pri inicijalizaciji */
+	vreme_paljenja.hr = EEPROM_read(UPALI_HR_ADR);
+	vreme_paljenja.min = EEPROM_read(UPALI_MIN_ADR);
+	vreme_gasenja.hr = EEPROM_read(UGASI_HR_ADR);
+	vreme_gasenja.min = EEPROM_read(UGASI_MIN_ADR);
+	
+	snap_vreme_paljenja = vreme_paljenja;
+	snap_vreme_gasenja = vreme_gasenja;
+	
+	/*
+	//ispis eeproma na terminal
+	for (i=0; i<1024; i++)
+	{
+		sprintf(bafer, "%d: %4d \n", i, EEPROM_read(i));
+		send_str(bafer);		
+	}
+	*/
+	
 	
 	
     while (1) 
@@ -299,8 +323,8 @@ void fsm_lcd_menu()
 					if (flag_pod_vremena)
 					{
 						flag_pod_vremena = 0;
-						sanp_shot_vremena = vreme_datum;
-						sprintf(bafer, "%02d:%02d:%02d", sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s);
+						snap_shot_vremena = vreme_datum;
+						sprintf(bafer, "%02d:%02d:%02d", snap_shot_vremena.hr, snap_shot_vremena.min, snap_shot_vremena.s);
 			
 						kursor = 5; //na 5 je hh, na 8 je mm a na 11 je ss
 			
@@ -333,25 +357,25 @@ void fsm_lcd_menu()
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
 					{
 						if (kursor == 5)												//podesava SATE ++
-							sati_ispis(&sanp_shot_vremena.hr, bafer, &kursor, UVECAJ);
+							sati_ispis(&snap_shot_vremena.hr, bafer, &kursor, UVECAJ);
 						else if (kursor == 8)											//podesava MINUTE ++
-							minuti_ispis(&sanp_shot_vremena.min, bafer, &kursor, UVECAJ);
+							minuti_ispis(&snap_shot_vremena.min, bafer, &kursor, UVECAJ);
 						else if (kursor == 11)											//podesava SEKUNDE ++
-							sekundi_ispis(&sanp_shot_vremena.s, bafer, &kursor, UVECAJ);
+							sekundi_ispis(&snap_shot_vremena.s, bafer, &kursor, UVECAJ);
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
 					{
 						if (kursor == 5)												//podesava SATE --
-							sati_ispis(&sanp_shot_vremena.hr, bafer, &kursor, UMANJI);
+							sati_ispis(&snap_shot_vremena.hr, bafer, &kursor, UMANJI);
 						else if (kursor == 8)											//podesava MINUTE --
-							minuti_ispis(&sanp_shot_vremena.min, bafer, &kursor, UMANJI);
+							minuti_ispis(&snap_shot_vremena.min, bafer, &kursor, UMANJI);
 						else if (kursor == 11)											//podesava SEKUNDE --
-							sekundi_ispis(&sanp_shot_vremena.s, bafer, &kursor, UMANJI);
+							sekundi_ispis(&snap_shot_vremena.s, bafer, &kursor, UMANJI);
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )				//Potvrdi vreme koje vidis na ekranu i promeni vreme; izadji iz menija
 					{
 						/* vreme se upise tek kad se izleti iz ovog menija, tj. ono vreme koje stoji na ekranu ce biti upisano */
-						setTime(sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s, am, _24_hour_format);
+						setTime(snap_shot_vremena.hr, snap_shot_vremena.min, snap_shot_vremena.s, am, _24_hour_format);
 						flag_pod_vremena = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
@@ -369,19 +393,22 @@ void fsm_lcd_menu()
 		
 		break;
 		
-		case POD_ON_OFF:																				/************************* TODO: UPIS U EEPROM ************************/
+		case POD_ON_OFF:																				
 					/* podesavanje perioda paljenja i gasenja */
 					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
 					if (flag_pod_ONOFF)
 					{
 						flag_pod_ONOFF = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
 						
+						snap_vreme_paljenja = vreme_paljenja;	
+						snap_vreme_gasenja = vreme_gasenja;
+						
 						kursor = 3;			//hh1:mm1 = 3,6 ; hh2:mm2 = 10,13
 						
 						lcd1602_goto_xy(0,0);
 						lcd1602_send_string("  UPALI--UGASI  ");
 						
-						sprintf(bafer, "%02d:%02d--%02d:%02d", vreme_paljenja.hr, vreme_paljenja.min, vreme_gasenja.hr, vreme_gasenja.min);
+						sprintf(bafer, "%02d:%02d--%02d:%02d", snap_vreme_paljenja.hr, snap_vreme_paljenja.min, snap_vreme_gasenja.hr, snap_vreme_gasenja.min);
 						
 						lcd1602_goto_xy(0,1);
 						lcd1602_send_string("  ");
@@ -415,29 +442,43 @@ void fsm_lcd_menu()
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_GORE) )
 					{
 						if (kursor == 3)												//podesava SATE_ON ++
-							sati_ispis(&vreme_paljenja.hr, bafer, &kursor, UVECAJ);
+							sati_ispis(&snap_vreme_paljenja.hr, bafer, &kursor, UVECAJ);
 						else if (kursor == 6)											//podesava MINUTE_ON ++
-							minuti_ispis(&vreme_paljenja.min, bafer, &kursor, UVECAJ);
+							minuti_ispis(&snap_vreme_paljenja.min, bafer, &kursor, UVECAJ);
 						else if (kursor == 10)											//podesava SATE_OFF ++
-							sati_ispis(&vreme_gasenja.hr, bafer, &kursor, UVECAJ);
+							sati_ispis(&snap_vreme_gasenja.hr, bafer, &kursor, UVECAJ);
 						else if (kursor == 13)											//podesava MINUTE_OFF ++
-							minuti_ispis(&vreme_gasenja.min, bafer, &kursor, UVECAJ);
+							minuti_ispis(&snap_vreme_gasenja.min, bafer, &kursor, UVECAJ);
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_DOLE) )
 					{
 						if (kursor == 3)												//podesava SATE_ON --
-							sati_ispis(&vreme_paljenja.hr, bafer, &kursor, UMANJI);
+							sati_ispis(&snap_vreme_paljenja.hr, bafer, &kursor, UMANJI);
 						else if (kursor == 6)											//podesava MINUTE_ON --
-							minuti_ispis(&vreme_paljenja.min, bafer, &kursor, UMANJI);
+							minuti_ispis(&snap_vreme_paljenja.min, bafer, &kursor, UMANJI);
 						else if (kursor == 10)											//podesava SATE_OFF --
-							sati_ispis(&vreme_gasenja.hr, bafer, &kursor, UMANJI);
+							sati_ispis(&snap_vreme_gasenja.hr, bafer, &kursor, UMANJI);
 						else if (kursor == 13)											//podesava MINUTE_OFF --
-							minuti_ispis(&vreme_gasenja.min, bafer, &kursor, UMANJI);
+							minuti_ispis(&snap_vreme_gasenja.min, bafer, &kursor, UMANJI);
 					}
-					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) || ocitaj_jedan_taster(tasteri, TASTER_ENTER))			//IZLAZ iz menija
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )				//ENTER vreme i izlaz iz menija
 					{
-						/* svejedno da li je stisnuto ENTER ili NAZAD vreme ON-OFF je promenjeno */
-						/* trebala bi mi pomocna struktura da bih izbegao ovakav nacin rada, mada ovo nije kriticno kao kod sata */
+						vreme_paljenja = snap_vreme_paljenja;	//konacno upisem
+						vreme_gasenja = snap_vreme_gasenja;
+						
+						/* upis u eeprom */
+						EEPROM_write(UPALI_HR_ADR, vreme_paljenja.hr);
+						EEPROM_write(UPALI_MIN_ADR, vreme_paljenja.min);
+						EEPROM_write(UGASI_HR_ADR, vreme_gasenja.hr);
+						EEPROM_write(UGASI_MIN_ADR, vreme_gasenja.min);
+						
+						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						kursor = 0;					//reset kursora
+						lcd1602_cursor_blink(0);	//isklucim blinking cursor
+						STATE = MENU1;				//vraca se u prethodni meni
+					}
+					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
+					{
 						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor

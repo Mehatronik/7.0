@@ -4,6 +4,8 @@
 
 ADC\ad_konverzija.c
 
+EEPROM internal\eeprom.c
+
 i2cmaster\i2cmaster.c
 
 lcd-1602\ispomoc_za_ispis.c
