@@ -51,6 +51,7 @@ uint8_t flag_pod_ONOFF = 1;
 /************************** prototipovi funkcija ***************************************/
 uint8_t period_paljenja(Time_date *On_time, Time_date *Off_time, Time_date *CurrentTime);  //typedef struct mora biti pre prototipa da bi je video
 void fsm_lcd_menu();
+
 /************************* extern funkcije *********************************************/
 extern void sati_ispis(uint8_t *sat, char *buff, int8_t *cursor, uint8_t inc_dec);
 extern void minuti_ispis(uint8_t *minut, char *buff, int8_t *cursor, uint8_t inc_dec);
@@ -83,17 +84,17 @@ int main(void)
 	
 /******************************** Inicijalizacija perifirija ***************************************************/
 
-	tajmer0_init();			////PD2-3 output
+	tajmer0_init();			
 	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
 	lcd1602_init();
 	ADC_init();				
 	uart_init(500000);		//vidi f-ju za opcije bauda  500k
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
-	tasteri_init();			//NAPOMENA: PD4-7 i PB0-1 INPUT, INT_PULLUP=ON
+	tasteri_init();			//NAPOMENA: PD2-7 INPUT, INT_PULLUP=ON
 	
 	DDRB |= 1<<PINB5;		//pinB 5 - DIG13 = OUTPUT LED DIODA
-	DDRB |= 1<<PINB4;
+	DDRB |= 1<<PINB4;		//pinB 4 OUTPUT 
 	
 	sei();	//global interrupt enable
 	
@@ -124,8 +125,8 @@ int main(void)
 			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 			
 			sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
-			send_str(bafer);
-			send_str("\n"); //novi red
+			//send_str(bafer);
+			//send_str("\n"); //novi red
 			
 			/* paljenje/gasenje releja > grjaca bojlera; edit: zapravo o grejacu odlucuje termostat bojlera, ovim se pali bojler */
 			ukljuceno = period_paljenja(&vreme_paljenja, &vreme_gasenja, &vreme_datum);
@@ -221,6 +222,7 @@ void fsm_lcd_menu()
 	{
 		
 		case DISPL1:
+				/* prvi, tj. glavni meni sa ispisom tren. vremena i vremena on/off */
 				/* ispis vremena svaki sekund dok je u ovom CASE-u */
 				if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
 				{
@@ -367,7 +369,7 @@ void fsm_lcd_menu()
 		
 		break;
 		
-		case POD_ON_OFF:																								/************************* TODO: UPIS U EEPROM ************************/
+		case POD_ON_OFF:																				/************************* TODO: UPIS U EEPROM ************************/
 					/* podesavanje perioda paljenja i gasenja */
 					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
 					if (flag_pod_ONOFF)

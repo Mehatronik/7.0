@@ -15,11 +15,11 @@
 #define DEBOUNCE_TIME_half DEBOUNCE_TIME/2	//3ms
 
 extern volatile uint8_t flag_tajmer0_prekid;
-extern volatile uint8_t flag_prekid_10ms;
+extern volatile uint8_t flag_prekid_50ms;
 //extern volatile uint8_t brojac_prekida_tajmera0;
 extern volatile uint8_t flag_prekid_debounce_time;
 extern volatile uint8_t flag_prekid_debounce_time_half;
-
+extern volatile uint16_t delay_timer;
 
 extern void tajmer0_init();	//prototip funkcije
 

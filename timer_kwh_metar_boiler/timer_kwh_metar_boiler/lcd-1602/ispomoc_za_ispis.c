@@ -7,7 +7,7 @@
 #include "comm.h"
 #include "lcd1602.h"
 
-
+/* funkcije za ispisivanje sata/minuta/sekundi tokom podesavanja istih u meniju */
 void sati_ispis(uint8_t *sat, char *buff, int8_t *cursor, uint8_t inc_dec);
 void minuti_ispis(uint8_t *minut, char *buff, int8_t *cursor, uint8_t inc_dec);
 void sekundi_ispis(uint8_t *sekund, char *buff, int8_t *cursor, uint8_t inc_dec);

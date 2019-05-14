@@ -10,7 +10,8 @@
 #include "tajmer.h"
 #include "uart.h"
 
-char buff[50];
+char buff[15];
+extern const char *byte_to_binary(int x);
 
 void tasteri_init()
 {
@@ -72,23 +73,66 @@ uint8_t ocitaj_jedan_taster(uint8_t buttons_reg, uint8_t button)
 	/* VAZNO: ova f-ja samo proverava stanje jednog tastera u registru, a u programu je neophodno pozivati
 	   funkciju za citanje tastera, tj. potrebno je polling-ovati	*/
 	/* potrebno je otpustiti taster da bi se uvazilo njegovo ili stiskanje bilo kog drugog tastera */
-	
+	/* promenljiva "button" se prakticno menja pri svakom pozivu od strane main programa, tako da je potrebna
+	   paznja pri programiranju */
 	
 	uint8_t stisnut = 0;
 	static uint8_t temp_tast = 0;
 	static uint8_t flag_stisnut = 0;
+	static uint8_t delay_enable = 1;
+	uint8_t pom;
 	
-	if ( (~buttons_reg & (1<<button)) && flag_stisnut == 0 )		//taster stisnut
+	if ( (~buttons_reg & (1<<button)) && flag_stisnut == 0 )		//taster stisnut a prethodno otpusten
 	{
 		flag_stisnut = 1;		//specava ponovni ulazak ako je ostao stisnut
 		temp_tast = button;		//zapamtim koji je taster stisnut
 		stisnut = 1;
+	}		
+	pom  =	( ~buttons_reg & (1<<temp_tast)) ;	//maskiram i proveravam da li je stisnut
+	if (  pom  && (temp_tast==TASTER_DOLE || temp_tast==TASTER_GORE) && button == temp_tast)	//ako je taster gore ili dole ostao stisnut, sacekaj malo pa ga toggle-uj nekom periodom
+	{
+		/* ako je ostao stisnut taster gore ili dole, sacekaj npr. 0.3s pa ga togluj periodom od npr 0.05s;
+		   ovo radim da bi bilo moguce brze menjati sate ako je taster ostao stisnut, da ne bi morao 30 puta stiskati i pustati taster */
+		//startuj "delay" tajmer, ali samo prvi put
+		//ako je delay istekao periodicno togluj promenljivu "stisnut", jer ce to napraviti efekat brzog stiskanja
+		//kada je taster otpusten opet dozvoli startovanje "delay" tajmera
+		
+		if (delay_enable == 1)
+		{
+			delay_enable = 0;	//spreci ponovni ulazak
+			delay_timer = 0;	//start, timer ISR ga uvecava
+		}
+		if (delay_timer >= 400)	//ako je delay veci od 400ms togluj "stisnut"
+		{
+			if(flag_prekid_50ms)
+			{
+				flag_prekid_50ms = 0; //reset flag-a
+				stisnut ^= 0b1;	//toggle
+			}
+			
+				
+		}		
 	}
-	if ( (~buttons_reg & (1<<temp_tast)) == 0 )		//provera da li je otpusten taster koji je stisnut
+	else if ( (~buttons_reg & (1<<temp_tast)) == 0 )		//provera da li je otpusten taster koji je stisnut
 	{
 		flag_stisnut = 0;	//resetujem flag tek kada je otpusten taster koji je stisnut
+		delay_enable = 1;	//dozvoli ponovno startovanje "delay" tajmera ako je taster otpusten
 	}
-			
+	
+	/*
+	sprintf(buff, "butt_reg:%s  ", byte_to_binary(buttons_reg));
+	send_str(buff);
+							         
+	sprintf(buff, "butt:%s  ", byte_to_binary(button));						
+	send_str(buff);		
+	
+	sprintf(buff, "tmp_t:%s  ", byte_to_binary(1<<temp_tast));
+	send_str(buff);	
+	
+	sprintf(buff, "flag_stis:%d  ", flag_stisnut);
+	send_str(buff);		
+	send_str("\n");
+	*/
 	
 	return stisnut;
 }

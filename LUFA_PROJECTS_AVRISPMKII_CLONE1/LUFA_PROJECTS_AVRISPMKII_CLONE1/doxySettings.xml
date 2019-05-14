@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DoxySettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SettingsFile>C:\Users\Ko''\Documents\Atmel Studio\7.0\LUFA_PROJECTS_AVRISPMKII_CLONE1\LUFA_PROJECTS_AVRISPMKII_CLONE1\doxySettings.xml</SettingsFile>
+  <ProjectName>LUFA_PROJECTS_AVRISPMKII_CLONE1</ProjectName>
+  <DoxyExePath>C:\Program Files\doxygen\bin\doxygen.exe</DoxyExePath>
+  <UseDefaultSettings>true</UseDefaultSettings>
+  <GenerateAsPartOfBuild>true</GenerateAsPartOfBuild>
+  <ConfigFilePath>C:\Users\Ko''\Documents\Atmel Studio\7.0\LUFA_PROJECTS_AVRISPMKII_CLONE1\LUFA_PROJECTS_AVRISPMKII_CLONE1\doxyfile</ConfigFilePath>
+  <OutputDirPath>C:\Users\Ko''\Documents\Atmel Studio\7.0\LUFA_PROJECTS_AVRISPMKII_CLONE1\LUFA_PROJECTS_AVRISPMKII_CLONE1\doxygen</OutputDirPath>
+  <ShowErrorsAndWarnings>false</ShowErrorsAndWarnings>
+</DoxySettings>
