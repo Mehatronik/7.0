@@ -20,6 +20,7 @@ extern volatile uint8_t flag_prekid_50ms;
 extern volatile uint8_t flag_prekid_debounce_time;
 extern volatile uint8_t flag_prekid_debounce_time_half;
 extern volatile uint16_t delay_timer;
+extern volatile uint16_t timer_disp_cycle;
 
 extern void tajmer0_init();	//prototip funkcije
 

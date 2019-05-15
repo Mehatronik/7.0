@@ -19,6 +19,7 @@
 #include <util/delay.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <avr/pgmspace.h>
 
 
 #endif /* COMM_H_ */

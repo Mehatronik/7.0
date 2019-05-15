@@ -9,16 +9,23 @@
 #include "ad_konverzija.h"
 
 
-volatile uint16_t mereni_napon = 0; 
-volatile uint16_t merena_struja = 0;	
+uint16_t napon = 0;		//celobrojno u V
+float struja = 0;		//realno u A
+uint8_t struja_celob = 0;	//float ce biti rastavljen na dva inta da bi se mogao poslati preko uarta, tj. preko sprintf
+uint8_t struja_frakt = 0;
 
-volatile uint8_t ad_kanal = 0;
+float snaga = 0;		//realno u kW
+uint8_t snaga_celob = 0;
+uint8_t snaga_frakt = 0;
 
+uint16_t energija = 0;	//celobrojno u kwh
+
+uint8_t ad_kanal = 0;
+volatile uint8_t isr_adc = 0;
 
 
 void ADC_init()
 {
-	DDRD |= 1<<PINB7;
 	
 	PRR = 0;						//power reduction off
 	
@@ -30,70 +37,95 @@ void ADC_init()
 	
 }
 
+
+/* TODO: u ISR-u neka bude samo flag, a obrada podataka izdvojeno, jer je ovo glup nacin, da racun radim u prekidnoj rutini */
+
 ISR(ADC_vect)
 {
 	/*
-	AD konverzija
-	ISR okine kada je gotova konverzija
-	*/
-	
-	
-	//upis ad konverzije oba kanala u odgovarajuce promenljive
-	if(ad_kanal == 0)
-		mereni_napon = (uint16_t)ADC;		//potrebno je jos skalirati u zavisnosti od Vref i ulaznog napona i dole isto za struju
-	else if(ad_kanal == 1)
-		merena_struja = (uint16_t)ADC;
-	
-
-	
-	/**************************************************************************************************************/
-	ADCSRA &= ~(1<<ADEN);	//ISKLJUCIM ADC da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
-	
-	
-	ad_kanal++;			//inkrementiraj kanal
-	if(ad_kanal > 1)	//kreni opet od nule kad dodjes do poslednjeg; 1, da citam samo prva dva
-		ad_kanal = 0;
-		
-
-
-	
-	//multipleksiranje ad ulaza; tj. promena ad kanala
-	switch(ad_kanal)
-	{
-		case 0:
-				ADMUX &= ~(0b11);		//00;ref internal 1.1V, kanal A0
-		break;
-		
-		case 1:
-				ADMUX &= ~(0b10);		//01;ref internal 1.1V, kanal A1
-				ADMUX |= (0b1);
-		break;
-		
-		//case 2:
-				//ADMUX &= ~(0b1);		//10;ref internal 1.1V, kanal A2
-				//ADMUX |= (0b10);
-		//break;
-		//
-		//case 3:
-				//ADMUX |= (0b11);		//11;ref internal 1.1V, kanal A3
-		//break;
-		
-		default: {}
-		
-		//postojao je problem ako hocu da menjam i referencu kada prebacujem kanal, da mi daje bezveze rezultate.
-		//mislim da u datasheetu pise da prvo citanje posle menjanja reference moze biti lose	
-	}
-	
-	
-	//napomena: promena ulaza se vrsi ovde, a kad naredni put uleti u ISR vrsi se konverzija tog kanala. 
-	
-	ADCSRA |= (1<<ADEN)|(1<<ADSC);	//ponovo dozvolim adc posle promene u ADMUX i pokrenem opet prvu konverziju da bi htelo da radi u Free running
-	
-	
-	
-	//trajanje dela sa multipleksiranjem: ~ 1.7 us
-
+	 * AD konverzija
+	 * ISR okine kada je gotova konverzija
+	 */
+	isr_adc = 1;	//set flag
 
 }
 
+void adc_read()
+{
+	
+	if (isr_adc)
+	{
+		isr_adc = 0;	//reset flag
+	
+	
+		//upis ad konverzije oba kanala u odgovarajuce promenljive
+		if(ad_kanal == 0)
+			napon = (uint16_t)ADC;		//potrebno je jos skalirati u zavisnosti od Vref i ulaznog napona i dole isto za struju
+		else if(ad_kanal == 1)
+			struja = (float)ADC;
+	
+		//npr: napon 1023 = 280V
+		//     struja 1023 = 25A
+		napon = napon/3.65;
+		struja = struja/40.92;
+		//snaga = (napon * struja)/1000.0;	//kW
+	
+		/**************************************************************************************************************/
+		ADCSRA &= ~(1<<ADEN);	//ISKLJUCIM ADC da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
+	
+	
+		ad_kanal++;			//inkrementiraj kanal
+		if(ad_kanal > 1)	//kreni opet od nule kad dodjes do poslednjeg; 1, da citam samo prva dva
+			ad_kanal = 0;
+	
 
+
+	
+		//multipleksiranje ad ulaza; tj. promena ad kanala
+		switch(ad_kanal)
+		{
+			case 0:
+			ADMUX &= ~(0b11);		//00;ref internal 1.1V, kanal A0
+			break;
+		
+			case 1:
+			ADMUX &= ~(0b10);		//01;ref internal 1.1V, kanal A1
+			ADMUX |= (0b1);
+			break;
+		
+			//case 2:
+			//ADMUX &= ~(0b1);		//10;ref internal 1.1V, kanal A2
+			//ADMUX |= (0b10);
+			//break;
+			//
+			//case 3:
+			//ADMUX |= (0b11);		//11;ref internal 1.1V, kanal A3
+			//break;
+		
+			default: {}
+		
+			//postojao je problem ako hocu da menjam i referencu kada prebacujem kanal, da mi daje bezveze rezultate.
+			//mislim da u datasheetu pise da prvo citanje posle menjanja reference moze biti lose
+		}
+	
+	
+		//napomena: promena ulaza se vrsi ovde, a kad naredni put uleti u ISR vrsi se konverzija tog kanala.
+	
+		ADCSRA |= (1<<ADEN)|(1<<ADSC);	//ponovo dozvolim adc posle promene u ADMUX i pokrenem opet prvu konverziju da bi htelo da radi u Free running
+		
+	}
+}
+
+//char str[100];
+//float adc_read = 678.0123;
+//
+//char *tmpSign = (adc_read < 0) ? "-" : "";
+//float tmpVal = (adc_read < 0) ? -adc_read : adc_read;
+//
+//int tmpInt1 = tmpVal;                  // Get the integer (678).
+//float tmpFrac = tmpVal - tmpInt1;      // Get fraction (0.0123).
+//int tmpInt2 = trunc(tmpFrac * 10000);  // Turn into integer (123).
+//
+//// Print as parts, note that you need 0-padding for fractional bit.
+//
+//sprintf (str, "adc_read = %s%d.%04d\n", tmpSign, tmpInt1, tmpInt2);

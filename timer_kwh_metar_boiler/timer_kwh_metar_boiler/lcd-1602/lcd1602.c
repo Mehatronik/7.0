@@ -108,7 +108,7 @@ void lcd1602_send_string(const char *str)
 void lcd1602_cursor_blink(uint8_t on_off)
 {
 	if(on_off)
-		lcd1602_send_byte(0b1111,LCD_COMMAND);
+		lcd1602_send_byte(0b1111,LCD_COMMAND);	//blink on
 	else
-		lcd1602_send_byte(0b1100,LCD_COMMAND);
+		lcd1602_send_byte(0b1100,LCD_COMMAND);	//blink off
 }

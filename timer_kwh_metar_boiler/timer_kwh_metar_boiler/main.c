@@ -18,11 +18,6 @@
 #include "eeprom.h"
 
 
-/**************************************************** extern promenljive **********************************************************/
-extern volatile uint16_t mereni_napon;
-extern volatile uint16_t merena_struja;
-/**********************************************************************************************************************************/
-
  typedef struct Time_date_t
  {
 	 uint8_t s;			//sekund
@@ -56,10 +51,11 @@ uint8_t flag_pod_vremena = 1;
 uint8_t flag_pod_ONOFF = 1;
 uint8_t jednok_on_off = 0;	//flag za on/off jednokratnog perioda
 uint8_t jednok_se_desio = 0;
+uint8_t displ_flag_shot = 1;	//inicijalno 1
 
-char menu1_txt[3][17] = { "JEDNOKRATNO",
-						  "PODESI PERIOD  ",
-						  "PODESI SAT     "		};		
+const char menu1_txt[3][17]  = { "JEDNOKRATNO",
+								 "PODESI PERIOD  ",
+								 "PODESI SAT     "	};		
 						  
 /* mapiram vrednost kursora za menije, TREBA da se POKLAPA sa redosledom u gornjem nizu stringova !!!!!! */
 #define KURSOR_PODSAT    2
@@ -85,10 +81,7 @@ const char *byte_to_binary(int x)
 	
 	int z;
 	for (z = 128; z > 0; z >>= 1)
-	{
-		//strcat(b, ((x & z) == z) ? "1" : "0");
 		*p++ = (x & z) ? '1' : '0';
-	}
 
 	return b;
 }
@@ -100,10 +93,10 @@ int main(void)
 /******************************** Inicijalizacija perifirija ***************************************************/
 
 	tajmer0_init();			
-	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup - ovi na SDA i SCL, unutar ove f-je
+	i2c_init();				//NAPOMENA: ISKLJUCENI internal-pullup na SDA i SCL, PC4-PC5 
 	lcd1602_init();
 	ADC_init();				
-	uart_init(500000);		//vidi f-ju za opcije bauda 500k
+	uart_init(500000);		//vidi f-ju za opcije bauda; 500k
 	DS3231_init();			//RTC init
 	pc_init();				//pin change interrupt init. NAPOMENA: PINC3 input
 	tasteri_init();			//NAPOMENA: PD2-7 INPUT, INT_PULLUP=ON
@@ -157,6 +150,8 @@ int main(void)
 		//tasteri = PIND;
 		tasteri = ocitaj_tastere();
 		
+		/* ocitava napon i struju */
+		adc_read();			//vrv je traljavo ovde ga stavljati ali nmvz
 		
 		/* bez obzira na STATE provera vremena treba da ide na 1s odnosno provera
 		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda (swithc-case) ne bi trebao da koci program */
@@ -172,6 +167,11 @@ int main(void)
 			//uart_send_str(bafer);
 			//uart_send_str("\n"); //novi red
 			
+			sprintf(bafer, "%4d  ", napon);
+			uart_send_str(bafer);
+			dtostrf(struja, 3, 1, bafer);
+			uart_send_str(bafer);
+			uart_send_str("\n");
 			
 			/* JEDNOKRATNI PERIOD PALJENJA */						
 			if (jednok_on_off==1)
@@ -292,6 +292,18 @@ void fsm_lcd_menu()
 		case DISPL1:
 				/* prvi, tj. glavni meni sa ispisom tren. vremena i vremena on/off */
 				/* ispis vremena svaki sekund dok je u ovom CASE-u */
+				
+				if ( displ_flag_shot )	//samo prvi put kad se uleti
+				{
+					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
+					timer_disp_cycle = 0;	//start tajmera
+				}
+				if (timer_disp_cycle > 7000)	//7 sekundi
+				{
+					displ_flag_shot = 1; //opet dozvolim, pri izlazku iz ovog stejta
+					STATE = DISPL2;
+				}
+						
 				if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
 				{
 					flag_pc_int = 0; //resetujem flag koji je u ISR
@@ -314,9 +326,40 @@ void fsm_lcd_menu()
 					lcd1602_send_string("  ");
 			
 				}
-		
+				
 				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut
+				{
+					displ_flag_shot = 1;	//opet dozvolim, pri izlazku iz ovog stejta
 					STATE = MENU1;
+				}
+					
+		break;
+		
+		case DISPL2:
+				//ispisuje napon, struju, snagu... Smenjuje se periodicno sa DISPL1, uz pomoc tajmera
+				
+				if ( displ_flag_shot )	//samo prvi put kad se uleti
+				{
+					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
+					timer_disp_cycle = 0;	//start tajmera
+				}
+				if (timer_disp_cycle > 4000)	//4 sekunde
+				{
+					displ_flag_shot = 1; //opet dozvolim, pri izlazku iz ovog stejta
+					STATE = DISPL1;
+				}
+				
+				/* dummy ispis */
+				lcd1602_goto_xy(0,0);
+				lcd1602_send_string("224V      2.2kW");
+				lcd1602_goto_xy(0,1);
+				lcd1602_send_string("9.88A    396kWh");
+				
+				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut
+				{
+					STATE = MENU1;
+				}
+					
 		break;
 		
 		case MENU1:
@@ -325,7 +368,9 @@ void fsm_lcd_menu()
 					
 					lcd1602_goto_xy(0, 0);
 					lcd1602_send_string(">");	//fiksno, a djiram text za menije vertikalno
-					
+					lcd1602_goto_xy(0,1);
+					lcd1602_send_string(" ");	//prazno polje ispod ">"
+
 					lcd1602_goto_xy(1,0);
 					lcd1602_send_string(menu1_txt[kursor]);
 					if (kursor == KURSOR_JEDNOKRAT)			//jednokrat na prvoj liniji
@@ -370,7 +415,7 @@ void fsm_lcd_menu()
 					{
 						kursor--;
 						if(kursor < 0)		//min je 0, logicno
-						kursor = 2;
+						kursor = KURSOR_MENU1_MAX;
 					}
 					else if(kursor == KURSOR_PODSAT && ocitaj_jedan_taster(tasteri, TASTER_ENTER))
 					{
