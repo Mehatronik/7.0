@@ -151,7 +151,25 @@ int main(void)
 		tasteri = ocitaj_tastere();
 		
 		/* ocitava napon i struju */
-		adc_read();			//vrv je traljavo ovde ga stavljati ali nmvz
+		adc_read();			
+		
+		
+		sprintf(bafer, "%4d  ", adc_napon_raw);
+		uart_send_str(bafer);
+		sprintf(bafer, "%4d  ", adc_struja_raw);
+		uart_send_str(bafer);
+		
+		sprintf(bafer, "%4d  ", napon);
+		uart_send_str(bafer);
+		dtostrf(struja, 4, 1, bafer);
+		uart_send_str(bafer);
+		uart_send_str("  ");
+		dtostrf(snaga, 4, 1, bafer);
+		uart_send_str(bafer);
+		uart_send_str("  ");
+		dtostrf(energija, 5, 1, bafer);
+		uart_send_str(bafer);
+		uart_send_str("\n");
 		
 		/* bez obzira na STATE provera vremena treba da ide na 1s odnosno provera
 		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda (swithc-case) ne bi trebao da koci program */
@@ -163,15 +181,13 @@ int main(void)
 			
 			getTime(&vreme_datum.hr, &vreme_datum.min, &vreme_datum.s, &vreme_datum.am_pm, _24_hour_format);
 			
+			/* integraljenje(sumiranje) snage je enerija. E = P * t     */
+			energija += (snaga/3600.0);		//posto merim u kWh, a ovo ide na 1 sekund, a sat ima 3600s
+			
 			//sprintf(bafer, "%02d:%02d:%02d", vreme_datum.hr, vreme_datum.min, vreme_datum.s);
 			//uart_send_str(bafer);
 			//uart_send_str("\n"); //novi red
-			
-			sprintf(bafer, "%4d  ", napon);
-			uart_send_str(bafer);
-			dtostrf(struja, 3, 1, bafer);
-			uart_send_str(bafer);
-			uart_send_str("\n");
+		
 			
 			/* JEDNOKRATNI PERIOD PALJENJA */						
 			if (jednok_on_off==1)
@@ -209,7 +225,6 @@ int main(void)
 		fsm_lcd_menu();
 		
 
-		
     }
 }
 
@@ -342,6 +357,28 @@ void fsm_lcd_menu()
 				{
 					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
 					timer_disp_cycle = 0;	//start tajmera
+					
+					lcd1602_clear();
+					
+					sprintf(bafer, "%4dV", napon);
+					lcd1602_goto_xy(1,0);
+					lcd1602_send_string(bafer);
+					
+					dtostrf(struja, 4, 1, bafer);
+					lcd1602_goto_xy(1,1);
+					lcd1602_send_string(bafer);
+					lcd1602_send_string("A");
+					
+					dtostrf(snaga, 4, 1, bafer);
+					lcd1602_goto_xy(9,0);
+					lcd1602_send_string(bafer);
+					lcd1602_send_string("kW");
+					
+					/* dummy ispis */
+					//lcd1602_goto_xy(0,0);
+					//lcd1602_send_string("224V      2.2kW");
+					//lcd1602_goto_xy(0,1);
+					//lcd1602_send_string("9.88A    396kWh");
 				}
 				if (timer_disp_cycle > 4000)	//4 sekunde
 				{
@@ -349,14 +386,10 @@ void fsm_lcd_menu()
 					STATE = DISPL1;
 				}
 				
-				/* dummy ispis */
-				lcd1602_goto_xy(0,0);
-				lcd1602_send_string("224V      2.2kW");
-				lcd1602_goto_xy(0,1);
-				lcd1602_send_string("9.88A    396kWh");
 				
 				if ( ocitaj_jedan_taster(tasteri, TASTER_ENTER) )	//taster enter stisnut
 				{
+					displ_flag_shot = 1; //opet dozvolim, pri izlazku iz ovog stejta
 					STATE = MENU1;
 				}
 					

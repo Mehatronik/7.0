@@ -8,17 +8,15 @@
 #include "comm.h"
 #include "ad_konverzija.h"
 
+/* RAW vrednosti sa AD ulaza */
+uint16_t adc_napon_raw = 0;			
+uint16_t adc_struja_raw = 0;			
 
+/* obradjene vrednosti */
 uint16_t napon = 0;		//celobrojno u V
 float struja = 0;		//realno u A
-uint8_t struja_celob = 0;	//float ce biti rastavljen na dva inta da bi se mogao poslati preko uarta, tj. preko sprintf
-uint8_t struja_frakt = 0;
-
 float snaga = 0;		//realno u kW
-uint8_t snaga_celob = 0;
-uint8_t snaga_frakt = 0;
-
-uint16_t energija = 0;	//celobrojno u kwh
+float energija = 0;	//celobrojno u kwh
 
 uint8_t ad_kanal = 0;
 volatile uint8_t isr_adc = 0;
@@ -60,16 +58,17 @@ void adc_read()
 	
 		//upis ad konverzije oba kanala u odgovarajuce promenljive
 		if(ad_kanal == 0)
-			napon = (uint16_t)ADC;		//potrebno je jos skalirati u zavisnosti od Vref i ulaznog napona i dole isto za struju
+			adc_napon_raw = (uint16_t)ADC;		//potrebno je jos skalirati u zavisnosti od Vref i ulaznog napona i dole isto za struju
 		else if(ad_kanal == 1)
-			struja = (float)ADC;
+			adc_struja_raw = (uint16_t)ADC;
 	
 		//npr: napon 1023 = 280V
 		//     struja 1023 = 25A
-		napon = napon/3.65;
-		struja = struja/40.92;
-		//snaga = (napon * struja)/1000.0;	//kW
-	
+		napon = adc_napon_raw/3.65;
+		struja = adc_struja_raw/40.92;
+		snaga = (napon * struja)/1000.0;	//kW
+		//snaga se integrali(sumira) svaki sekund u main-u cime se racuna elektricna energija
+		
 		/**************************************************************************************************************/
 		ADCSRA &= ~(1<<ADEN);	//ISKLJUCIM ADC da bi promena u ADMUX bila sigurna, po preporuci iz datasheet-a
 	
