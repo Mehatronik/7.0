@@ -171,6 +171,10 @@ int main(void)
 		uart_send_str(bafer);
 		uart_send_str("\n");
 		
+		sprintf(bafer, "%d", DS3231_Read(ageoffsetREG));	//citam registar za kalibraciju u RTC 
+		uart_send_str(bafer);
+		uart_send_str("\n");
+		
 		/* bez obzira na STATE provera vremena treba da ide na 1s odnosno provera
 		   da li grejac treba biti ukljucen ili iskljucen. Donji deo koda (swithc-case) ne bi trebao da koci program */
 		if (flag_pc_int_pomocni)		//ide na 1 sekund
