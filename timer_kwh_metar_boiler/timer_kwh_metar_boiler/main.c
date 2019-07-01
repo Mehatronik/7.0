@@ -317,12 +317,13 @@ void fsm_lcd_menu()
 					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
 					timer_disp_cycle = 0;	//start tajmera
 				}
+				/* onemogucim meni ispis napona, struje.. za svrhe debagovanja
 				if (timer_disp_cycle > 7000)	//7 sekundi
 				{
 					displ_flag_shot = 1; //opet dozvolim, pri izlazku iz ovog stejta
 					STATE = DISPL2;
 				}
-						
+					*/	
 				if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
 				{
 					flag_pc_int = 0; //resetujem flag koji je u ISR
