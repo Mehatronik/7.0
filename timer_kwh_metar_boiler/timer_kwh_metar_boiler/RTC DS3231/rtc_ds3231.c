@@ -50,7 +50,7 @@ void DS3231_init()
 	
 	DS3231_Write(controlREG, 0x00);   //oscilator ON on BAT;  EOSC, BBSQW, CONV, RS2, RS1, INTCN, A2IE, A1IE = 0 (datasheet ds3231 za detalje)
 	DS3231_Write(statusREG, 0x00);	  //32khz out off;  1<<EN32kHz - ON
-	DS3231_Write(ageoffsetREG, (unsigned char)(-10));	//izmerio sam da kasni 0.98ppm (-1s na 12 dana). Svaki bit utice +/- 0.1ppm, a negativne vrednosti ubrzavaju vreme. Idealno bi sada trebao da brza 0.02ppm
+	DS3231_Write(ageoffsetREG, (unsigned char)(-24));	//negativne vrednosti ubrzavaju. Izmerio sam da svaki bit ima uticaj 0.042ppm. Izmereno odstupanje RTCa je -1ppm
 														//logika je 2s complement; jednostavno castujem, ili mogu reci:
 														//if offset <0 THEN offset = offset + 256. Ako su pozitivne vrednosti jednostavno upisem
 } 

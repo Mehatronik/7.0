@@ -4065,7 +4065,7 @@ void tasteri_init()
     18f6:	60 e0       	ldi	r22, 0x00	; 0
     18f8:	8f e0       	ldi	r24, 0x0F	; 15
     18fa:	0e 94 65 0c 	call	0x18ca	; 0x18ca <DS3231_Write>
-    18fe:	66 ef       	ldi	r22, 0xF6	; 246
+    18fe:	68 ee       	ldi	r22, 0xE8	; 232
     1900:	80 e1       	ldi	r24, 0x10	; 16
     1902:	0e 94 65 0c 	call	0x18ca	; 0x18ca <DS3231_Write>
     1906:	08 95       	ret
