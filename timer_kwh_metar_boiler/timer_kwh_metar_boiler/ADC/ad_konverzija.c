@@ -16,7 +16,7 @@ uint16_t adc_struja_raw = 0;
 uint16_t napon = 0;		//celobrojno u V
 float struja = 0;		//realno u A
 float snaga = 0;		//realno u kW
-float energija = 0;	//celobrojno u kwh
+float energija = 0;		//realno u kWh
 
 uint8_t ad_kanal = 0;
 volatile uint8_t isr_adc = 0;

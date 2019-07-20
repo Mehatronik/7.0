@@ -46,22 +46,27 @@ char bafer[20];
 uint8_t ukljuceno = 0;  //0=OFF 1=ON
 uint8_t tasteri = 0xFF;
 uint8_t STATE = DISPL1;	//pocetno stanje
-int8_t kursor = 0;
-uint8_t flag_pod_vremena = 1;
-uint8_t flag_pod_ONOFF = 1;
-uint8_t jednok_on_off = 0;	//flag za on/off jednokratnog perioda
+uint8_t displ_flag_shot = 1;	//inicijalno 1, pomocni flag kod uletanja u menije, da se samo prvi put izvrsava ispis, da ne djira bezveze
+int8_t kursor = 0;																				//TODO: ubaci drugu promenljivu za horizontalni kursor, da bi mogao da pamtis vertikalni, kada se vracas u prethodni meni da se ne resetuje
+//uint8_t flag_pod_vremena = 1;	//TODO: mislim da se ovde 3 "flag-shota" mogu svesti pod jednu promenljivu. EDIT: done.
+//uint8_t flag_pod_ONOFF = 1;
+uint8_t jednok_on_off = 0;	//za on/off jednokratnog perioda
 uint8_t jednok_se_desio = 0;
-uint8_t displ_flag_shot = 1;	//inicijalno 1
 
-const char menu1_txt[3][17]  = { "JEDNOKRATNO",
+
+//za dodavanje novih menije jednostavno se doda novi tekst, i definise redni broj kursora
+const char menu1_txt[][16]  = { "JEDNOKRATNO",
 								 "PODESI PERIOD  ",
-								 "PODESI SAT     "	};		
-						  
+								 "PODESI SAT     ",
+								 "TBC VAWWh ON-OF"	};		
+
+const uint8_t brojRedova = sizeof(menu1_txt) / sizeof(menu1_txt[1]) - 1;	//sa logikom gde je 0 prvi broj, zato -1
+
 /* mapiram vrednost kursora za menije, TREBA da se POKLAPA sa redosledom u gornjem nizu stringova !!!!!! */
 #define KURSOR_PODSAT    2
 #define KURSOR_PODONOF   1
 #define KURSOR_JEDNOKRAT 0
-#define KURSOR_MENU1_MAX 2		//max vroj kursora za MENI 1	
+#define KURSOR_MENU1_MAX	brojRedova		//max broj kursora za MENI 1. Za 3 reda teksa je ovo =2	
 	
 
 /************************** prototipovi funkcija ***************************************/
@@ -317,13 +322,13 @@ void fsm_lcd_menu()
 					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
 					timer_disp_cycle = 0;	//start tajmera
 				}
-				/* onemogucim meni ispis napona, struje.. za svrhe debagovanja
+				//onemogucim meni ispis napona, struje.. za svrhe debagovanja
 				if (timer_disp_cycle > 7000)	//7 sekundi
 				{
 					displ_flag_shot = 1; //opet dozvolim, pri izlazku iz ovog stejta
 					STATE = DISPL2;
 				}
-					*/	
+						
 				if(flag_pc_int)		//pc int usled signala koji dolazi sa SQW pin sa RTC modula; 1 sekund
 				{
 					flag_pc_int = 0; //resetujem flag koji je u ISR
@@ -358,10 +363,17 @@ void fsm_lcd_menu()
 		case DISPL2:
 				//ispisuje napon, struju, snagu... Smenjuje se periodicno sa DISPL1, uz pomoc tajmera
 				
-				if ( displ_flag_shot )	//samo prvi put kad se uleti
+				if(displ_flag_shot)	//startujem tajmer samo prvi put za ciklicno menjanje DIPL1 i DISPL2
 				{
-					displ_flag_shot = 0; //resetujem flag, i zabranim ponovni ulazak
+					displ_flag_shot = 0; //resetujem flag
 					timer_disp_cycle = 0;	//start tajmera
+				}
+				
+				if ( flag_prekid_100ms_VAkWh )	//Ispisujem napon, struju snagu, sa periodom 100ms, da nije zamrznut ispis vec da se vide promene
+				{
+					
+					flag_prekid_100ms_VAkWh = 0; //reset flaga
+					
 					
 					lcd1602_clear();
 					
@@ -484,9 +496,9 @@ void fsm_lcd_menu()
 		case POD_SAT:
 		
 					/* da ocita trenutno vreme samo prvi puta kada upadne u ovaj case	*/
-					if (flag_pod_vremena)
+					if (displ_flag_shot)
 					{
-						flag_pod_vremena = 0;
+						displ_flag_shot = 0;
 						snap_shot_vremena = vreme_datum;
 						sprintf(bafer, "%02d:%02d:%02d", snap_shot_vremena.hr, snap_shot_vremena.min, snap_shot_vremena.s);
 			
@@ -540,7 +552,7 @@ void fsm_lcd_menu()
 					{
 						/* vreme se upise tek kad se izleti iz ovog menija, tj. ono vreme koje stoji na ekranu ce biti upisano */
 						setTime(snap_shot_vremena.hr, snap_shot_vremena.min, snap_shot_vremena.s, am, _24_hour_format);
-						flag_pod_vremena = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
+						displ_flag_shot = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
@@ -549,7 +561,7 @@ void fsm_lcd_menu()
 					{
 						/* Vreme setujem samo ako je stisnut ENTER, ako je stisnuto NAZAD, vreme se ne dira, tj. ovde se ne dira */
 								//setTime(sanp_shot_vremena.hr, sanp_shot_vremena.min, sanp_shot_vremena.s, am, _24_hour_format);
-						flag_pod_vremena = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
+						displ_flag_shot = 1;	    //dozvolim ponovno citanje tr vremena kada se udje u ovaj case
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
@@ -560,9 +572,9 @@ void fsm_lcd_menu()
 		case POD_ON_OFF:																				
 					/* podesavanje perioda paljenja i gasenja */
 					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
-					if (flag_pod_ONOFF)
+					if (displ_flag_shot)
 					{
-						flag_pod_ONOFF = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
+						displ_flag_shot = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
 						
 						snap_vreme_paljenja = vreme_paljenja;	
 						snap_vreme_gasenja = vreme_gasenja;
@@ -636,14 +648,14 @@ void fsm_lcd_menu()
 						EEPROM_write(UGASI_HR_ADR, vreme_gasenja.hr);
 						EEPROM_write(UGASI_MIN_ADR, vreme_gasenja.min);
 						
-						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						displ_flag_shot = 1;			//dozvolim ponovni ispis
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
 					{
-						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						displ_flag_shot = 1;			//dozvolim ponovni ispis
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
@@ -656,9 +668,9 @@ void fsm_lcd_menu()
 					/* prakticno kopija POD-ON-OFF samo se u drugu promenljivu belezi, cak pozajmljujem i iste tmp promenljive */
 					/* podesavanje perioda paljenja i gasenja */
 					/* da ispise samo prvi puta kada upadne u ovaj case da ne djira bezveze	*/
-					if (flag_pod_ONOFF)
+					if (displ_flag_shot)
 					{
-						flag_pod_ONOFF = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
+						displ_flag_shot = 0;		//zabranjujem ponovni ispis sve dok je u ovom case-u. Dozvoljava se kada izleti iz njega
 						
 						snap_vreme_paljenja = jednokratno_paljenje;
 						snap_vreme_gasenja = jednokratno_gasenje;
@@ -732,14 +744,14 @@ void fsm_lcd_menu()
 						EEPROM_write(JEDNOK_UGASI_HR_ADR, jednokratno_gasenje.hr);
 						EEPROM_write(JEDNOK_UGASI_MIN_ADR, jednokratno_gasenje.min);
 						
-						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						displ_flag_shot = 1;			//dozvolim ponovni ispis
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
 					}
 					else if ( ocitaj_jedan_taster(tasteri, TASTER_NAZAD) )			//IZLAZ iz menija
 					{
-						flag_pod_ONOFF = 1;			//dozvolim ponovni ispis
+						displ_flag_shot = 1;			//dozvolim ponovni ispis
 						kursor = 0;					//reset kursora
 						lcd1602_cursor_blink(0);	//isklucim blinking cursor
 						STATE = MENU1;				//vraca se u prethodni meni
